@@ -11,16 +11,6 @@ import { usePagination } from '@/hooks/use-pagination';
 import { ShoppingCart, ArrowUpDown, SortAsc, Grid3X3, List, AlertCircle, Trash2 } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetClose,
-} from '../ui/sheet';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import CartImage from '../ui/CartImage';
@@ -30,20 +20,17 @@ import { useToast } from '@/hooks/use-toast';
 import SearchSuggestions from './SearchSuggestions';
 import { getHeaderClassName, getStickyHeaderClassName, getSpacerHeightClassName } from '@/utils/classNameHelpers';
 
-// Import the optimized ProductCard component
-import ProductCard from './ProductCard';
-
-// Cart Product Component
+// Cart Product Component (Representing items in the Customer's Order Basket)
 const CartProduct = ({ product, quantity }) => {
   const dispatch = useDispatch();
   const [inputQty, setInputQty] = useState(quantity);
-  const { _id, title, price, stock } = product;
+  const { _id, title, price } = product;
   const image = product.image || product.picture?.secure_url;
-  const isOutOfStock = product.isOutOfStock || stock <= 0;
-  const availableStock = product.availableStock !== undefined ? product.availableStock : stock;
+  
+  const isOutOfStock = product.isOutOfStock === true;
 
   const updateQuantity = (newQty) => {
-    if (!isOutOfStock && newQty !== quantity && newQty > 0 && newQty <= availableStock) {
+    if (!isOutOfStock && newQty !== quantity && newQty > 0) {
       setInputQty(newQty);
       dispatch(updateCartQuantity({ productId: _id, quantity: newQty }));
     }
@@ -65,7 +52,7 @@ const CartProduct = ({ product, quantity }) => {
   const handleIncrease = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isOutOfStock && inputQty < availableStock) {
+    if (!isOutOfStock) {
       updateQuantity(inputQty + 1);
     }
   };
@@ -97,13 +84,7 @@ const CartProduct = ({ product, quantity }) => {
           {isOutOfStock && (
             <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
               <AlertCircle className="w-3 h-3" />
-              <span>Out of Stock</span>
-            </div>
-          )}
-          {!isOutOfStock && product.quantityAdjusted && (
-            <div className="flex items-center gap-1 mt-1 text-xs text-orange-600">
-              <AlertCircle className="w-3 h-3" />
-              <span>Quantity adjusted to {availableStock}</span>
+              <span>Sold Out</span>
             </div>
           )}
         </div>
@@ -127,8 +108,7 @@ const CartProduct = ({ product, quantity }) => {
             <button
               type="button"
               onClick={handleIncrease}
-              className="w-8 h-8 flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={inputQty >= availableStock}
+              className="w-8 h-8 flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             >
               +
             </button>
@@ -137,7 +117,7 @@ const CartProduct = ({ product, quantity }) => {
         <button
           onClick={handleRemove}
           className="text-red-500 hover:text-red-700 text-sm font-medium hover:bg-red-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
-          title="Remove from cart"
+          title="Remove item"
         >
           <Trash2 size={16} />
           <span className="hidden sm:inline">Remove</span>
@@ -152,61 +132,32 @@ const ProductList = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Read initial values from URL params
-  const urlCategorySlug = searchParams.get('category') || 'all'; // Now using slug instead of ID
+  const urlCategorySlug = searchParams.get('category') || 'all';
   const urlPage = parseInt(searchParams.get('page') || '1', 10);
   const urlSearchQuery = searchParams.get('search') || '';
   
-  // Redux selectors - get categories first
   const { categories, status: categoriesStatus } = useSelector((s) => s.categories);
   
-  // Convert category slug to ID
-  // Find category by slug from Redux state
   const categoryBySlug = useMemo(() => {
     if (urlCategorySlug === 'all') return 'all';
-    if (!categories || categories.length === 0) return 'all'; // Wait for categories to load
+    if (!categories || categories.length === 0) return 'all';
     const found = categories.find(cat => cat.slug === urlCategorySlug);
     return found?._id || 'all';
   }, [urlCategorySlug, categories]);
 
-  // Determine if we're in search mode (must be defined early)
   const isSearchMode = urlSearchQuery.trim().length > 0;
 
-  // Local state for filters
   const [category, setCategory] = useState(categoryBySlug);
   const [page, setPage] = useState(urlPage);
   const [limit] = useState(24);
   const [stockFilter] = useState('active');
-  const [sortBy, setSortBy] = useState('az'); // Default to alphabetical (A-Z) sorting
+  const [sortBy] = useState('az'); 
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Update category when URL changes (but not if in search mode)
-  useEffect(() => {
-    if (!isSearchMode && categoryBySlug !== category) {
-      isSyncingFromURLRef.current = true; // Mark that we're syncing from URL
-      setCategory(categoryBySlug);
-    }
-  }, [categoryBySlug, isSearchMode, category]);
-
-  // Reset sync flag after category state has been updated
-  useEffect(() => {
-    if (isSyncingFromURLRef.current) {
-      const timer = setTimeout(() => {
-        isSyncingFromURLRef.current = false;
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [category]);
-
-  // Mark as initialized after categories are loaded
-  useEffect(() => {
-    if (categories && categories.length > 0 && !isInitialized) {
-      setIsInitialized(true);
-    }
-  }, [categories, isInitialized]);
-
-  // Local state for UI-specific functionality
+  // Optimized parallel quantity trackers
   const [quantities, setQuantities] = useState({});
+  const quantitiesRef = useRef({});
+
   const [addingProductId, setAddingProductId] = useState(null);
   const [gridType, setGridType] = useState('grid2');
   const [previewImage, setPreviewImage] = useState(null);
@@ -219,11 +170,39 @@ const ProductList = () => {
   const dispatch = useDispatch();
   const { openDrawer } = useAuthDrawer();
   const toast = useToast();
+
+  const setQuantitiesStateAndRef = (updater) => {
+    setQuantities((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      quantitiesRef.current = next;
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!isSearchMode && categoryBySlug !== category) {
+      isSyncingFromURLRef.current = true;
+      setCategory(categoryBySlug);
+    }
+  }, [categoryBySlug, isSearchMode, category]);
+
+  useEffect(() => {
+    if (isSyncingFromURLRef.current) {
+      const timer = setTimeout(() => {
+        isSyncingFromURLRef.current = false;
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [category]);
+
+  useEffect(() => {
+    if (categories && categories.length > 0 && !isInitialized) {
+      setIsInitialized(true);
+    }
+  }, [categories, isInitialized]);
   
-  // Update URL params when category changes
   const updateURLParams = useCallback((updates) => {
     const newParams = new URLSearchParams(searchParams);
-    
     Object.entries(updates).forEach(([key, value]) => {
       if (value === null || value === '' || value === 'all' || value === undefined) {
         newParams.delete(key);
@@ -231,56 +210,29 @@ const ProductList = () => {
         newParams.set(key, value.toString());
       }
     });
-    
-    // Reset page to 1 when category changes (unless explicitly set)
-    if (updates.category !== undefined) {
-      if (updates.page === undefined) {
-        newParams.set('page', '1');
-      }
+    if (updates.category !== undefined && updates.page === undefined) {
+      newParams.set('page', '1');
     }
-    
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
   
-  // Find category slug from ID (outside useEffect)
   const categorySlug = useMemo(() => {
     if (category === 'all') return 'all';
     const found = categories?.find(cat => cat._id === category);
     return found?.slug || 'all';
   }, [category, categories]);
 
-  // Sync URL params with state (but avoid loops)
   useEffect(() => {
-    // Skip sync if we're in search mode (search takes priority)
-    if (isSearchMode) {
-      return;
-    }
-    
-    // Skip sync if we're manually changing category
-    if (isCategoryChangingRef.current) {
-      isCategoryChangingRef.current = false;
-      return;
-    }
-    
-    // Skip sync if we're currently syncing from URL to prevent loops
-    if (isSyncingFromURLRef.current) {
-      return;
-    }
+    if (isSearchMode || isCategoryChangingRef.current || isSyncingFromURLRef.current) return;
     
     const currentCategorySlug = searchParams.get('category') || 'all';
     const currentPage = searchParams.get('page') || '1';
     
-    // Only sync if categorySlug (from state) doesn't match URL AND doesn't match categoryBySlug (from URL)
-    // This prevents syncing when we're in the middle of updating from URL
-    if (categorySlug === urlCategorySlug) {
-      // Already in sync with URL, no need to update
-      return;
-    }
+    if (categorySlug === urlCategorySlug) return;
     
     const updates = {};
     let hasUpdates = false;
     
-    // Compare slug instead of ID
     if (categorySlug !== currentCategorySlug) {
       updates.category = categorySlug === 'all' ? null : categorySlug;
       hasUpdates = true;
@@ -294,12 +246,9 @@ const ProductList = () => {
       hasUpdates = true;
     }
     
-    if (hasUpdates) {
-      updateURLParams(updates);
-    }
+    if (hasUpdates) updateURLParams(updates);
   }, [category, page, categorySlug, updateURLParams, searchParams, isSearchMode, urlCategorySlug]);
 
-  // Categories already fetched above
   const { 
     products: productList = [], 
     status, 
@@ -313,178 +262,95 @@ const ProductList = () => {
   const { user } = useSelector((s) => s.auth);
   const { items: cartItems = [] } = useSelector((s) => s.cart);
   
-  // Use search pagination if in search mode
   const displayPagination = useMemo(() => {
-    if (isSearchMode && searchPagination) {
-      return searchPagination;
-    }
-    return {
-      total: totalItems,
-      page: currentPage,
-      limit: limit,
-      totalPages: totalPages
-    };
+    if (isSearchMode && searchPagination) return searchPagination;
+    return { total: totalItems, page: currentPage, limit, totalPages };
   }, [isSearchMode, searchPagination, totalItems, currentPage, limit, totalPages]);
-  
-  // Calculate total quantity
+
   const totalQuantity = useMemo(() => 
     cartItems.reduce((sum, item) => sum + item.quantity, 0), 
     [cartItems]
   );
-
-  // Use pagination hook to eliminate pagination duplication
-  const pagination = usePagination({
-    initialPage: page,
-    initialLimit: limit,
-    totalItems: displayPagination.total || 0,
-    onPageChange: (newPage) => {
-      setPage(newPage);
-    }
-  });
-
-  // Memoized combined categories - filter to show only active categories
+  
   const combinedCategories = useMemo(() => {
-    // Filter to show only active categories (active === true)
     const activeCategories = (categories || []).filter(cat => cat.active === true);
     const allCategories = [
-      { _id: 'all', name: 'All', image: 'https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg' },
+      { _id: 'all', name: 'All Cuisines', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&h=150&q=80' },
       ...activeCategories
     ];
-    // Sort by position if position exists, otherwise keep original order
     return allCategories.sort((a, b) => {
-      if (a._id === 'all') return -1; // Keep 'All' at the beginning
+      if (a._id === 'all') return -1;
       if (b._id === 'all') return 1;
-      const posA = a.position ?? 999;
-      const posB = b.position ?? 999;
-      return posA - posB;
+      return (a.position ?? 999) - (b.position ?? 999);
     });
   }, [categories]);
 
-  // Products are now sorted on the backend, so we use them directly
-  // Use search results if in search mode, otherwise use regular product list
   const sortedProducts = useMemo(() => {
-    if (isSearchMode && searchResults && searchResults.length > 0) {
-      return searchResults.filter((product) => product && product._id);
-    }
-    // The backend already handles filtering, so we just need to ensure products exist and are valid
-    return productList.filter((product) => product && product._id);
+    const list = (isSearchMode && searchResults && searchResults.length > 0) ? searchResults : productList;
+    return list.filter((product) => product && product._id);
   }, [productList, isSearchMode, searchResults]);
 
-  // Scroll to top on page change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [page]);
 
-
-  // Fetch products when filters change (only if not in search mode)
   useEffect(() => {
     if (isSearchMode && urlSearchQuery.trim().length > 0) {
-      // Fetch search results immediately - search doesn't need categories
-      dispatch(searchProducts({ 
-        query: urlSearchQuery.trim(), 
-        limit: limit, 
-        page: page 
-      }));
-    } else if (!isSearchMode) {
-      // For "all" category, fetch immediately without waiting
-      // For specific categories, wait for categories to load
-      if (urlCategorySlug !== 'all' && !isInitialized) {
-        return; // Wait for categories to load
-      }
-      
-      // Use categoryBySlug to determine what to fetch (source of truth from URL)
+      dispatch(searchProducts({ query: urlSearchQuery.trim(), limit, page }));
+    } else {
       const categoryToFetch = categoryBySlug === 'all' ? null : categoryBySlug;
+      if (categoryToFetch && !isInitialized) return;
       
-      // Fetch regular products
-      const params = {
-        page,
-        limit,
-        stockFilter,
-        sortBy
-      };
-
-      // Add category only if not 'all'
-      if (categoryToFetch && categoryToFetch !== 'all') {
-        params.category = categoryToFetch;
-      }
-
+      const params = { page, limit, stockFilter, sortBy };
+      if (categoryToFetch) params.category = categoryToFetch;
       dispatch(fetchProducts(params));
     }
   }, [dispatch, page, limit, stockFilter, sortBy, categoryBySlug, isSearchMode, urlSearchQuery, isInitialized]);
 
-  // Fetch categories on mount and ensure they stay loaded
-  useEffect(() => {
-    dispatch(AllCategory(''));
-  }, [dispatch]);
-
-  // Ensure categories are always available (refetch if empty)
   useEffect(() => {
     if ((!categories || categories.length === 0) && categoriesStatus !== 'loading') {
       dispatch(AllCategory(''));
     }
-  }, [dispatch, categories, categoriesStatus]);
+  }, [dispatch]);
 
-  // Initialize quantities from cart items when cart loads
   useEffect(() => {
     if (cartItems && cartItems.length > 0) {
-      setQuantities((prev) => {
-        const updatedQuantities = { ...prev };
+      setQuantitiesStateAndRef((prev) => {
+        const updated = { ...prev };
         let hasChanges = false;
-        
         cartItems.forEach((item) => {
           const productId = item.product?._id || item.product;
-          if (productId && item.quantity) {
-            // Initialize quantity from cart if not already set by user
-            if (updatedQuantities[productId] === undefined || updatedQuantities[productId] === 0) {
-              updatedQuantities[productId] = item.quantity;
-              hasChanges = true;
-            }
+          if (productId && item.quantity && (updated[productId] === undefined || updated[productId] === 0)) {
+            updated[productId] = item.quantity;
+            hasChanges = true;
           }
         });
-        
-        return hasChanges ? updatedQuantities : prev;
+        return hasChanges ? updated : prev;
       });
     }
   }, [cartItems]);
 
-  // Initialize quantities when products change (set to 0 if not in cart)
   useEffect(() => {
     if (sortedProducts && sortedProducts.length > 0) {
-      setQuantities((prev) => {
-        const updatedQuantities = { ...prev };
+      setQuantitiesStateAndRef((prev) => {
+        const updated = { ...prev };
         let hasChanges = false;
-        
-        sortedProducts.filter(product => product && product._id).forEach((product) => {
-          // Only initialize if not already set (preserve cart quantities and user input)
-          if (updatedQuantities[product._id] === undefined) {
-            // Check if product is in cart
-            const cartItem = cartItems.find(item => {
-              const productId = item.product?._id || item.product;
-              return productId === product._id;
-            });
-            // Set quantity from cart if exists, otherwise 0
-            updatedQuantities[product._id] = cartItem?.quantity || 0;
+        sortedProducts.forEach((product) => {
+          if (product && product._id && updated[product._id] === undefined) {
+            const cartItem = cartItems.find(item => (item.product?._id || item.product) === product._id);
+            updated[product._id] = cartItem?.quantity || 0;
             hasChanges = true;
           }
         });
-        
-        // Only update state if there are new products to initialize
-        return hasChanges ? updatedQuantities : prev;
+        return hasChanges ? updated : prev;
       });
     }
   }, [sortedProducts, cartItems]);
 
-  // Scroll detection for both desktop and mobile
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
-    
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 100);
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', checkMobile);
@@ -494,13 +360,12 @@ const ProductList = () => {
     };
   }, []);
 
-  // Optimized handlers
-  const handleQuantityChange = useCallback((productId, value, stock) => {
+  const handleQuantityChange = useCallback((productId, value) => {
     if (value === '') {
-      return setQuantities((prev) => ({ ...prev, [productId]: '' }));
+      return setQuantitiesStateAndRef((prev) => ({ ...prev, [productId]: '' }));
     }
-    const newValue = Math.max(Math.min(parseInt(value), stock), 0);
-    setQuantities((prev) => ({ ...prev, [productId]: newValue }));
+    const newValue = Math.max(parseInt(value), 0);
+    setQuantitiesStateAndRef((prev) => ({ ...prev, [productId]: newValue }));
   }, []);
 
   const handleAddToCart = useCallback((product) => {
@@ -509,12 +374,10 @@ const ProductList = () => {
       return;
     }
 
-    // Get quantity from state, default to 0 if not set
-    const qty = parseInt(quantities[product._id]) || 0;
+    const qty = parseInt(quantitiesRef.current[product._id]) || 0;
     
-    // Ensure quantity is valid and within stock limits
-    if (qty <= 0 || qty > product.stock) {
-      toast.error(`Please select a valid quantity. Available stock: ${product.stock}`);
+    if (qty <= 0 || product.isOutOfStock) {
+      toast.error(`Please select a valid quantity. This dish is currently sold out.`);
       return;
     }
 
@@ -523,70 +386,40 @@ const ProductList = () => {
       productId: product._id,
       quantity: qty
     })).then(() => {
-      toast.success(`${qty} ${qty === 1 ? 'item' : 'items'} added to cart!`);
+      toast.success(`${qty}x ${product.title} added to your order!`);
     }).catch((error) => {
-      // If user is authenticated but getting error, it might be a cookie issue
       if (!user) {
         openDrawer('login');
       } else {
-        toast.error(error || 'Failed to add item to cart');
+        toast.error(error || 'Failed to add item to your order.');
       }
     }).finally(() => setAddingProductId(null));
-      }, [dispatch, navigate, quantities, user, openDrawer, toast]);
+  }, [dispatch, user, openDrawer, toast]);
 
-  // Memoized handlers for child components
   const handleCategorySelect = useCallback((categoryId) => {
-    // Set flag to prevent sync useEffect from interfering
     isCategoryChangingRef.current = true;
+    const catSlug = categoryId === 'all' ? 'all' : (categories?.find(cat => cat._id === categoryId)?.slug || 'all');
     
-    // Find category slug from ID
-    const categorySlug = categoryId === 'all' ? 'all' : 
-      (categories?.find(cat => cat._id === categoryId)?.slug || 'all');
-    
-    // Update category and page
     setCategory(categoryId);
     setPage(1);
     
-    // Create new URL params from current URL and explicitly remove search
     const currentParams = new URLSearchParams(window.location.search);
-    currentParams.delete('search'); // Explicitly remove search parameter
-    if (categorySlug === 'all') {
-      currentParams.delete('category'); // Remove category param for 'all'
-    } else {
-      currentParams.set('category', categorySlug);
-    }
-    currentParams.delete('page'); // Remove page to reset to 1
+    currentParams.delete('search');
+    if (catSlug === 'all') currentParams.delete('category');
+    else currentParams.set('category', catSlug);
+    currentParams.delete('page');
     
-    // Build new URL
-    const newSearch = currentParams.toString();
-    const newUrl = newSearch ? `/products?${newSearch}` : '/products';
-    
-    // Update URL using navigate to ensure it updates properly
-    navigate(newUrl, { replace: true });
-    
-    // Scroll to top when selecting a category
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [categories, dispatch, navigate]);
+    navigate(currentParams.toString() ? `/products?${currentParams.toString()}` : '/products', { replace: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [categories, navigate]);
 
-  const handleGridTypeChange = useCallback((type) => {
-    setGridType(type);
-  }, []);
-
-  const handleSortChange = useCallback((order) => {
-    setSortBy(order);
-  }, []);
-
+  const handleGridTypeChange = useCallback((type) => setGridType(type), []);
   const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
-    // Update URL params for page
     updateURLParams({ page: newPage === 1 ? null : newPage.toString() });
   }, [updateURLParams]);
   
-  const handlePreviewImage = useCallback((image) => {
-    setPreviewImage(image);
-  }, []);
+  const handlePreviewImage = useCallback((image) => setPreviewImage(image), []);
 
   const handleBuyNow = useCallback(() => {
     if (!user) {
@@ -597,53 +430,44 @@ const ProductList = () => {
       return;
     }
     setOpenCheckoutDialog(true);
-  }, [user, cartItems.length, navigate]);
+  }, [user, cartItems.length]);
   
   const loadingProducts = isSearchMode ? searchStatus === 'loading' : status === 'loading';
-  
+
   return (
     <div className="max-w-7xl lg:mx-auto lg:px-4 py-2 lg:py-8">
-      {/* Mobile Header - Only visible on mobile */}
+      {/* Mobile Header */}
       {isMobile && (
-        <>
-          {/* Logo Section - Hides on scroll */}
-          <div className={getHeaderClassName(isScrolled, isMobile)}>
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-center">
-                <Link to="/" className="flex items-center space-x-2">
-                  <div className="flex-shrink-0">
-                    <img
-                      src="/logo.jpeg"
-                      alt="GULTRADERS Logo"
-                      className="h-8 w-auto object-contain"
-                    />
-                  </div>
-                  <div>
-                    <div className="text-base font-semibold text-primary">GULTRADERS</div>
-                  </div>
-                </Link>
-              </div>
+        <div className={getHeaderClassName(isScrolled, isMobile)}>
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-center">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="flex-shrink-0">
+                  <img src="/logo.jpeg" alt="brgrhut Logo" className="h-8 w-auto object-contain" />
+                </div>
+                <div>
+                  <div className="text-base font-bold tracking-tight text-primary">brgrhut</div>
+                </div>
+              </Link>
             </div>
           </div>
-
-        </>
+        </div>
       )}
       
       {/* Fixed Categories Container */}
       <div className={getStickyHeaderClassName(isMobile, isScrolled)}>
         <div className="max-w-7xl lg:mx-auto">
-          {/* Search Input - Mobile only, above categories */}
           {isMobile && (
             <div className="px-3 sm:px-4 pt-3 pb-2">
               <SearchSuggestions
-                placeholder="Search products..."
+                placeholder="Craving something? Search the menu..."
                 className="w-full"
                 inputClassName="w-full"
+                aria-label="Search menu items"
               />
             </div>
           )}
           
-          {/* Category Swiper */}
           {combinedCategories && combinedCategories.length > 0 ? (
             <CategorySwiper
               categories={combinedCategories}
@@ -651,7 +475,6 @@ const ProductList = () => {
               onCategorySelect={handleCategorySelect}
             />
           ) : (
-            // Show placeholder or loading state for categories
             <div className="mt-4 pb-6">
               <div className="grid grid-cols-4 lg:grid-cols-8 gap-2">
                 {[...Array(8)].map((_, i) => (
@@ -666,12 +489,11 @@ const ProductList = () => {
         </div>
       </div>
 
-      {/* Spacer to prevent content from going under fixed header */}
+      {/* Spacer */}
       <div className={getSpacerHeightClassName(isMobile, isScrolled)}></div>
 
-
-      {/* Product Grid */}
-      <div className={isMobile ? "mt-2" : "mt-2"}>
+      {/* Menu / Food Grid */}
+      <div className="mt-2">
         <ProductGrid
           products={sortedProducts}
           loading={loadingProducts}
@@ -685,15 +507,15 @@ const ProductList = () => {
         />
       </div>
 
-      {/* Search Results Header */}
+      {/* Menu Search Results Header */}
       {isSearchMode && (
         <div className="px-2 sm:px-0 mb-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">
-              Search Results for &quot;{urlSearchQuery}&quot;
+              Dishes matching &quot;{urlSearchQuery}&quot;
               {displayPagination.total > 0 && (
                 <span className="text-sm font-normal text-gray-500 ml-2">
-                  ({displayPagination.total} {displayPagination.total === 1 ? 'product' : 'products'})
+                  ({displayPagination.total} {displayPagination.total === 1 ? 'item' : 'items'} found)
                 </span>
               )}
             </h2>
@@ -703,7 +525,7 @@ const ProductList = () => {
                 newParams.delete('search');
                 setSearchParams(newParams);
               }}
-              className="text-sm text-primary hover:text-primary/80"
+              className="text-sm text-primary hover:text-primary/80 font-medium"
             >
               Clear Search
             </button>
@@ -729,7 +551,7 @@ const ProductList = () => {
           onClick={() => setPreviewImage(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="Product image preview"
+          aria-label="Dish preview"
         >
           <div
             className="relative w-full max-w-5xl max-h-[90vh] flex items-center justify-center"
@@ -760,13 +582,13 @@ const ProductList = () => {
         </div>
       )}
 
-      {/* WhatsApp Button */}
+      {/* Live Order Support Button */}
       <div className="fixed animate-bounce bottom-18 lg:bottom-5 right-0 lg:right-2 z-50">
         <Link
-          to="https://wa.me/923114000096?text=Hi%20How%20Are%20you%20?"
+          to="https://wa.me/923114000096?text=Hi%20brgrhut!%20I'd%20like%20to%20place%20an%20order."
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Contact us on WhatsApp"
+          aria-label="Order support on WhatsApp"
         >
           <img
             className="w-14 h-14"
@@ -779,12 +601,12 @@ const ProductList = () => {
         </Link>
       </div>
 
-      {/* Checkout Dialog - Professional Design */}
+      {/* Fast Checkout Dialog */}
       <Dialog open={openCheckoutDialog} onOpenChange={setOpenCheckoutDialog}>
         <DialogContent className="w-[95vw] max-w-full sm:w-[92vw] md:w-[88vw] lg:w-[92vw] lg:max-w-7xl xl:max-w-[90vw] h-[90vh] sm:h-[88vh] md:h-[85vh] lg:h-[90vh] overflow-hidden p-0 bg-transparent border-0 shadow-2xl flex flex-col m-2 sm:m-4">
           <DialogHeader className="sr-only">
-            <DialogTitle>Checkout</DialogTitle>
-            <DialogDescription>Complete your order</DialogDescription>
+            <DialogTitle>Order Checkout</DialogTitle>
+            <DialogDescription>Review your items and confirm delivery details</DialogDescription>
           </DialogHeader>
           <Checkout closeModal={() => setOpenCheckoutDialog(false)} />
         </DialogContent>

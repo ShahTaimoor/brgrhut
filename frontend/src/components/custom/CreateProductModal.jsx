@@ -23,7 +23,6 @@ const CreateProductModal = ({
       const result = productSchema.safeParse(formData);
       if (!result.success) {
         const newErrors = {};
-        // Safely access error.errors
         if (result.error && result.error.errors && Array.isArray(result.error.errors)) {
           result.error.errors.forEach((err) => {
             if (err && err.path && Array.isArray(err.path) && err.path.length > 0 && err.message) {
@@ -65,7 +64,6 @@ const CreateProductModal = ({
     const result = productSchema.safeParse(formData);
     if (!result.success) {
       const newErrors = {};
-      // Safely access error.errors
       if (result.error && result.error.errors && Array.isArray(result.error.errors)) {
         result.error.errors.forEach((err) => {
           if (err && err.path && Array.isArray(err.path) && err.path.length > 0 && err.message) {
@@ -83,29 +81,32 @@ const CreateProductModal = ({
   if (!showCreateForm) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="bg-white border-b border-gray-100 px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center flex-shrink-0">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 flex justify-between items-center flex-shrink-0">
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Create New Product</h2>
-            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Add a new product to your catalog</p>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Add New Dish to Menu</h2>
+            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Cook up a brand new item for your food catalog</p>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-900 rounded-full h-7 w-7 sm:h-8 sm:w-8 p-0 flex-shrink-0 ml-2"
+            className="text-gray-400 hover:text-gray-900 rounded-full h-8 w-8 p-0 flex-shrink-0 ml-2 hover:bg-gray-100 transition-colors"
           >
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
-        <div className="p-3 sm:p-6 overflow-y-auto flex-1">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Form Body */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Item Title */}
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
-                  Product Title <span className="text-red-500">*</span>
+                  Dish / Item Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -113,8 +114,8 @@ const CreateProductModal = ({
                   value={formData.title}
                   onChange={handleChange}
                   onBlur={() => handleBlur('title')}
-                  placeholder="Enter product title"
-                  className={`h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg ${
+                  placeholder="e.g., Double Patty Smash Burger"
+                  className={`h-11 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 rounded-xl ${
                     errors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''
                   }`}
                 />
@@ -123,9 +124,10 @@ const CreateProductModal = ({
                 )}
               </div>
 
+              {/* Pricing */}
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-sm font-semibold text-gray-700">
-                  Price (PKR) <span className="text-red-500">*</span>
+                  Price (Rs.) <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="price"
@@ -135,7 +137,7 @@ const CreateProductModal = ({
                   onChange={handleChange}
                   onBlur={() => handleBlur('price')}
                   placeholder="0.00"
-                  className={`h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg ${
+                  className={`h-11 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 rounded-xl ${
                     errors.price ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''
                   }`}
                 />
@@ -145,9 +147,10 @@ const CreateProductModal = ({
               </div>
             </div>
 
+            {/* Recipe Details */}
             <div className="space-y-2">
               <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                Description <span className="text-red-500">*</span>
+                Ingredients & Description <span className="text-red-500">*</span>
               </Label>
               <Textarea
                 id="description"
@@ -155,9 +158,9 @@ const CreateProductModal = ({
                 value={formData.description}
                 onChange={handleChange}
                 onBlur={() => handleBlur('description')}
-                placeholder="Describe your product..."
+                placeholder="List key ingredients, cooking details, and allergen flags..."
                 rows={4}
-                className={`border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg resize-none min-h-[100px] ${
+                className={`border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 rounded-xl resize-none min-h-[110px] ${
                   errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''
                 }`}
               />
@@ -166,9 +169,10 @@ const CreateProductModal = ({
               )}
             </div>
 
+            {/* Serving Stock */}
             <div className="space-y-2">
               <Label htmlFor="stock" className="text-sm font-semibold text-gray-700">
-                Stock Quantity <span className="text-red-500">*</span>
+                Servings Available <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="stock"
@@ -177,8 +181,8 @@ const CreateProductModal = ({
                 value={formData.stock}
                 onChange={handleChange}
                 onBlur={() => handleBlur('stock')}
-                placeholder="Enter stock quantity"
-                className={`h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg ${
+                placeholder="How many servings can the kitchen prepare?"
+                className={`h-11 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 rounded-xl ${
                   errors.stock ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''
                 }`}
               />
@@ -187,29 +191,30 @@ const CreateProductModal = ({
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100 mt-2">
+            {/* Action Bar */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100 mt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="flex-1 h-11 border-gray-200 text-gray-700 hover:bg-gray-50"
+                className="flex-1 h-11 border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl font-medium"
               >
-                Cancel
+                Nevermind
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                className="flex-1 h-11 bg-amber-500 hover:bg-amber-600 text-white transition-all rounded-xl font-medium shadow-sm hover:shadow active:scale-[0.98]"
               >
                 {isSubmitting ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-center">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Creating...
+                    Cooking Up...
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-center">
                     <Plus className="h-4 w-4" />
-                    Create Product
+                    Add Item to Menu
                   </div>
                 )}
               </Button>
@@ -222,4 +227,3 @@ const CreateProductModal = ({
 };
 
 export default CreateProductModal;
-

@@ -63,13 +63,12 @@ const getPendingOrderCount = async () => {
   }
 };
 
-
 // Update Order Status
-const updateOrderStatus = async ({ orderId, status, packerName }) => {
+const updateOrderStatus = async ({ orderId, status, chefOrPackerName }) => {
   try {
     const axiosResponse = await axiosInstance.put(
       `/update-order-status/${orderId}`,
-      { status, packerName },
+      { status, chefOrPackerName }, // Swapped parameter key to track kitchen staff/packers
       { headers: { 'Content-Type': 'application/json' } }
     );
     return axiosResponse.data;

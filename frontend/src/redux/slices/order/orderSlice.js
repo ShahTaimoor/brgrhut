@@ -30,19 +30,17 @@ export const addOrder = createAsyncThunk(
   }
 );
 
-
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateStatus',
-  async ({ orderId, status, packerName }, thunkAPI) => {
+  async ({ orderId, status, chefOrPackerName }, thunkAPI) => { // Updated to accept chefOrPackerName
     try {
-      const res = await orderService.updateOrderStatus({ orderId, status, packerName });
-      return res; // Return the full response
+      const res = await orderService.updateOrderStatus({ orderId, status, chefOrPackerName });
+      return res; 
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
   }
 );
-
 
 // Fetch Orders (User)
 export const fetchOrders = createAsyncThunk(
@@ -176,7 +174,6 @@ const ordersSlice = createSlice({
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Remove the deleted order from the orders array
         state.orders = state.orders.filter(order => order._id !== action.payload.orderId);
       })
       .addCase(deleteOrder.rejected, (state, action) => {
@@ -188,7 +185,6 @@ const ordersSlice = createSlice({
       })
       .addCase(bulkDeleteOrders.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Remove all deleted orders from the orders array
         state.orders = state.orders.filter(order => !action.payload.orderIds.includes(order._id));
       })
       .addCase(bulkDeleteOrders.rejected, (state, action) => {

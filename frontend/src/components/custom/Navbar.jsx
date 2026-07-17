@@ -24,7 +24,7 @@ import Checkout from "../../pages/Checkout";
 import { useAuthDrawer } from "../../contexts/AuthDrawerContext";
 import SearchSuggestions from "./SearchSuggestions";
 
-// Cart Product Component
+// Cart Product Component (Representing items in the food order)
 const CartProduct = ({ product, quantity }) => {
   const dispatch = useDispatch();
   const [inputQty, setInputQty] = useState(quantity);
@@ -114,13 +114,13 @@ const Navbar = () => {
   const [openCheckoutDialog, setOpenCheckoutDialog] = useState(false);
   const { openDrawer } = useAuthDrawer();
 
-  // Calculate total quantity
+  // Calculate total quantity of food items
   const totalQuantity = useMemo(() => 
     cartItems.reduce((sum, item) => sum + item.quantity, 0), 
     [cartItems]
   );
 
-  // Fetch cart when user is authenticated (on mount and when user changes)
+  // Fetch cart/order details
   useEffect(() => {
     if (user) {
       dispatch(fetchCart());
@@ -128,7 +128,6 @@ const Navbar = () => {
   }, [dispatch, user]);
 
   useEffect(() => {
-    // Check if user is on mobile/tablet (< 1024px)
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
@@ -136,14 +135,12 @@ const Navbar = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
-    // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallButton(true);
     };
 
-    // Listen for the appinstalled event
     const handleAppInstalled = () => {
       setShowInstallButton(false);
       setDeferredPrompt(null);
@@ -152,7 +149,6 @@ const Navbar = () => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Check if app is already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setShowInstallButton(false);
     }
@@ -164,9 +160,7 @@ const Navbar = () => {
     };
   }, []);
 
-  // Mobile-only scroll detection
   useEffect(() => {
-    // Only enable scroll detection on mobile
     if (window.innerWidth < 1024) {
       const handleScroll = () => {
         setIsScrolled(window.scrollY > 100);
@@ -203,49 +197,76 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm hidden lg:block`}>
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Left side: Logo + Brand */}
+          
+          {/* Left side: Beautiful Illustrated Burger SVG + Brand (brgrhut) */}
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
               <div className="flex-shrink-0">
-                <img
-                  src="/logo.jpeg"
-                  alt="GULTRADERS Logo"
-                  className="h-10 w-auto object-contain"
-                />
+                <svg 
+                  className="h-10 w-10 drop-shadow-sm" 
+                  viewBox="0 0 120 120" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Top Bun */}
+                  <path d="M15 52C15 25 35 15 60 15C85 15 105 25 105 52H15Z" fill="#D97706" />
+                  
+                  {/* Sesame Seeds */}
+                  <circle cx="42" cy="28" r="1.8" fill="#FEF3C7" />
+                  <circle cx="60" cy="24" r="1.8" fill="#FEF3C7" />
+                  <circle cx="78" cy="30" r="1.8" fill="#FEF3C7" />
+                  <circle cx="50" cy="38" r="1.8" fill="#FEF3C7" />
+                  <circle cx="70" cy="36" r="1.8" fill="#FEF3C7" />
+                  
+                  {/* Fresh Tomato Slices */}
+                  <rect x="12" y="56" width="96" height="6" rx="3" fill="#EF4444" />
+                  
+                  {/* Melted Cheese Slice */}
+                  <path d="M14 66H106L98 76L82 66L68 78L50 66L34 76L26 66" fill="#F59E0B" />
+                  
+                  {/* Flame Grilled Beef Patty */}
+                  <rect x="16" y="74" width="88" height="10" rx="5" fill="#451A03" />
+                  
+                  {/* Wavy Fresh Lettuce */}
+                  <path d="M12 87C20 90 30 84 40 87C50 90 60 84 70 87C80 90 90 84 108 87" stroke="#22C55E" strokeWidth="5" strokeLinecap="round" />
+                  
+                  {/* Bottom Bun */}
+                  <path d="M16 95H104C104 103 92 108 60 108C28 108 16 103 16 95Z" fill="#D97706" />
+                </svg>
               </div>
               <div className="hidden sm:block">
-                <div className="text-base font-semibold text-gray-900">GULTRADERS</div>
-                <div className="text-xs text-gray-500">Wholesale Dealers</div>
+                <div className="text-xl font-bold tracking-tight text-red-600 leading-none">brgrhut</div>
+                <div className="text-[9px] uppercase tracking-wider text-amber-500 font-extrabold mt-0.5">Flame Grilled Burgers</div>
               </div>
             </Link>
           </div>
 
-          {/* Center: Search Bar */}
+          {/* Center: Search Bar configured for food menu items */}
           <div className="flex-1 max-w-2xl mx-4 hidden md:block">
             <SearchSuggestions
-              placeholder="Search products..."
+              placeholder="Search menu, burgers, sides, drinks..."
               className="w-full"
-              inputClassName="w-full"
+              inputClassName="w-full focus:ring-red-500"
             />
           </div>
 
-          {/* Right side: Contact, Cart, Auth */}
+          {/* Right side: Contact, Food Bag, Auth */}
           <div className="flex items-center space-x-4 flex-shrink-0">
-            {/* Contact Number */}
+            {/* Contact / Order Hotline */}
             <div className="hidden md:flex items-center">
               <div className="text-sm text-gray-700">
-                <span className="font-medium text-gray-600">Contact:</span>
-                <span className="ml-2 text-primary font-semibold text-base">+92 311 4000096</span>
+                <span className="font-medium text-gray-600">Order Hotline:</span>
+                <span className="ml-2 text-red-600 font-semibold text-base">+92 311 4000096</span>
               </div>
             </div>
 
-            {/* Cart */}
+            {/* Cart Button (Stylized as Order Bag) */}
             <Sheet>
               <SheetTrigger asChild>
                 <button className="relative p-2 bg-white rounded-full shadow-lg hover:shadow-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 hover:scale-110">
                   <ShoppingCart size={20} className="text-gray-700" />
                   {totalQuantity > 0 && (
-                    <Badge className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 bg-primary text-white border-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full animate-pulse">
+                    <Badge className="absolute -top-1 -right-1 text-xs px-1.5 py-0.5 bg-red-600 text-white border-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full animate-pulse">
                       {totalQuantity}
                     </Badge>
                   )}
@@ -253,9 +274,9 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent className="w-full sm:w-[400px]">
                 <SheetHeader>
-                  <SheetTitle className="text-lg font-semibold text-gray-900">Shopping Cart</SheetTitle>
+                  <SheetTitle className="text-lg font-bold text-gray-900">Your Order Bag</SheetTitle>
                   <SheetDescription className="text-gray-600">
-                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'} in your cart
+                    {totalQuantity} {totalQuantity === 1 ? 'delicious item' : 'delicious items'} ready to go!
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 max-h-[60vh] overflow-y-auto">
@@ -272,7 +293,7 @@ const Navbar = () => {
                   ) : (
                     <div className="text-center py-8">
                       <ShoppingCart size={48} className="mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-500">Your cart is empty</p>
+                      <p className="text-gray-500">Your bag is empty. Let's add some burgers! 🍔</p>
                     </div>
                   )}
                 </div>
@@ -281,9 +302,9 @@ const Navbar = () => {
                     <Button
                       onClick={handleBuyNow}
                       disabled={cartItems.length === 0}
-                      className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5"
+                      className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors"
                     >
-                      Proceed to Checkout
+                      Place Order
                     </Button>
                   </SheetClose>
                 </SheetFooter>
@@ -294,9 +315,9 @@ const Navbar = () => {
             {user == null ? (
               <button
                 onClick={() => openDrawer()}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-md text-white bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
               >
-                Sign Up
+                Sign In
               </button>
             ) : (
               <LogoutToggle user={user} />
@@ -305,7 +326,6 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
-
 
     {/* Checkout Dialog */}
     <Dialog open={openCheckoutDialog} onOpenChange={setOpenCheckoutDialog}>

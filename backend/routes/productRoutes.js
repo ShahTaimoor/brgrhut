@@ -6,7 +6,7 @@ const validate = require('../middleware/validate');
 const {
   createProductSchema,
   updateProductSchema,
-  updateProductStockSchema,
+  updateProductAvailabilitySchema, // Swapped from stock validator schema
   bulkUpdateFeaturedSchema,
   getProductsQuerySchema,
   searchQuerySchema,
@@ -41,12 +41,13 @@ router.put(
   productController.updateProduct
 );
 
+// Swapped endpoint path and mapped controller method to handle kitchen item availability
 router.put(
-  '/update-product-stock/:id',
+  '/update-product-availability/:id',
   isAuthorized,
   isAdminOrSuperAdmin,
-  validate(updateProductStockSchema),
-  productController.updateProductStock
+  validate(updateProductAvailabilitySchema),
+  productController.updateProductAvailability
 );
 
 router.put(
@@ -87,9 +88,10 @@ router.get(
   productController.getSingleProduct
 );
 
+// Swapped endpoint path and controller to fetch the sold-out dishes count
 router.get(
-  '/low-stock-count',
-  productController.getLowStockCount
+  '/sold-out-count',
+  productController.getSoldOutCount
 );
 
 module.exports = router;

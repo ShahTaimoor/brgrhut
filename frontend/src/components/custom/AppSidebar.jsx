@@ -2,24 +2,17 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { fetchOrdersAdmin, fetchPendingOrderCount, updateOrderStatus } from "@/redux/slices/order/orderSlice";
 import { fetchLowStockCount } from "@/redux/slices/products/productSlice";
-import attendanceService from "@/services/attendanceService";
 import { useAuth } from "@/hooks/use-auth";
 import {
   FilePlus2Icon,
   ChartBarStacked,
   GalleryVerticalEnd,
   PackageSearch,
-  ChartBar,
   UserCheck,
   ShoppingCart,
   UserCog,
-  ImageIcon,
   LogOut,
-  Settings,
-  Bell,
-  ChevronRight,
   AlertTriangle,
-  CalendarCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,62 +30,39 @@ import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useEffect, useState } from "react";
 
-
-// Sidebar links with enhanced structure
 const items = [
   { 
-    title: "All Products", 
+    title: "All Food Items", 
     url: "/admin/dashboard/all-products", 
     icon: GalleryVerticalEnd, 
-    description: "Manage Products",
+    description: "Manage Food Items",
     category: "main"
   },
   { 
-    title: "Create Product", 
+    title: "Add New Food", 
     url: "/admin/dashboard", 
     icon: FilePlus2Icon, 
-    description: "Add New Product",
+    description: "Add New Menu Item",
     category: "main"
   },
   { 
-    title: "Categories", 
+    title: "Menu Categories", 
     url: "/admin/category", 
     icon: ChartBarStacked, 
-    description: "Product Categories",
+    description: "Food Categories",
     category: "main"
   },
   { 
-    title: "Media Library", 
-    url: "/admin/dashboard/media", 
-    icon: ImageIcon, 
-    description: "Manage Assets",
-    category: "main"
-  },
-  { 
-    title: "Attendance", 
-    url: "/admin/dashboard/attendance", 
-    icon: CalendarCheck, 
-    description: "Employee Attendance",
-    category: "main"
-  },
-  { 
-    title: "Top Performers", 
-    url: "/admin/dashboard/attendance-performance", 
-    icon: ChartBar, 
-    description: "Attendance Stats",
-    category: "main"
-  },
-  { 
-    title: "Low Stock", 
+    title: "Low Ingredients", 
     url: "/admin/dashboard/low-stock", 
     icon: AlertTriangle, 
     showBadge: true,
     badgeKey: "lowStock",
-    description: "Low Stock Products",
+    description: "Low Ingredient Items",
     category: "main"
   },
   { 
-    title: "Orders", 
+    title: "Live Orders", 
     url: "/admin/dashboard/orders", 
     icon: PackageSearch, 
     showBadge: true, 
@@ -101,17 +71,17 @@ const items = [
     category: "orders"
   },
   { 
-    title: "Users", 
+    title: "Customers", 
     url: "/admin/dashboard/users", 
     icon: UserCheck, 
-    description: "User Management",
+    description: "Customer List & Info",
     category: "users"
   },
   { 
-    title: "Customer View", 
+    title: "Customer Storefront", 
     url: "/", 
     icon: ShoppingCart, 
-    description: "View as Customer",
+    description: "View Front End",
     category: "external"
   },
 ];
@@ -119,7 +89,6 @@ const items = [
 export function AppSidebar() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const { orders } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.auth);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -128,7 +97,6 @@ export function AppSidebar() {
   const { handleLogout } = useAuth();
   const { setOpenMobile, isMobile } = useSidebar();
 
-  // Fetch orders and low stock count after login
   useEffect(() => {
     if (user) {
       dispatch(fetchOrdersAdmin());
@@ -137,7 +105,6 @@ export function AppSidebar() {
     }
   }, [dispatch, user]);
 
-  // Handle logout with loading state
   const onLogout = async () => {
     setLoading(true);
     try {
@@ -147,248 +114,225 @@ export function AppSidebar() {
     }
   };
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    // ...existing code...
-    await dispatch(updateOrderStatus({ orderId, status: newStatus, packerName: packer })).unwrap();
-    dispatch(fetchPendingOrderCount());
-  };
-
   if (message) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <div className="text-center">
-          <p className="text-red-500 font-semibold">{message}</p>
-        </div>
+      <div className="h-screen flex justify-center items-center bg-white">
+        <p className="text-red-500 font-semibold">{message}</p>
       </div>
     );
   }
 
   return (
-    <Sidebar className="border-r border-gray-100 bg-gray-50/50 shadow-lg font-['Inter',sans-serif]">
-      {/* Modern Header with User Info */}
-      <SidebarHeader className="p-3 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm">
-        {/* User Profile Section */}
+    <Sidebar className="border-r border-zinc-200 bg-zinc-50/80 shadow-sm font-['Inter',sans-serif]">
+      {/* Profile Header */}
+      <SidebarHeader className="p-4 border-b border-zinc-200/80 bg-white">
         {user && (
-          <div className="flex items-center gap-2.5">
-            <Avatar className="w-8 h-8 border border-gray-300 shadow-sm">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-9 h-9 border-2 border-orange-100 shadow-sm">
               <AvatarImage src={user.avatar} />
-              <AvatarFallback className="bg-gray-100 text-gray-700 text-xs font-bold">
+              <AvatarFallback className="bg-orange-50 text-orange-600 text-xs font-bold">
                 {user.name?.charAt(0) || 'A'}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-gray-900 font-bold text-sm truncate" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em', fontWeight: 600 }}>
-                {user.name || 'Admin'}
+              <p className="text-zinc-900 font-semibold text-sm truncate tracking-tight">
+                {user.name || 'Hut Admin'}
               </p>
-              <p className="text-gray-400 text-[11px] truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {user.email}
+              <p className="text-orange-600 text-[10px] truncate mt-0.5 font-bold uppercase tracking-wider">
+                Store Manager
               </p>
             </div>
           </div>
         )}
       </SidebarHeader>
 
-      <SidebarContent className="p-2.5 bg-transparent">
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <div className="mb-3">
-            <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em] mb-1.5 px-2.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Main Navigation
-            </h3>
-            <SidebarMenu className="space-y-0.5">
-              {items.filter(item => item.category === 'main').map((item) => {
-                const isActive = pathname === item.url;
-                const Icon = item.icon;
+      <SidebarContent className="p-3 space-y-4 bg-transparent">
+        {/* Main Navigation Group */}
+        <SidebarGroup className="p-0">
+          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.12em] mb-2 px-3">
+            Main Navigation
+          </h3>
+          <SidebarMenu className="space-y-1">
+            {items.filter(item => item.category === 'main').map((item) => {
+              const isActive = pathname === item.url;
+              const Icon = item.icon;
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={`group relative transition-all duration-150 rounded-lg ${
-                        isActive
-                          ? "bg-white text-blue-600 shadow-md border-l-4 border-blue-600"
-                          : "text-gray-600 hover:bg-white/80 hover:text-gray-900 hover:shadow-sm"
-                      }`}
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={`group relative transition-all duration-150 rounded-xl h-10 ${
+                      isActive
+                        ? "bg-orange-500 text-white font-semibold shadow-md shadow-orange-500/10"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
+                    }`}
+                  >
+                    <Link 
+                      to={item.url} 
+                      className="flex items-center gap-3 p-2.5 w-full"
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
                     >
-                      <Link 
-                        to={item.url} 
-                        className="flex items-center gap-2.5 p-2 w-full relative"
-                        onClick={() => {
-                          if (isMobile) {
-                            setOpenMobile(false);
-                          }
-                        }}
-                      >
-                        <Icon className={`w-4 h-4 transition-all ${
+                      <Icon className={`w-4 h-4 transition-all ${
+                        isActive 
+                          ? "text-white scale-110" 
+                          : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
+                      }`} />
+                      <span className="text-xs font-medium">{item.title}</span>
+                      
+                      {item.showBadge && item.badgeKey === "lowStock" && lowStockCount > 0 && (
+                        <Badge className={`text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center ${
                           isActive 
-                            ? "text-blue-600 scale-110" 
-                            : "text-gray-400 group-hover:text-gray-700 group-hover:scale-105"
-                        }`} />
-                        <span className="text-sm font-semibold" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.015em' }}>
-                          {item.title}
-                        </span>
-                        
-                        {/* Badge for Low Stock in main navigation */}
-                        {item.showBadge && item.badgeKey === "lowStock" && lowStockCount > 0 && (
-                          <Badge className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-                            {lowStockCount}
-                          </Badge>
-                        )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </div>
+                            ? "bg-white text-orange-600" 
+                            : "bg-orange-100 text-orange-700 group-hover:bg-orange-200"
+                        }`}>
+                          {lowStockCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
 
-          {/* Orders Section */}
-          <div className="mb-3">
-            <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em] mb-1.5 px-2.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Orders & Users
-            </h3>
-            <SidebarMenu className="space-y-0.5">
-              {items.filter(item => item.category === 'orders' || item.category === 'users').map((item) => {
-                const isActive = pathname === item.url;
-                const Icon = item.icon;
+        {/* Orders & Users Group */}
+        <SidebarGroup className="p-0">
+          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.12em] mb-2 px-3">
+            Orders & Users
+          </h3>
+          <SidebarMenu className="space-y-1">
+            {items.filter(item => item.category === 'orders' || item.category === 'users').map((item) => {
+              const isActive = pathname === item.url;
+              const Icon = item.icon;
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={`group relative transition-all duration-150 rounded-lg ${
-                        isActive
-                          ? "bg-white text-blue-600 shadow-md border-l-4 border-blue-600"
-                          : "text-gray-600 hover:bg-white/80 hover:text-gray-900 hover:shadow-sm"
-                      }`}
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={`group relative transition-all duration-150 rounded-xl h-10 ${
+                      isActive
+                        ? "bg-orange-500 text-white font-semibold shadow-md shadow-orange-500/10"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
+                    }`}
+                  >
+                    <Link 
+                      to={item.url} 
+                      className="flex items-center gap-3 p-2.5 w-full"
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
                     >
-                      <Link 
-                        to={item.url} 
-                        className="flex items-center gap-2.5 p-2 w-full relative"
-                        onClick={() => {
-                          if (isMobile) {
-                            setOpenMobile(false);
-                          }
-                        }}
-                      >
-                        <Icon className={`w-4 h-4 transition-all ${
+                      <Icon className={`w-4 h-4 transition-all ${
+                        isActive 
+                          ? "text-white scale-110" 
+                          : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
+                      }`} />
+                      <span className="text-xs font-medium">{item.title}</span>
+                      
+                      {item.showBadge && item.badgeKey === "pendingOrders" && pendingOrderCount > 0 && (
+                        <Badge className={`text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center ${
                           isActive 
-                            ? "text-blue-600 scale-110" 
-                            : "text-gray-400 group-hover:text-gray-700 group-hover:scale-105"
-                        }`} />
-                        <span className="text-sm font-semibold" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.015em' }}>
-                          {item.title}
-                        </span>
-                        
-                        {/* Badge for Orders */}
-                        {item.showBadge && item.badgeKey === "pendingOrders" && pendingOrderCount > 0 && (
-                          <Badge className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-                            {pendingOrderCount}
-                          </Badge>
-                        )}
-                        
-                        {/* Badge for Low Stock */}
-                        {item.showBadge && item.badgeKey === "lowStock" && lowStockCount > 0 && (
-                          <Badge className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-                            {lowStockCount}
-                          </Badge>
-                        )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </div>
+                            ? "bg-white text-red-600" 
+                            : "bg-red-500 text-white shadow-sm"
+                        }`}>
+                          {pendingOrderCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
 
-          {/* External Links */}
-          <div className="mb-3">
-            <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em] mb-1.5 px-2.5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              External
-            </h3>
-            <SidebarMenu className="space-y-0.5">
-              {items.filter(item => item.category === 'external').map((item) => {
-                const isActive = pathname === item.url;
-                const Icon = item.icon;
+        {/* External Group */}
+        <SidebarGroup className="p-0">
+          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.12em] mb-2 px-3">
+            External
+          </h3>
+          <SidebarMenu className="space-y-1">
+            {items.filter(item => item.category === 'external').map((item) => {
+              const isActive = pathname === item.url;
+              const Icon = item.icon;
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={`group relative transition-all duration-150 rounded-lg ${
-                        isActive
-                          ? "bg-white text-blue-600 shadow-md border-l-4 border-blue-600"
-                          : "text-gray-600 hover:bg-white/80 hover:text-gray-900 hover:shadow-sm"
-                      }`}
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={`group relative transition-all duration-150 rounded-xl h-10 ${
+                      isActive
+                        ? "bg-orange-500 text-white font-semibold shadow-md"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
+                    }`}
+                  >
+                    <Link 
+                      to={item.url} 
+                      className="flex items-center gap-3 p-2.5 w-full"
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
                     >
-                      <Link 
-                        to={item.url} 
-                        className="flex items-center gap-2.5 p-2 w-full relative"
-                        onClick={() => {
-                          if (isMobile) {
-                            setOpenMobile(false);
-                          }
-                        }}
-                      >
-                        <Icon className={`w-4 h-4 transition-all ${
-                          isActive 
-                            ? "text-blue-600 scale-110" 
-                            : "text-gray-400 group-hover:text-gray-700 group-hover:scale-105"
-                        }`} />
-                        <span className="text-sm font-semibold" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.015em' }}>
-                          {item.title}
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </div>
+                      <Icon className={`w-4 h-4 transition-all ${
+                        isActive 
+                          ? "text-white scale-110" 
+                          : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
+                      }`} />
+                      <span className="text-xs font-medium">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Modern Footer with Enhanced Logout */}
-      <SidebarFooter className="p-2.5 border-t border-gray-200/60 bg-white/80 backdrop-blur-sm">
-        <div className="space-y-1.5">
-          {/* Admin Profile Link */}
+      {/* Footer Profile & Logout */}
+      <SidebarFooter className="p-4 border-t border-zinc-200/80 bg-white">
+        <div className="space-y-2">
           <Button
             asChild
             variant="ghost"
-            className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/80 hover:shadow-sm h-8 rounded-lg transition-all duration-150"
+            className="w-full justify-start text-zinc-600 hover:text-orange-600 hover:bg-orange-50/60 h-9 rounded-xl transition-all duration-150"
           >
             <Link 
               to="/admin/profile" 
-              className="flex items-center gap-2.5"
+              className="flex items-center gap-3"
               onClick={() => {
                 if (isMobile) {
                   setOpenMobile(false);
                 }
               }}
             >
-              <UserCog className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-semibold" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.015em' }}>
-                Admin Profile
-              </span>
+              <UserCog className="w-4 h-4 text-zinc-400 group-hover:text-orange-500" />
+              <span className="text-xs font-semibold">Admin Profile</span>
             </Link>
           </Button>
           
-          {/* Logout Button */}
           <Button
             onClick={onLogout}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-150 h-8 rounded-lg"
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-sm hover:shadow transition-all duration-150 h-9 rounded-xl text-xs"
             disabled={loading}
-            style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span className="text-xs">Logging out...</span>
+                <span>Logging out...</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="text-xs">Logout</span>
+                <span>Logout</span>
               </div>
             )}
           </Button>

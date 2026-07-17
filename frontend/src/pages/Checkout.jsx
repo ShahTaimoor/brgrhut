@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { addOrder } from '@/redux/slices/order/orderSlice';
 import { emptyCart, checkStock, removeFromCart } from '@/redux/slices/cart/cartSlice';
 import { updateProfile } from '@/redux/slices/auth/authSlice';
@@ -438,9 +438,9 @@ const Checkout = ({ closeModal }) => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-gray-500 text-center sm:text-left">
               By placing your order, you agree to our{' '}
-              <a href="#" className="text-primary hover:underline font-medium">Terms of Service</a>
+              <Link to="/terms-of-service" onClick={closeModal} className="text-primary hover:underline font-medium">Terms of Service</Link>
               {' '}and{' '}
-              <a href="#" className="text-primary hover:underline font-medium">Privacy Policy</a>.
+              <Link to="/privacy-policy" onClick={closeModal} className="text-primary hover:underline font-medium">Privacy Policy</Link>.
             </div>
             <Button
               onClick={handleCheckout}

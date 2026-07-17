@@ -22,7 +22,7 @@ class CategoryService {
     }
   }
 
-  async createCategory(name, file) {
+  async createCategory(name, file, emoji) {
     if (!name) {
       throw new BadRequestError('Category name is required');
     }
@@ -35,14 +35,15 @@ class CategoryService {
       throw new BadRequestError('Category already exists');
     }
 
-    if (!file) {
-      throw new BadRequestError('Category image is required');
-    }
+    let pictureData = undefined;
 
-    const { secure_url, public_id } = await uploadImageOnCloudinary(file.buffer, 'products');
-
-    if (!secure_url || !public_id) {
-      throw new BadRequestError('Cloudinary upload failed');
+    // Only upload to Cloudinary if an image file is actually provided
+    if (file) {
+      const { secure_url, public_id } = await uploadImageOnCloudinary(file.buffer, 'products');
+      if (!secure_url || !public_id) {
+        throw new BadRequestError('Cloudinary upload failed');
+      }
+      pictureData = { secure_url, public_id };
     }
 
     const lastCategory = await categoryRepository.find({}, { sort: { position: -1 }, limit: 1 });
@@ -51,7 +52,8 @@ class CategoryService {
     const category = await categoryRepository.create({
       name,
       slug: slugify(name, { lower: true, strict: true }),
-      picture: { secure_url, public_id },
+      emoji: emoji || "🍔", // Falls back to default emoji if none passed
+      picture: pictureData,
       position: newPosition,
       active: true
     });
@@ -62,7 +64,7 @@ class CategoryService {
   }
 
   async updateCategory(slug, updateData, file) {
-    const { name, position, active } = updateData;
+    const { name, position, active, emoji } = updateData;
 
     if (!name) {
       throw new BadRequestError('Category name is required');
@@ -91,6 +93,10 @@ class CategoryService {
       slug: slugify(name, { lower: true, strict: true })
     };
 
+    if (emoji !== undefined) {
+      updateFields.emoji = emoji;
+    }
+
     if (position !== undefined) {
       updateFields.position = parseInt(position);
     }
@@ -112,6 +118,7 @@ class CategoryService {
     if (file) {
       const { secure_url, public_id } = await uploadImageOnCloudinary(file.buffer, 'products');
 
+      // Safely delete old Cloudinary image if it exists
       if (currentCategory.picture && currentCategory.picture.public_id) {
         await deleteImageOnCloudinary(currentCategory.picture.public_id);
       }
@@ -123,7 +130,7 @@ class CategoryService {
 
     await this.normalizePositions();
 
-    // Ensure image field is set for frontend compatibility
+    // Ensure image property maps dynamically for backward compatibility on frontend
     if (updatedCategory) {
       updatedCategory.image = updatedCategory.picture?.secure_url || null;
     }
@@ -164,10 +171,10 @@ class CategoryService {
       sort: { position: 1, createdAt: -1 }
     });
 
+    // We keep the dynamic mapping, but preserve both raw picture and emoji fields
     return categories.map(category => {
       const categoryObj = { ...category };
       categoryObj.image = categoryObj.picture?.secure_url || null;
-      delete categoryObj.picture;
       return categoryObj;
     });
   }
@@ -199,4 +206,3 @@ class CategoryService {
 }
 
 module.exports = new CategoryService();
-

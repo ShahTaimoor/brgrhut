@@ -12,9 +12,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { fetchProducts, getSingleProduct, updateSingleProduct, fetchLowStockCount } from '@/redux/slices/products/productSlice';
+import { fetchProducts, getSingleProduct, updateSingleProduct } from '@/redux/slices/products/productSlice';
 import { AllCategory } from '@/redux/slices/categories/categoriesSlice';
-import { AlertTriangle, PackageSearch, Edit, Trash2, TrendingUp, X, Upload as UploadIcon, Star } from 'lucide-react';
+import { AlertTriangle, PackageSearch, Edit, Trash2, X, Upload as UploadIcon, Star } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -165,17 +165,13 @@ const LowStock = () => {
       setEditPreviewImage('');
       
       // Refresh products list
-      const currentPage = pagination.currentPage;
-      await dispatch(fetchProducts({ 
+      dispatch(fetchProducts({ 
         category: 'all', 
-        page: currentPage, 
+        page: pagination.currentPage, 
         limit, 
         stockFilter,
         sortBy
       }));
-
-      // Refresh low stock count in sidebar
-      dispatch(fetchLowStockCount());
     } catch (error) {
       toast.error('Failed to update product');
     } finally {
@@ -214,15 +210,28 @@ const LowStock = () => {
     setEditingPriceValue('');
   }, []);
 
-  const handleSavePrice = useCallback(async (productId) => {
-    if (!editingPriceValue || isNaN(editingPriceValue) || parseFloat(editingPriceValue) < 0) {
+  const handleSavePrice = useCallback(async (productObj) => {
+    const productId = productObj._id || productObj.id;
+    
+    if (!editingPriceValue || isNaN(editingPriceValue) || parseFloat(editingPriceValue) < 0 || !productId) {
       return;
     }
 
     setIsUpdatingPrice(true);
     try {
       const formDataObj = new FormData();
+      // Send the updated price
       formDataObj.append('price', editingPriceValue);
+      // Send remaining fields to satisfy backend strict validations
+      formDataObj.append('title', productObj.title || '');
+      formDataObj.append('description', productObj.description || '');
+      formDataObj.append('stock', productObj.stock !== undefined ? productObj.stock : 0);
+      if (productObj.category?._id || productObj.category) {
+        formDataObj.append('category', productObj.category._id || productObj.category);
+      }
+      if (productObj.isFeatured !== undefined) {
+        formDataObj.append('isFeatured', productObj.isFeatured);
+      }
 
       await dispatch(updateSingleProduct({ 
         id: productId, 
@@ -233,17 +242,13 @@ const LowStock = () => {
       setEditingPriceValue('');
       
       // Refresh products list
-      const currentPage = pagination.currentPage;
-      await dispatch(fetchProducts({ 
+      dispatch(fetchProducts({ 
         category: 'all', 
-        page: currentPage, 
+        page: pagination.currentPage, 
         limit, 
         stockFilter,
         sortBy
       }));
-
-      // Refresh low stock count in sidebar
-      dispatch(fetchLowStockCount());
     } catch (error) {
       toast.error('Failed to update price');
     } finally {
@@ -262,11 +267,14 @@ const LowStock = () => {
     setEditingStockValue('');
   }, []);
 
-  const handleSaveStock = useCallback(async (productId) => {
+  const handleSaveStock = useCallback(async (productObj) => {
+    const productId = productObj._id || productObj.id;
+
     if (
       editingStockValue === '' ||
       isNaN(editingStockValue) ||
-      parseInt(editingStockValue, 10) < 0
+      parseInt(editingStockValue, 10) < 0 ||
+      !productId
     ) {
       return;
     }
@@ -274,7 +282,18 @@ const LowStock = () => {
     setIsUpdatingStock(true);
     try {
       const formDataObj = new FormData();
+      // Send the updated stock value
       formDataObj.append('stock', editingStockValue);
+      // Send remaining fields to satisfy backend strict validations
+      formDataObj.append('title', productObj.title || '');
+      formDataObj.append('description', productObj.description || '');
+      formDataObj.append('price', productObj.price !== undefined ? productObj.price : 0);
+      if (productObj.category?._id || productObj.category) {
+        formDataObj.append('category', productObj.category._id || productObj.category);
+      }
+      if (productObj.isFeatured !== undefined) {
+        formDataObj.append('isFeatured', productObj.isFeatured);
+      }
 
       await dispatch(
         updateSingleProduct({
@@ -287,17 +306,13 @@ const LowStock = () => {
       setEditingStockValue('');
 
       // Refresh products list
-      const currentPage = pagination.currentPage;
-      await dispatch(fetchProducts({
+      dispatch(fetchProducts({
         category: 'all',
-        page: currentPage, 
+        page: pagination.currentPage, 
         limit,
         stockFilter,
         sortBy,
       }));
-
-      // Refresh low stock count in sidebar
-      dispatch(fetchLowStockCount());
     } catch (error) {
       toast.error('Failed to update stock');
     } finally {
@@ -412,7 +427,7 @@ const LowStock = () => {
                             onChange={(e) => setEditingPriceValue(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                handleSavePrice(product._id);
+                                handleSavePrice(product);
                               } else if (e.key === 'Escape') {
                                 handleCancelEditPrice();
                               }
@@ -425,7 +440,7 @@ const LowStock = () => {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleSavePrice(product._id);
+                              handleSavePrice(product);
                             }}
                             disabled={isUpdatingPrice}
                             className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
@@ -474,7 +489,7 @@ const LowStock = () => {
                               onChange={(e) => setEditingStockValue(e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                  handleSaveStock(product._id);
+                                  handleSaveStock(product);
                                 } else if (e.key === 'Escape') {
                                   handleCancelEditStock();
                                 }
@@ -487,7 +502,7 @@ const LowStock = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleSaveStock(product._id);
+                                handleSaveStock(product);
                               }}
                               disabled={isUpdatingStock}
                               className="h-7 w-7 p-0 bg-green-600 hover:bg-green-700"
@@ -538,7 +553,7 @@ const LowStock = () => {
                       onClick={() => handleEdit(product)}
                       className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200"
                     >
-                      Edit
+                      Edit Details
                     </Button>
                   </div>
                 </div>
@@ -826,4 +841,3 @@ const LowStock = () => {
 };
 
 export default React.memo(LowStock);
-

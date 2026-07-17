@@ -19,12 +19,13 @@ const createProduct = async (inputValues) => {
 };
 
 // all product
-const allProduct = async (category = 'all', page = 1, limit = 2000, stockFilter = 'active', sortBy = 'az') => {
+const allProduct = async (category = 'all', page = 1, limit = 2000, availabilityFilter = 'active', sortBy = 'az') => {
     try {
       const response = await axiosInstance.get(
         '/get-products',
         {
-          params: { category, page, limit, stockFilter: stockFilter || 'active', sortBy },
+          // Swapped out stockFilter key for availabilityFilter
+          params: { category, page, limit, availabilityFilter: availabilityFilter || 'active', sortBy },
           headers: { 'Content-Type': 'application/json' },
         }
       );
@@ -109,12 +110,12 @@ const importProductsFromExcel = async (excelFile) => {
     }
 };
 
-// update product stock status
-const updateProductStock = async ({ id, stock }) => {
+// update product availability status
+const updateProductAvailability = async ({ id, isAvailable }) => {
     try {
         const axiosResponse = await axiosInstance.put(
-            `/update-product-stock/${id}`,
-            { stock },
+            `/update-product-availability/${id}`, // Swapped path to match the backend route
+            { isAvailable }, // Passing the boolean flag instead of a raw stock quantity
             {
                 headers: { 'Content-Type': 'application/json' },
             }
@@ -188,7 +189,7 @@ const productService = {
     updateProd, 
     deleteProduct, 
     importProductsFromExcel, 
-    updateProductStock, 
+    updateProductAvailability, // Updated name hook
     bulkUpdateFeatured,
     searchProducts,
     searchSuggestions

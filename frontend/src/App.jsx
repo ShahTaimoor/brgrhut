@@ -23,6 +23,8 @@ const MyOrders = lazy(() => import('./pages/MyOrders'));
 const Success = lazy(() => import('./pages/Success'));
 const ErrorPage = lazy(() => import('./pages/Error'));
 const Category = lazy(() => import('./pages/Category'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const Users = lazy(() => import('./pages/Users'));
 const Profile = lazy(() => import('./pages/Profile'));
 const AdminProfile = lazy(() => import('./pages/AdminProfile'));
@@ -104,6 +106,22 @@ const App = () => {
       element: (
         <RootLayout>
           <Success />
+        </RootLayout>
+      ),
+    },
+    {
+      path: '/terms-of-service',
+      element: (
+        <RootLayout>
+          <TermsOfService />
+        </RootLayout>
+      ),
+    },
+    {
+      path: '/privacy-policy',
+      element: (
+        <RootLayout>
+          <PrivacyPolicy />
         </RootLayout>
       ),
     },

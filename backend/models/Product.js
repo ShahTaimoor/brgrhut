@@ -3,46 +3,56 @@ const mongoose = require('mongoose')
 const productSchema = new mongoose.Schema({
     title: {
         type: String,
-       
+        required: true,
         trim: true
     },
     description: {
         type: String,
-        
+        trim: true
     },
     price: {
         type: Number,
-    
+        required: true
     },
-    stock: {
+    // Fast food is made-to-order, so we swap stock counts for a simple availability toggle
+    isAvailable: {
+        type: Boolean,
+        default: true
+    },
+    // Cooking / preparation time in minutes
+    prepTime: {
         type: Number,
-    
-        default: 0
+        default: 15
+    },
+    // Food tags for menu badges
+    isSpicy: {
+        type: Boolean,
+        default: false
+    },
+    isVegetarian: {
+        type: Boolean,
+        default: false
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
-        
+        required: true
     },
-
     picture: {
         secure_url: {
             type: String,
-            
+            required: true
         },
         public_id: {
             type: String,
-            
+            required: true
         },
     },
-
-
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        
+        required: true
     },
-
     isFeatured: {
         type: Boolean,
         default: false,
@@ -56,37 +66,30 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-
 }, { timestamps: true })
 
-// Create compound indexes for common queries
-productSchema.index({ category: 1, stock: 1 });
+// Optimized Indexes for Fast Food Queries
+productSchema.index({ category: 1, isAvailable: 1, isDeleted: 1 }); // Quick menu filtering
 productSchema.index({ category: 1, price: 1 });
 productSchema.index({ createdAt: -1 });
-productSchema.index({ isFeatured: -1, createdAt: -1 }); // For sorting featured products first
+productSchema.index({ isFeatured: -1, isAvailable: 1, createdAt: -1 }); // Feature listings first
 
-// Performance indexes for search optimization
-productSchema.index({ stock: 1 }); // For filtering in-stock products (stock > 0)
-productSchema.index({ isFeatured: -1 }); // For featured product sorting
-productSchema.index({ stock: 1, isFeatured: -1, createdAt: -1 }); // Compound index for search queries
+// Availability and Soft-delete indexing
+productSchema.index({ isAvailable: 1 });
+productSchema.index({ isDeleted: 1 });
 
 // Text search index for optimized search functionality
-// Note: MongoDB allows only ONE text index per collection
 productSchema.index({ 
     title: 'text', 
     description: 'text',
     tags: 'text'
 }, {
     weights: {
-        title: 10,  // Title matches are more important (higher weight)
-        description: 5,  // Description matches have lower weight
-        tags: 8  // Tags have high relevance
+        title: 10,       // Title matches are weighted highest
+        tags: 8,         // Food tags (e.g., "spicy", "double-patty")
+        description: 5   // Main descriptions
     },
     name: 'text_search_index'
 });
-
-// Soft delete index
-productSchema.index({ isDeleted: 1 });
-productSchema.index({ category: 1, isDeleted: 1 }); // Compound index for filtered queries
 
 module.exports = mongoose.model('Product', productSchema)

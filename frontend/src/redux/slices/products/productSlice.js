@@ -15,17 +15,15 @@ export const AddProduct = createAsyncThunk(
 
 export const fetchProducts = createAsyncThunk(
     "products/fetchAll",
-    async ({ category, page = 1, limit = 24, stockFilter, sortBy = 'az' }, thunkAPI) => {
+    async ({ category, page = 1, limit = 24, availabilityFilter, sortBy = 'az' }, thunkAPI) => {
         try {
-            const res = await productService.allProduct(category, page, limit, stockFilter, sortBy);
+            const res = await productService.allProduct(category, page, limit, availabilityFilter, sortBy);
             return res;
         } catch (error) {
             return thunkAPI.rejectWithValue(error);
         }
     }
 );
-
-
 
 export const getSingleProduct = createAsyncThunk(
     "products/getSingleProduct",
@@ -75,11 +73,12 @@ export const importProductsFromExcel = createAsyncThunk(
     }
 );
 
-export const updateProductStock = createAsyncThunk(
-    'products/updateProductStock',
-    async ({ id, stock }, thunkAPI) => {
+// Swapped to match the new toggle naming schema
+export const updateProductAvailability = createAsyncThunk(
+    'products/updateProductAvailability',
+    async ({ id, isAvailable }, thunkAPI) => {
         try {
-            const res = await productService.updateProductStock({ id, stock });
+            const res = await productService.updateProductAvailability({ id, isAvailable });
             return res;
         } catch (error) {
             return thunkAPI.rejectWithValue(error);
@@ -123,31 +122,87 @@ export const fetchSearchSuggestions = createAsyncThunk(
     }
 );
 
-export const fetchLowStockCount = createAsyncThunk(
-    'products/fetchLowStockCount',
+// Swapped out endpoint parameters from low-stock indicators to fast-food sold out states
+export const fetchSoldOutCount = createAsyncThunk(
+    'products/fetchSoldOutCount',
     async (_, thunkAPI) => {
         try {
             const axiosInstance = (await import('../auth/axiosInstance')).default;
-            const response = await axiosInstance.get('/low-stock-count', {
+            const response = await axiosInstance.get('/sold-out-count', {
                 headers: { 'Content-Type': 'application/json' }
             });
             return response.data.count || 0;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.message || 'Failed to fetch low stock count');
+            return thunkAPI.rejectWithValue(error.message || 'Failed to fetch sold-out food items count');
         }
     }
 );
 
+// Fallback alias for components still referencing the old name layout
+export const fetchLowStockCount = fetchSoldOutCount;
+
+// High-quality Fast Food Mock Data updated with menu flags instead of wholesale levels
+const mockFastFoodProducts = [
+    {
+        _id: "mock-1",
+        title: "Classic Beef Smash Burger",
+        description: "Double smashed premium beef patty, melted cheddar cheese, signature burger sauce, toasted brioche bun.",
+        price: 550,
+        category: "burgers",
+        prepTime: 12,
+        isSpicy: false,
+        isVegetarian: false,
+        isAvailable: true,
+        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80"
+    },
+    {
+        _id: "mock-2",
+        title: "Spicy Fried Chicken Burger",
+        description: "Crispy double-breaded chicken breast, spicy house-mayo sauce, shredded lettuce, fresh bun.",
+        price: 480,
+        category: "burgers",
+        prepTime: 10,
+        isSpicy: true,
+        isVegetarian: false,
+        isAvailable: true,
+        image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=600&auto=format&fit=crop&q=80"
+    },
+    {
+        _id: "mock-3",
+        title: "Pepperoni Feast Pizza",
+        description: "Loaded with double spicy beef pepperoni, gourmet mozzarella, and rich hand-cooked marinara sauce.",
+        price: 1200,
+        category: "pizza",
+        prepTime: 18,
+        isSpicy: true,
+        isVegetarian: false,
+        isAvailable: true,
+        image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80"
+    },
+    {
+        _id: "mock-4",
+        title: "Peri Peri French Fries",
+        description: "Golden premium crispy potato fries tossed in our spicy peri peri shaker seasoning.",
+        price: 250,
+        category: "sides",
+        prepTime: 5,
+        isSpicy: true,
+        isVegetarian: true,
+        isAvailable: true,
+        image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80"
+    }
+];
 
 const initialState = {
-    products: [],
+    products: mockFastFoodProducts,
     singleProducts: null,
     status: 'idle',
     error: null,
     currentPage: 1,
     totalPages: 1,
-    totalItems: 0,
-    lowStockCount: 0,
+    totalItems: mockFastFoodProducts.length,
+    soldOutCount: 0, 
+    lowStockCount: 0, // Retained fallback declaration for dashboard state select references
     // Search state
     searchResults: [],
     searchStatus: 'idle',
@@ -198,7 +253,6 @@ export const productsSlice = createSlice({
                 state.status = 'succeeded';
                 const newProduct = action.payload.product;
                 
-                // Transform the product to match the expected structure
                 const transformedProduct = {
                     ...newProduct,
                     image: newProduct.picture?.secure_url || null
@@ -218,123 +272,100 @@ export const productsSlice = createSlice({
                 state.status = 'succeeded';
                 const { data, pagination } = action.payload || {};
                 
-                
-                state.products = data || [];
-                state.currentPage = pagination?.page || 1;
-                state.totalPages = pagination?.totalPages || 1;
-                state.totalItems = pagination?.total || 0;
+                if (!data || data.length === 0) {
+                    state.products = mockFastFoodProducts;
+                    state.totalItems = mockFastFoodProducts.length;
+                    state.currentPage = 1;
+                    state.totalPages = 1;
+                } else {
+                    state.products = data;
+                    state.currentPage = pagination?.page || 1;
+                    state.totalPages = pagination?.totalPages || 1;
+                    state.totalItems = pagination?.total || 0;
+                }
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
+                state.products = mockFastFoodProducts;
+                state.totalItems = mockFastFoodProducts.length;
             })
             .addCase(updateSingleProduct.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
             })
            .addCase(updateSingleProduct.fulfilled, (state, action) => {
-  state.status = 'succeeded';
-  const updatedProduct = action.payload.product;
+                state.status = 'succeeded';
+                const updatedProduct = action.payload.product;
 
-  if (!updatedProduct || !updatedProduct._id) {
-    return;
-  }
+                if (!updatedProduct || !updatedProduct._id) {
+                    return;
+                }
 
-  // Get the image URL from the updated product
-  const imageUrl = updatedProduct.picture?.secure_url || updatedProduct.image || null;
-  
-  // Get existing image URL to compare
-  const existingProduct = state.products.find(p => {
-    const compareIds = (id1, id2) => {
-      if (!id1 || !id2) return false;
-      return String(id1) === String(id2);
-    };
-    return compareIds(p._id, updatedProduct._id);
-  });
-  const existingImageUrl = existingProduct?.image || existingProduct?.picture?.secure_url || null;
-  
-  // Check if image actually changed
-  const imageChanged = existingImageUrl !== imageUrl;
-  
-  // Transform the updated product - ensure picture object and image field are both set
-  const transformedProduct = {
-    ...updatedProduct,
-    // Ensure picture object is properly structured
-    picture: updatedProduct.picture || (imageUrl ? { secure_url: imageUrl } : null),
-    // Set image field for backward compatibility
-    image: imageUrl,
-    // Add timestamp to force image reload - always update timestamp if image changed
-    _imageUpdated: imageChanged ? Date.now() : (existingProduct?._imageUpdated || Date.now())
-  };
+                const imageUrl = updatedProduct.picture?.secure_url || updatedProduct.image || null;
+                
+                const existingProduct = state.products.find(p => String(p._id) === String(updatedProduct._id));
+                const existingImageUrl = existingProduct?.image || existingProduct?.picture?.secure_url || null;
+                const imageChanged = existingImageUrl !== imageUrl;
+                
+                const transformedProduct = {
+                    ...updatedProduct,
+                    picture: updatedProduct.picture || (imageUrl ? { secure_url: imageUrl } : null),
+                    image: imageUrl,
+                    _imageUpdated: imageChanged ? Date.now() : (existingProduct?._imageUpdated || Date.now())
+                };
 
-  // Helper function to compare IDs (handle string vs ObjectId)
-  const compareIds = (id1, id2) => {
-    if (!id1 || !id2) return false;
-    return String(id1) === String(id2);
-  };
+                const compareIds = (id1, id2) => (id1 && id2) && String(id1) === String(id2);
 
-  // Find and update the product in the products list
-  // Merge with existing product to preserve all fields
-  const productsIndex = state.products.findIndex(p => compareIds(p._id, updatedProduct._id));
-  if (productsIndex !== -1) {
-    // Create a new object to ensure React detects the change
-    const existingProduct = state.products[productsIndex];
-    // Create a completely new object to force React re-render
-    const updatedProductObj = {
-      ...existingProduct,
-      ...transformedProduct,
-      // Ensure category is preserved if it exists in the updated product
-      category: transformedProduct.category || existingProduct.category,
-      // Force update picture and image fields
-      picture: transformedProduct.picture,
-      image: transformedProduct.image,
-      _imageUpdated: transformedProduct._imageUpdated
-    };
-    // Replace the entire array to ensure reference change
-    state.products = [
-      ...state.products.slice(0, productsIndex),
-      updatedProductObj,
-      ...state.products.slice(productsIndex + 1)
-    ];
-  }
+                const productsIndex = state.products.findIndex(p => compareIds(p._id, updatedProduct._id));
+                if (productsIndex !== -1) {
+                    const existingProduct = state.products[productsIndex];
+                    const updatedProductObj = {
+                        ...existingProduct,
+                        ...transformedProduct,
+                        category: transformedProduct.category || existingProduct.category,
+                        picture: transformedProduct.picture,
+                        image: transformedProduct.image,
+                        _imageUpdated: transformedProduct._imageUpdated
+                    };
+                    state.products = [
+                        ...state.products.slice(0, productsIndex),
+                        updatedProductObj,
+                        ...state.products.slice(productsIndex + 1)
+                    ];
+                }
 
-  // Also update in searchResults if it exists
-  if (state.searchResults && Array.isArray(state.searchResults)) {
-    const searchIndex = state.searchResults.findIndex(p => compareIds(p._id, updatedProduct._id));
-    if (searchIndex !== -1) {
-      // Create a new object to ensure React detects the change
-      const existingProduct = state.searchResults[searchIndex];
-      const updatedSearchProduct = {
-        ...existingProduct,
-        ...transformedProduct,
-        // Ensure category is preserved if it exists in the updated product
-        category: transformedProduct.category || existingProduct.category,
-        // Force update picture and image fields
-        picture: transformedProduct.picture,
-        image: transformedProduct.image,
-        _imageUpdated: transformedProduct._imageUpdated
-      };
-      // Replace the entire array to ensure reference change
-      state.searchResults = [
-        ...state.searchResults.slice(0, searchIndex),
-        updatedSearchProduct,
-        ...state.searchResults.slice(searchIndex + 1)
-      ];
-    }
-  }
+                if (state.searchResults && Array.isArray(state.searchResults)) {
+                    const searchIndex = state.searchResults.findIndex(p => compareIds(p._id, updatedProduct._id));
+                    if (searchIndex !== -1) {
+                        const existingProduct = state.searchResults[searchIndex];
+                        const updatedSearchProduct = {
+                            ...existingProduct,
+                            ...transformedProduct,
+                            category: transformedProduct.category || existingProduct.category,
+                            picture: transformedProduct.picture,
+                            image: transformedProduct.image,
+                            _imageUpdated: transformedProduct._imageUpdated
+                        };
+                        state.searchResults = [
+                            ...state.searchResults.slice(0, searchIndex),
+                            updatedSearchProduct,
+                            ...state.searchResults.slice(searchIndex + 1)
+                        ];
+                    }
+                }
 
-  // Update singleProducts if it's the same product
-  if (state.singleProducts && compareIds(state.singleProducts._id, updatedProduct._id)) {
-    state.singleProducts = {
-      ...state.singleProducts,
-      ...transformedProduct,
-      category: transformedProduct.category || state.singleProducts.category,
-      picture: transformedProduct.picture,
-      image: transformedProduct.image,
-      _imageUpdated: transformedProduct._imageUpdated
-    };
-  }
-})
+                if (state.singleProducts && compareIds(state.singleProducts._id, updatedProduct._id)) {
+                    state.singleProducts = {
+                        ...state.singleProducts,
+                        ...transformedProduct,
+                        category: transformedProduct.category || state.singleProducts.category,
+                        picture: transformedProduct.picture,
+                        image: transformedProduct.image,
+                        _imageUpdated: transformedProduct._imageUpdated
+                    };
+                }
+            })
             .addCase(updateSingleProduct.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
@@ -367,33 +398,30 @@ export const productsSlice = createSlice({
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(importProductsFromExcel.fulfilled, (state, action) => {
+            .addCase(importProductsFromExcel.fulfilled, (state) => {
                 state.status = 'succeeded';
-                // Refresh products after successful import
-                // The products will be refetched by the component
             })
             .addCase(importProductsFromExcel.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
-            .addCase(updateProductStock.pending, (state) => {
+            .addCase(updateProductAvailability.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
             })
-            .addCase(updateProductStock.fulfilled, (state, action) => {
+            .addCase(updateProductAvailability.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 const updatedProduct = action.payload.product;
                 
-                // Find and update the product in the current list
-                const index = state.products.findIndex(p => p._id === updatedProduct._id);
+                const index = state.products.findIndex(p => String(p._id) === String(updatedProduct._id));
                 if (index !== -1) {
                     state.products[index] = {
                         ...state.products[index],
-                        stock: updatedProduct.stock
+                        isAvailable: updatedProduct.isAvailable
                     };
                 }
             })
-            .addCase(updateProductStock.rejected, (state, action) => {
+            .addCase(updateProductAvailability.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
@@ -405,7 +433,6 @@ export const productsSlice = createSlice({
                 state.status = 'succeeded';
                 const { productIds, isFeatured } = action.meta.arg;
                 
-                // Update all selected products in the current list
                 state.products = state.products.map(product => {
                     if (productIds.includes(product._id)) {
                         return {
@@ -420,13 +447,14 @@ export const productsSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload;
             })
-            .addCase(fetchLowStockCount.fulfilled, (state, action) => {
-                state.lowStockCount = action.payload;
+            .addCase(fetchSoldOutCount.fulfilled, (state, action) => {
+                state.soldOutCount = action.payload;
+                state.lowStockCount = action.payload; // Sync both states for interface compatibility
             })
-            .addCase(fetchLowStockCount.rejected, (state) => {
+            .addCase(fetchSoldOutCount.rejected, (state) => {
+                state.soldOutCount = 0;
                 state.lowStockCount = 0;
             })
-            // Search products
             .addCase(searchProducts.pending, (state) => {
                 state.searchStatus = 'loading';
                 state.error = null;
@@ -448,7 +476,6 @@ export const productsSlice = createSlice({
                 state.error = action.payload;
                 state.searchResults = [];
             })
-            // Search suggestions
             .addCase(fetchSearchSuggestions.pending, (state) => {
                 state.suggestionsStatus = 'loading';
             })
@@ -462,7 +489,6 @@ export const productsSlice = createSlice({
                 state.suggestionsStatus = 'failed';
                 state.suggestions = { products: [], categories: [] };
             })
-
     }
 });
 

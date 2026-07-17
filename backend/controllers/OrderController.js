@@ -10,6 +10,7 @@ class OrderController {
 
       return res.status(201).json({
         success: true,
+        message: 'Order placed successfully',
         data: order
       });
     } catch (error) {
@@ -20,13 +21,13 @@ class OrderController {
   async updateOrderStatus(req, res, next) {
     try {
       const { id } = req.params;
-      const { status, packerName } = req.body;
+      const { status, chefOrPackerName } = req.body; // Swapped packerName to accommodate kitchen chefs
 
-      const order = await orderService.updateOrderStatus(id, status, packerName);
+      const order = await orderService.updateOrderStatus(id, status, chefOrPackerName);
 
       return res.status(200).json({
         success: true,
-        message: 'Order status updated successfully',
+        message: 'Kitchen order pipeline updated successfully',
         data: order
       });
     } catch (error) {
@@ -106,7 +107,7 @@ class OrderController {
 
       return res.status(200).json({
         success: true,
-        message: 'Order deleted successfully and stock restored'
+        message: 'Order record deleted successfully' // Cleaned up retail stock text
       });
     } catch (error) {
       next(error);
@@ -121,7 +122,7 @@ class OrderController {
 
       return res.status(200).json({
         success: true,
-        message: `${result.deletedCount} orders deleted successfully and stock restored`,
+        message: `${result.deletedCount} order records removed successfully`, // Cleaned up retail stock text
         deletedCount: result.deletedCount
       });
     } catch (error) {
@@ -131,4 +132,3 @@ class OrderController {
 }
 
 module.exports = new OrderController();
-

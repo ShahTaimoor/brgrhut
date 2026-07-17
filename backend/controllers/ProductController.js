@@ -12,7 +12,7 @@ class ProductController {
 
       return res.status(201).json({
         success: true,
-        message: 'Product Added Successfully',
+        message: 'Menu Item Added Successfully',
         product
       });
     } catch (error) {
@@ -29,7 +29,7 @@ class ProductController {
 
       return res.status(200).json({
         success: true,
-        message: `Import completed. ${results.success} products created, ${results.failed} failed.`,
+        message: `Import completed. ${results.success} items created, ${results.failed} failed.`,
         results
       });
     } catch (error) {
@@ -47,7 +47,7 @@ class ProductController {
 
       return res.status(200).json({
         success: true,
-        message: 'Product updated successfully',
+        message: 'Menu item updated successfully',
         product
       });
     } catch (error) {
@@ -55,16 +55,17 @@ class ProductController {
     }
   }
 
-  async updateProductStock(req, res, next) {
+  // Swapped from explicit stock integers to binary menu availability toggles
+  async updateProductAvailability(req, res, next) {
     try {
       const { id } = req.params;
-      const { stock } = req.body;
+      const { isAvailable } = req.body;
 
-      const product = await productService.updateProductStock(id, stock);
+      const product = await productService.updateProductAvailability(id, isAvailable);
 
       return res.status(200).json({
         success: true,
-        message: 'Product stock updated successfully',
+        message: 'Item availability state updated successfully',
         product
       });
     } catch (error) {
@@ -80,7 +81,7 @@ class ProductController {
 
       return res.status(200).json({
         success: true,
-        message: `Successfully ${result.featuredValue ? 'marked' : 'unmarked'} ${result.modifiedCount} product(s) as featured`,
+        message: `Successfully ${result.featuredValue ? 'marked' : 'unmarked'} ${result.modifiedCount} item(s) as featured`,
         modifiedCount: result.modifiedCount
       });
     } catch (error) {
@@ -96,7 +97,7 @@ class ProductController {
 
       return res.status(200).json({
         success: true,
-        message: 'Product Deleted Successfully',
+        message: 'Item Deleted Successfully',
         data: product
       });
     } catch (error) {
@@ -111,8 +112,8 @@ class ProductController {
       const result = await productService.getProducts(filters);
 
       const message = result.data.length === 0
-        ? 'No products found in this category.'
-        : 'Products fetched successfully';
+        ? 'No active items found in this category.'
+        : 'Menu items fetched successfully';
 
       return res.status(200).json({
         success: true,
@@ -132,8 +133,8 @@ class ProductController {
       const result = await productSearchService.searchProducts(q, limit, page);
 
       const message = result.pagination.total > 0
-        ? `Found ${result.pagination.total} product(s) matching all keywords`
-        : 'No products found matching all keywords';
+        ? `Found ${result.pagination.total} item(s) matching all keywords`
+        : 'No menu options found matching all keywords';
 
       return res.status(200).json({
         success: true,
@@ -173,7 +174,7 @@ class ProductController {
 
       return res.status(200).json({
         success: true,
-        message: 'Single product fetched successfully',
+        message: 'Single menu item fetched successfully',
         product
       });
     } catch (error) {
@@ -181,9 +182,10 @@ class ProductController {
     }
   }
 
-  async getLowStockCount(req, res, next) {
+  // Swapped low inventory tracking to kitchen sold-out counts
+  async getSoldOutCount(req, res, next) {
     try {
-      const count = await productService.getLowStockCount();
+      const count = await productService.getSoldOutCount();
 
       return res.status(200).json({
         success: true,
@@ -196,4 +198,3 @@ class ProductController {
 }
 
 module.exports = new ProductController();
-

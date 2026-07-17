@@ -13,6 +13,7 @@ const ProductGrid = React.memo(({
   cartItems, 
   onPreviewImage
 }) => {
+  // 1. Memoize lookup map for O(1) rendering speeds
   const isInCartMap = useMemo(() => {
     const map = new Map();
     cartItems.forEach(item => {
@@ -24,6 +25,11 @@ const ProductGrid = React.memo(({
     return map;
   }, [cartItems]);
 
+  // 2. Pre-filter valid items to keep the render block clean
+  const validProducts = useMemo(() => {
+    return products?.filter(product => product && product._id) || [];
+  }, [products]);
+
   if (loading) {
     return (
       <div className="flex justify-center py-10">
@@ -32,34 +38,18 @@ const ProductGrid = React.memo(({
     );
   }
 
-  if (products.length === 0) {
+  if (validProducts.length === 0) {
     return (
       <div className="text-center py-16 px-4">
         <div className="max-w-md mx-auto">
           <div className="mb-4">
-            <svg
-              className="mx-auto h-16 w-16 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+            <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <p className="text-lg font-medium text-gray-900 mb-2">
-            No products found
-          </p>
-          <p className="text-sm text-gray-500 mb-4">
-            We couldn't find any products matching your search.
-          </p>
-          <p className="text-xs text-gray-400">
-            Try adjusting your search terms or browse our categories.
-          </p>
+          <p className="text-lg font-medium text-gray-900 mb-2">No products found</p>
+          <p className="text-sm text-gray-500 mb-4">We couldn't find any products matching your search.</p>
+          <p className="text-xs text-gray-400">Try adjusting your search terms or browse our categories.</p>
         </div>
       </div>
     );
@@ -71,7 +61,7 @@ const ProductGrid = React.memo(({
         ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2' 
         : 'flex flex-col space-y-0.5'
     }`}>
-      {products.filter(product => product && product._id).map((product) => (
+      {validProducts.map((product) => (
         <ProductCard
           key={product._id}
           product={product}
@@ -88,5 +78,6 @@ const ProductGrid = React.memo(({
   );
 });
 
-export default ProductGrid;
+ProductGrid.displayName = 'ProductGrid';
 
+export default ProductGrid;
