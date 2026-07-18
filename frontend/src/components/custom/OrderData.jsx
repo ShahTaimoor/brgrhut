@@ -397,8 +397,8 @@ const OrderData = ({
         {/* Mobile Layout */}
         <div className="block sm:hidden">
           <div className="flex items-center gap-3 mb-3">
-            <div className="rounded-full bg-blue-100 p-2">
-              <ShoppingBag className="h-5 w-5 text-blue-600" />
+            <div className="rounded-full bg-primary/10 p-2">
+              <ShoppingBag className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
@@ -434,8 +434,8 @@ const OrderData = ({
         {/* Desktop Layout */}
         <div className="hidden sm:flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-blue-100 p-2">
-              <ShoppingBag className="h-5 w-5 text-blue-600" />
+            <div className="rounded-full bg-primary/10 p-2">
+              <ShoppingBag className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900">Order Details</h2>
@@ -511,7 +511,7 @@ const OrderData = ({
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-600" />
+              <User className="h-5 w-5 text-primary" />
               Customer Information
             </CardTitle>
           </CardHeader>
@@ -562,7 +562,7 @@ const OrderData = ({
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-blue-600" />
+              <Package className="h-5 w-5 text-primary" />
               Products ({products.length})
             </CardTitle>
           </CardHeader>
@@ -582,7 +582,7 @@ const OrderData = ({
                       quality={80}
                       loading="eager"
                     />
-                    <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium">
+                    <div className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium">
                       {product.quantity}
                     </div>
                   </div>

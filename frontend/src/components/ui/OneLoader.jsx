@@ -16,7 +16,7 @@ const OneLoader = ({
 
   const colorClasses = {
     primary: 'border-primary',
-    blue: 'border-blue-600',
+    blue: 'border-primary',
     gray: 'border-gray-600',
     white: 'border-white',
     green: 'border-green-600',

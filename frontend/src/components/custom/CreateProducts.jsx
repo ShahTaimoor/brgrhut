@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast"; // Or your custom toast hook
 
 export default function CreateProducts() {
   const dispatch = useDispatch();
-  const { toast } = useToast();
+  const toast = useToast();
   const { categories } = useSelector((state) => state.categories);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -62,10 +62,7 @@ export default function CreateProducts() {
     try {
       // Dispatches directly to your active Redux slice action
       await dispatch(AddProduct(submissionData)).unwrap();
-      toast({
-        title: "Success!",
-        description: "New dish has been published to your storefront.",
-      });
+      toast.success("New dish has been published to your storefront.");
       // Reset Form
       setFormData({
         title: "",
@@ -78,11 +75,7 @@ export default function CreateProducts() {
       setImageFile(null);
       setImagePreview(null);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error adding product",
-        description: error.message || "Something went wrong.",
-      });
+      toast.error(error?.message || error || "Something went wrong adding the product.");
     } finally {
       setLoading(false);
     }

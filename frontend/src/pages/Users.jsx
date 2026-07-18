@@ -298,8 +298,8 @@ const Users = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg">
-                <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
@@ -336,10 +336,10 @@ const Users = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-0">
               <div className="min-w-0 flex-1">
                 <p className="text-[8px] sm:text-xs md:text-sm font-medium text-gray-500 leading-tight break-words">Regular Users</p>
-                <p className="text-base sm:text-xl md:text-2xl font-bold text-blue-600 mt-0.5 sm:mt-1">{userStats.users}</p>
+                <p className="text-base sm:text-xl md:text-2xl font-bold text-amber-600 mt-0.5 sm:mt-1">{userStats.users}</p>
               </div>
-              <div className="p-1 sm:p-1.5 md:p-2 bg-blue-50 rounded-md flex-shrink-0 self-end sm:self-auto">
-                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-blue-600" />
+              <div className="p-1 sm:p-1.5 md:p-2 bg-amber-50 rounded-md flex-shrink-0 self-end sm:self-auto">
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-amber-600" />
               </div>
             </div>
           </div>
@@ -380,7 +380,7 @@ const Users = () => {
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 h-9 sm:h-10 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 h-9 sm:h-10 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
               />
             </div>
             {/* Per Page and Role Filter in one row */}
@@ -456,7 +456,7 @@ const Users = () => {
                             placeholder="Search cities..."
                             value={citySearchTerm}
                             onChange={(e) => setCitySearchTerm(e.target.value)}
-                            className="h-8 pl-8 pr-2 text-xs border-gray-300 focus:ring-2 focus:ring-blue-500"
+                            className="h-8 pl-8 pr-2 text-xs border-gray-300 focus:ring-2 focus:ring-primary"
                             onClick={(e) => e.stopPropagation()}
                             onKeyDown={(e) => e.stopPropagation()}
                           />
@@ -504,12 +504,12 @@ const Users = () => {
                       <Badge
                         key={city}
                         variant="secondary"
-                        className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 border-blue-200"
+                        className="text-xs px-2 py-0.5 bg-primary/10 text-primary border-primary/20"
                       >
                         {capitalizeWords(city)}
                         <button
                           onClick={() => handleCityToggle(city)}
-                          className="ml-1.5 hover:bg-blue-100 rounded-full p-0.5"
+                          className="ml-1.5 hover:bg-primary/20 rounded-full p-0.5"
                         >
                           <XCircle className="h-3 w-3" />
                         </button>
@@ -654,7 +654,7 @@ const Users = () => {
                                   </SelectContent>
                                 </Select>
                                 {isUpdating && (
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
                                 )}
                                 {/* Delete button - show for regular users and admins (but not super admins or own account) */}
                                 {user.role !== 2 && !isCurrentUser && (
@@ -770,7 +770,7 @@ const Users = () => {
                       disabled={page === '...'}
                       className={`h-8 min-w-[1.75rem] sm:min-w-[2rem] px-1.5 sm:px-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
                         page === currentPage
-                          ? 'bg-blue-600 text-white shadow-sm'
+                          ? 'bg-primary text-white shadow-sm'
                           : page === '...'
                           ? 'text-gray-400 cursor-default bg-transparent'
                           : 'text-gray-600 hover:bg-gray-100 border border-transparent hover:border-gray-200'

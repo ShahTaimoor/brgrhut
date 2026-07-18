@@ -3,6 +3,9 @@ import OneLoader from '../ui/OneLoader';
 import LazyImage from '../ui/LazyImage';
 import { Badge } from '../ui/badge';
 
+// Fast food is made-to-order (no stock count), so cap quantity per item to a sane order size
+const MAX_ORDER_QUANTITY = 99;
+
 const ProductCard = React.memo(({
   product,
   quantity,
@@ -85,44 +88,44 @@ const ProductCard = React.memo(({
 
   const handleQuantityChange = useCallback((value) => {
     if (value === '') {
-      onQuantityChange(product._id, '', product.stock);
+      onQuantityChange(product._id, '');
       return;
     }
     const parsed = parseInt(value, 10);
     if (!isNaN(parsed) && parsed >= 0) {
-      onQuantityChange(product._id, parsed, product.stock);
+      onQuantityChange(product._id, Math.min(parsed, MAX_ORDER_QUANTITY));
     }
-  }, [onQuantityChange, product._id, product.stock]);
+  }, [onQuantityChange, product._id]);
 
   const handleDecrease = useCallback((e) => {
     if (e.cancelable !== false && !e.type.startsWith('touch')) {
       e.preventDefault();
     }
     e.stopPropagation();
-    
+
     if (quantityInputRef.current === document.activeElement) {
       quantityInputRef.current.blur();
     }
-    
+
     const currentQty = parseInt(quantity, 10) || 0;
     const newValue = Math.max(currentQty - 1, 0);
-    onQuantityChange(product._id, newValue, product.stock);
-  }, [quantity, onQuantityChange, product._id, product.stock]);
+    onQuantityChange(product._id, newValue);
+  }, [quantity, onQuantityChange, product._id]);
 
   const handleIncrease = useCallback((e) => {
     if (e.cancelable !== false && !e.type.startsWith('touch')) {
       e.preventDefault();
     }
     e.stopPropagation();
-    
+
     if (quantityInputRef.current === document.activeElement) {
       quantityInputRef.current.blur();
     }
-    
+
     const currentQty = parseInt(quantity, 10) || 0;
-    const newValue = Math.min(currentQty + 1, product.stock);
-    onQuantityChange(product._id, newValue, product.stock);
-  }, [quantity, onQuantityChange, product._id, product.stock]);
+    const newValue = Math.min(currentQty + 1, MAX_ORDER_QUANTITY);
+    onQuantityChange(product._id, newValue);
+  }, [quantity, onQuantityChange, product._id]);
 
   const handleImageClick = useCallback(() => {
     setPreviewImage(product.image || product.picture?.secure_url || '/logo.jpeg');
@@ -185,10 +188,18 @@ const ProductCard = React.memo(({
 
       {/* Info Details Container */}
       <div className={`p-4 flex flex-col flex-grow ${gridType === 'grid3' ? 'w-3/4 sm:w-7/8' : 'w-full'}`}>
-        <h3 className="font-semibold leading-snug mb-3 text-gray-900 group-hover:text-primary transition-colors duration-200 text-xs sm:text-sm">
-          {capitalizeTitle(product.title)}
-        </h3>
-        
+        <div className="mb-3">
+          <h3 className="font-semibold leading-snug text-gray-900 group-hover:text-primary transition-colors duration-200 text-xs sm:text-sm">
+            {capitalizeTitle(product.title)}
+          </h3>
+
+          {product.description && (
+            <p className="mt-1 text-[11px] sm:text-xs text-gray-500 leading-snug line-clamp-2">
+              {product.description}
+            </p>
+          )}
+        </div>
+
         <div className="flex-grow" />
 
         <div className={`flex flex-row gap-2.5 ${gridType === 'grid3' ? 'mt-3' : 'mt-auto'}`}>
@@ -240,7 +251,7 @@ const ProductCard = React.memo(({
               <input
                 ref={quantityInputRef}
                 type="number"
-                max={product.stock}
+                max={MAX_ORDER_QUANTITY}
                 value={quantity === '' ? '' : quantity}
                 onChange={(e) => handleQuantityChange(e.target.value)}
                 onFocus={(e) => e.target.select()}
@@ -282,7 +293,7 @@ const ProductCard = React.memo(({
                   WebkitTapHighlightColor: 'transparent'
                 }}
                 tabIndex={-1}
-                disabled={currentQuantity >= product.stock}
+                disabled={currentQuantity >= MAX_ORDER_QUANTITY}
                 aria-label="Increase quantity"
               >
                 +

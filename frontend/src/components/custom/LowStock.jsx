@@ -356,7 +356,7 @@ const LowStock = () => {
                 {/* Product Info */}
                 <div className="p-5 space-y-4">
                   <div className="space-y-1.5">
-                    <h3 className="font-semibold text-base text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+                    <h3 className="font-semibold text-base text-gray-900 line-clamp-2 group-hover:text-primary transition-colors duration-200">
                       {product.title}
                     </h3>
                     
@@ -380,7 +380,7 @@ const LowStock = () => {
                                 handleCancelEditPrice();
                               }
                             }}
-                            className="h-8 text-sm font-semibold border-blue-500 focus:ring-1 focus:ring-blue-500 w-24"
+                            className="h-8 text-sm font-semibold border-primary focus:ring-1 focus:ring-primary w-24"
                             autoFocus
                             disabled={isUpdatingPrice}
                           />
@@ -423,7 +423,7 @@ const LowStock = () => {
                             className="p-1 hover:bg-gray-100 rounded-md transition-colors opacity-0 group-hover:opacity-100"
                             title="Edit price"
                           >
-                            <Edit className="h-3.5 w-3.5 text-gray-400 hover:text-blue-600" />
+                            <Edit className="h-3.5 w-3.5 text-gray-400 hover:text-primary" />
                           </button>
                         </div>
                       )}
@@ -544,7 +544,7 @@ const LowStock = () => {
                         onChange={handleEditChange}
                         placeholder="Enter product title"
                         required
-                        className="h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
+                        className="h-10 border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg"
                       />
                     </div>
 
@@ -560,7 +560,7 @@ const LowStock = () => {
                         onChange={handleEditChange}
                         placeholder="0.00"
                         required
-                        className="h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
+                        className="h-10 border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg"
                       />
                     </div>
                   </div>
@@ -570,7 +570,7 @@ const LowStock = () => {
                       Category <span className="text-destructive">*</span>
                     </Label>
                     <Select value={editFormData.category} onValueChange={handleEditCategoryChange}>
-                      <SelectTrigger className="h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20">
+                      <SelectTrigger className="h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20">
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -586,7 +586,7 @@ const LowStock = () => {
                         {filteredCategories.filter(cat => cat._id !== 'all').map((cat) => (
                           <SelectItem key={cat._id} value={cat._id} className="py-2 text-sm">
                             <div className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
+                              <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                               {cat.name}
                             </div>
                           </SelectItem>
@@ -607,7 +607,7 @@ const LowStock = () => {
                       placeholder="Describe your product..."
                       required
                       rows={4}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg resize-none min-h-[100px]"
+                      className="border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg resize-none min-h-[100px]"
                     />
                   </div>
 
@@ -618,11 +618,11 @@ const LowStock = () => {
                       </Label>
                       <label
                         htmlFor="edit-picture"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer bg-gray-50 hover:border-blue-400 hover:bg-blue-50 transition duration-200 group"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer bg-gray-50 hover:border-primary/60 hover:bg-primary/5 transition duration-200 group"
                       >
                         <div className="flex flex-col items-center gap-1 group-hover:scale-105 transition-transform">
-                           <UploadIcon className="h-6 w-6 text-gray-400 group-hover:text-blue-500" />
-                           <span className="text-gray-500 text-xs font-medium group-hover:text-blue-600">Click to upload</span>
+                           <UploadIcon className="h-6 w-6 text-gray-400 group-hover:text-primary" />
+                           <span className="text-gray-500 text-xs font-medium group-hover:text-primary">Click to upload</span>
                         </div>
                         <Input
                           type="file"
@@ -663,7 +663,7 @@ const LowStock = () => {
                       name="isFeatured"
                       checked={editFormData.isFeatured || false}
                       onChange={handleEditChange}
-                      className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                      className="h-5 w-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
                     />
                     <Label htmlFor="edit-isFeatured" className="text-sm font-medium text-gray-700 flex items-center gap-2 cursor-pointer">
                       <Star className={`h-4 w-4 ${editFormData.isFeatured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
@@ -696,7 +696,7 @@ const LowStock = () => {
                     <Button 
                       type="submit" 
                       disabled={isUpdating}
-                      className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                      className="flex-1 h-11 bg-primary hover:bg-primary/90 text-white transition-colors"
                     >
                       {isUpdating ? (
                         <div className="flex items-center gap-2">

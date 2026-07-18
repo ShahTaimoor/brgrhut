@@ -9,13 +9,13 @@ import { User, Shield, Crown } from 'lucide-react';
 export const getRoleLabel = (role) => {
   switch (role) {
     case 0:
-      return { label: 'User', color: 'bg-blue-100 text-blue-800', icon: User };
+      return { label: 'User', color: 'bg-zinc-100 text-zinc-800', icon: User };
     case 1:
       return { label: 'Admin', color: 'bg-green-100 text-green-800', icon: Shield };
     case 2:
       return { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Crown };
     default:
-      return { label: 'User', color: 'bg-blue-100 text-blue-800', icon: User };
+      return { label: 'User', color: 'bg-zinc-100 text-zinc-800', icon: User };
   }
 };
 

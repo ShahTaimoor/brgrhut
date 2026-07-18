@@ -58,7 +58,7 @@ const MyOrders = () => {
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-primary"
             max={today} // restrict max date to today in Pakistan timezone
           />
         </div>
@@ -71,7 +71,7 @@ const MyOrders = () => {
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 sm:p-3 border border-gray-300 rounded-md text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-primary"
             min={fromDate} // to date should be after from date
             max={today} // restrict max date to today in Pakistan timezone
           />

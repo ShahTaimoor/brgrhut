@@ -182,10 +182,10 @@ const AdminProfile = () => {
   const getRoleInfo = (role) => {
     switch (role) {
       case 0:
-        return { 
-          label: 'User', 
-          color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', 
-          icon: User 
+        return {
+          label: 'User',
+          color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200',
+          icon: User
         };
       case 1:
         return { 
@@ -200,10 +200,10 @@ const AdminProfile = () => {
           icon: Shield 
         };
       default:
-        return { 
-          label: 'User', 
-          color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', 
-          icon: User 
+        return {
+          label: 'User',
+          color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200',
+          icon: User
         };
     }
   };
@@ -227,7 +227,7 @@ const AdminProfile = () => {
     <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-4xl">
       <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-lg">
         {/* Clean Header with Solid Colors */}
-        <div className="bg-slate-900 h-14 sm:h-16 md:h-20 relative">
+        <div className="bg-primary h-14 sm:h-16 md:h-20 relative">
           <div className="absolute -bottom-6 sm:-bottom-8 md:-bottom-10 left-4 sm:left-6 md:left-8">
             <Avatar className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 border-2 sm:border-4 border-white dark:border-gray-800 shadow-lg bg-white dark:bg-gray-900">
               <AvatarImage src={user?.avatar} className="object-cover" />
@@ -290,7 +290,7 @@ const AdminProfile = () => {
               <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-1.5 sm:space-y-2">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 sm:gap-2">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                     <span>Update Username</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -314,7 +314,7 @@ const AdminProfile = () => {
                       className={`h-10 sm:h-11 border-2 transition-all text-sm ${
                         errors.username 
                           ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
-                          : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
+                          : 'border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20'
                       }`}
                     />
                     {errors.username && (
@@ -338,7 +338,7 @@ const AdminProfile = () => {
               <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-1.5 sm:space-y-2">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 sm:gap-2">
-                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                     <span>Change Password</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -364,7 +364,7 @@ const AdminProfile = () => {
                         className={`h-10 sm:h-11 border-2 transition-all pr-10 sm:pr-12 text-sm ${
                           errors.oldPassword 
                             ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
-                            : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
+                            : 'border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20'
                         }`}
                       />
                       <button
@@ -401,7 +401,7 @@ const AdminProfile = () => {
                         className={`h-10 sm:h-11 border-2 transition-all pr-10 sm:pr-12 text-sm ${
                           errors.newPassword 
                             ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
-                            : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
+                            : 'border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20'
                         }`}
                       />
                       <button
@@ -446,7 +446,7 @@ const AdminProfile = () => {
                             ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
                             : passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
                             ? 'border-green-300 dark:border-green-700 focus:border-green-500 focus:ring-green-500/20'
-                            : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
+                            : 'border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 dark:focus:ring-primary/20'
                         }`}
                       />
                       <button
@@ -488,7 +488,7 @@ const AdminProfile = () => {
               }
             }}
             disabled={status === 'loading'}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white shadow-md hover:shadow-lg transition-all px-4 sm:px-6 h-10 sm:h-11 text-xs sm:text-sm font-semibold"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all px-4 sm:px-6 h-10 sm:h-11 text-xs sm:text-sm font-semibold"
           >
             {status === 'loading' ? (
               <>
