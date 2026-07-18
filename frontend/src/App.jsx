@@ -33,7 +33,6 @@ const CreateProducts = lazy(() => import('./components/custom/CreateProducts'));
 const AllProducts = lazy(() => import('./components/custom/AllProducts'));
 const LowStock = lazy(() => import('./components/custom/LowStock'));
 const UpdateProduct = lazy(() => import('./components/custom/UpdateProduct'));
-const Orders = lazy(() => import('./components/custom/Orders'));
 const Media = lazy(() => import('./pages/Media'));
 const Attendance = lazy(() => import('./pages/Attendance'));
 const AttendancePerformance = lazy(() => import('./pages/AttendancePerformance'));
@@ -197,16 +196,6 @@ const App = () => {
         <ProtectedRoute>
           <AdminLayout>
             <Users />
-          </AdminLayout>
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: '/admin/dashboard/orders',
-      element: (
-        <ProtectedRoute>
-          <AdminLayout>
-            <Orders />
           </AdminLayout>
         </ProtectedRoute>
       ),

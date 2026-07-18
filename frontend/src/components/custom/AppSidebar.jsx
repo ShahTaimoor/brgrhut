@@ -1,18 +1,11 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-import { fetchOrdersAdmin, fetchPendingOrderCount, updateOrderStatus } from "@/redux/slices/order/orderSlice";
-import { fetchLowStockCount } from "@/redux/slices/products/productSlice";
 import { useAuth } from "@/hooks/use-auth";
 import {
   FilePlus2Icon,
-  ChartBarStacked,
   GalleryVerticalEnd,
-  PackageSearch,
-  UserCheck,
-  ShoppingCart,
   UserCog,
   LogOut,
-  AlertTriangle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,84 +19,40 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const items = [
-  { 
-    title: "All Food Items", 
-    url: "/admin/dashboard/all-products", 
-    icon: GalleryVerticalEnd, 
+  {
+    title: "All Food Items",
+    url: "/admin/dashboard/all-products",
+    icon: GalleryVerticalEnd,
     description: "Manage Food Items",
-    category: "main"
   },
-  { 
-    title: "Add New Food", 
-    url: "/admin/dashboard", 
-    icon: FilePlus2Icon, 
+  {
+    title: "Add New Food",
+    url: "/admin/dashboard",
+    icon: FilePlus2Icon,
     description: "Add New Menu Item",
-    category: "main"
-  },
-  { 
-    title: "Menu Categories", 
-    url: "/admin/category", 
-    icon: ChartBarStacked, 
-    description: "Food Categories",
-    category: "main"
-  },
-  { 
-    title: "Low Ingredients", 
-    url: "/admin/dashboard/low-stock", 
-    icon: AlertTriangle, 
-    showBadge: true,
-    badgeKey: "lowStock",
-    description: "Low Ingredient Items",
-    category: "main"
-  },
-  { 
-    title: "Live Orders", 
-    url: "/admin/dashboard/orders", 
-    icon: PackageSearch, 
-    showBadge: true, 
-    badgeKey: "pendingOrders",
-    description: "Order Management",
-    category: "orders"
-  },
-  { 
-    title: "Customers", 
-    url: "/admin/dashboard/users", 
-    icon: UserCheck, 
-    description: "Customer List & Info",
-    category: "users"
-  },
-  { 
-    title: "Customer Storefront", 
-    url: "/", 
-    icon: ShoppingCart, 
-    description: "View Front End",
-    category: "external"
   },
 ];
 
+// Kept reachable but out of the main nav — not deleted, just de-emphasized.
+// See conversation notes: these still back real functionality (category
+// CRUD, item availability/pricing edits, customer role & password-reset
+// management) that has no other admin entry point yet.
+const secondaryLinks = [
+  { title: "Manage Categories", url: "/admin/category" },
+  { title: "Manage Item Availability", url: "/admin/dashboard/low-stock" },
+  { title: "Manage Customers & Roles", url: "/admin/dashboard/users" },
+];
+
 export function AppSidebar() {
-  const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { user } = useSelector((state) => state.auth);
-  const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const pendingOrderCount = useSelector((state) => state.orders.pendingOrderCount);
-  const lowStockCount = useSelector((state) => state.products.lowStockCount);
   const { handleLogout } = useAuth();
   const { setOpenMobile, isMobile } = useSidebar();
-
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchOrdersAdmin());
-      dispatch(fetchPendingOrderCount());
-      dispatch(fetchLowStockCount());
-    }
-  }, [dispatch, user]);
 
   const onLogout = async () => {
     setLoading(true);
@@ -114,13 +63,9 @@ export function AppSidebar() {
     }
   };
 
-  if (message) {
-    return (
-      <div className="h-screen flex justify-center items-center bg-white">
-        <p className="text-red-500 font-semibold">{message}</p>
-      </div>
-    );
-  }
+  const closeOnMobile = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar className="border-r border-zinc-200 bg-zinc-50/80 shadow-sm font-['Inter',sans-serif]">
@@ -153,7 +98,7 @@ export function AppSidebar() {
             Main Navigation
           </h3>
           <SidebarMenu className="space-y-1">
-            {items.filter(item => item.category === 'main').map((item) => {
+            {items.map((item) => {
               const isActive = pathname === item.url;
               const Icon = item.icon;
 
@@ -167,124 +112,14 @@ export function AppSidebar() {
                         : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
                     }`}
                   >
-                    <Link 
-                      to={item.url} 
+                    <Link
+                      to={item.url}
                       className="flex items-center gap-3 p-2.5 w-full"
-                      onClick={() => {
-                        if (isMobile) {
-                          setOpenMobile(false);
-                        }
-                      }}
+                      onClick={closeOnMobile}
                     >
                       <Icon className={`w-4 h-4 transition-all ${
-                        isActive 
-                          ? "text-white scale-110" 
-                          : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
-                      }`} />
-                      <span className="text-xs font-medium">{item.title}</span>
-                      
-                      {item.showBadge && item.badgeKey === "lowStock" && lowStockCount > 0 && (
-                        <Badge className={`text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center ${
-                          isActive 
-                            ? "bg-white text-orange-600" 
-                            : "bg-orange-100 text-orange-700 group-hover:bg-orange-200"
-                        }`}>
-                          {lowStockCount}
-                        </Badge>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Orders & Users Group */}
-        <SidebarGroup className="p-0">
-          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.12em] mb-2 px-3">
-            Orders & Users
-          </h3>
-          <SidebarMenu className="space-y-1">
-            {items.filter(item => item.category === 'orders' || item.category === 'users').map((item) => {
-              const isActive = pathname === item.url;
-              const Icon = item.icon;
-
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`group relative transition-all duration-150 rounded-xl h-10 ${
-                      isActive
-                        ? "bg-orange-500 text-white font-semibold shadow-md shadow-orange-500/10"
-                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
-                    }`}
-                  >
-                    <Link 
-                      to={item.url} 
-                      className="flex items-center gap-3 p-2.5 w-full"
-                      onClick={() => {
-                        if (isMobile) {
-                          setOpenMobile(false);
-                        }
-                      }}
-                    >
-                      <Icon className={`w-4 h-4 transition-all ${
-                        isActive 
-                          ? "text-white scale-110" 
-                          : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
-                      }`} />
-                      <span className="text-xs font-medium">{item.title}</span>
-                      
-                      {item.showBadge && item.badgeKey === "pendingOrders" && pendingOrderCount > 0 && (
-                        <Badge className={`text-[10px] font-bold px-1.5 py-0.5 ml-auto border-0 rounded-full min-w-[20px] text-center ${
-                          isActive 
-                            ? "bg-white text-red-600" 
-                            : "bg-red-500 text-white shadow-sm"
-                        }`}>
-                          {pendingOrderCount}
-                        </Badge>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* External Group */}
-        <SidebarGroup className="p-0">
-          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.12em] mb-2 px-3">
-            External
-          </h3>
-          <SidebarMenu className="space-y-1">
-            {items.filter(item => item.category === 'external').map((item) => {
-              const isActive = pathname === item.url;
-              const Icon = item.icon;
-
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`group relative transition-all duration-150 rounded-xl h-10 ${
-                      isActive
-                        ? "bg-orange-500 text-white font-semibold shadow-md"
-                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600"
-                    }`}
-                  >
-                    <Link 
-                      to={item.url} 
-                      className="flex items-center gap-3 p-2.5 w-full"
-                      onClick={() => {
-                        if (isMobile) {
-                          setOpenMobile(false);
-                        }
-                      }}
-                    >
-                      <Icon className={`w-4 h-4 transition-all ${
-                        isActive 
-                          ? "text-white scale-110" 
+                        isActive
+                          ? "text-white scale-110"
                           : "text-zinc-400 group-hover:text-orange-500 group-hover:scale-105"
                       }`} />
                       <span className="text-xs font-medium">{item.title}</span>
@@ -297,31 +132,40 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer Profile & Logout */}
+      {/* Footer: profile, de-emphasized secondary links, logout */}
       <SidebarFooter className="p-4 border-t border-zinc-200/80 bg-white">
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Button
             asChild
             variant="ghost"
             className="w-full justify-start text-zinc-600 hover:text-orange-600 hover:bg-orange-50/60 h-9 rounded-xl transition-all duration-150"
           >
-            <Link 
-              to="/admin/profile" 
+            <Link
+              to="/admin/profile"
               className="flex items-center gap-3"
-              onClick={() => {
-                if (isMobile) {
-                  setOpenMobile(false);
-                }
-              }}
+              onClick={closeOnMobile}
             >
               <UserCog className="w-4 h-4 text-zinc-400 group-hover:text-orange-500" />
               <span className="text-xs font-semibold">Admin Profile</span>
             </Link>
           </Button>
-          
+
+          <div className="space-y-0.5 pt-1 border-t border-zinc-100">
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.url}
+                to={link.url}
+                onClick={closeOnMobile}
+                className="block px-2 py-1.5 text-[11px] text-zinc-400 hover:text-orange-600 transition-colors"
+              >
+                {link.title}
+              </Link>
+            ))}
+          </div>
+
           <Button
             onClick={onLogout}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-sm hover:shadow transition-all duration-150 h-9 rounded-xl text-xs"
+            className="w-full bg-destructive hover:bg-destructive/90 text-white font-semibold shadow-sm hover:shadow transition-all duration-150 h-9 rounded-xl text-xs"
             disabled={loading}
           >
             {loading ? (
