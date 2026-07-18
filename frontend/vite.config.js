@@ -59,12 +59,12 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
       },
       manifest: {
-        name: "Gultraders",
-        short_name: "Gultraders",
+        name: "brgrhut",
+        short_name: "brgrhut",
         start_url: "/",
         display: "standalone",
-        background_color: "#000000",
-        theme_color: "#000000",
+        background_color: "#FFFFFF",
+        theme_color: "#EA580C",
         icons: [
           {
             src: "maskable.png",

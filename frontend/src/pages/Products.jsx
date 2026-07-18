@@ -1,17 +1,14 @@
 import React from 'react';
-import ProductList from '@/components/custom/ProductList';
+import { Navigate, useLocation } from 'react-router-dom';
 
 /**
- * Public Products Page - Shows all products with search and filtering
- * Accessible at /products route
+ * The menu now lives as a section on the single-page Home (`/#menu`).
+ * This route is kept only so old bookmarks/shared links (`/products`,
+ * `/all-products`, optionally with `?category=`/`?search=`) still work.
  */
 const Products = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <ProductList />
-    </div>
-  );
+  const { search } = useLocation();
+  return <Navigate to={`/${search}#menu`} replace />;
 };
 
 export default Products;
-

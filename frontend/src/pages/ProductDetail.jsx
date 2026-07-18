@@ -99,7 +99,7 @@ const ProductDetail = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
           <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/products')}>
+          <Button onClick={() => navigate('/#menu')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Products
           </Button>
@@ -112,7 +112,7 @@ const ProductDetail = () => {
   const isOutOfStock = singleProducts.stock <= 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 lg:py-12">
+    <div className="min-h-screen bg-slate-50 py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <Button

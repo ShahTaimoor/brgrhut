@@ -1,139 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingCart, User, Package, Grid3x3, MessageCircle, Download, ChevronLeft, ChevronRight, LogOut, Heart, LayoutGrid, Plus, LayoutDashboard } from "lucide-react";
+import { Home, User, Package, Download, LogOut, LayoutDashboard } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useIsMobile } from "../../hooks/use-mobile";
-import { useState, useMemo, useEffect } from "react";
-import { Badge } from "../ui/badge";
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetClose,
-} from "../ui/sheet";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { removeFromCart, updateCartQuantity } from "../../redux/slices/cart/cartSlice";
 import { logoutUser } from "../../redux/slices/auth/authSlice";
-import CartImage from "../ui/CartImage";
-import Checkout from "../../pages/Checkout";
 import { useAuthDrawer } from "../../contexts/AuthDrawerContext";
-import { searchProducts } from "../../redux/slices/products/productSlice";
-
-// Cart Product Component (simplified version for mobile)
-const CartProduct = ({ product, quantity, onValidationChange }) => {
-  const dispatch = useDispatch();
-  const [inputQty, setInputQty] = useState(quantity);
-  const { _id, title, price, stock } = product;
-  const image = product.image || product.picture?.secure_url;
-
-  const updateQuantity = (newQty) => {
-    if (newQty !== quantity && newQty > 0 && newQty <= stock) {
-      setInputQty(newQty);
-      dispatch(updateCartQuantity({ productId: _id, quantity: newQty }));
-    }
-  };
-
-  const handleRemove = (e) => {
-    e.stopPropagation();
-    dispatch(removeFromCart(_id));
-  };
-
-  const handleDecrease = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (inputQty > 1) {
-      updateQuantity(inputQty - 1);
-    }
-  };
-
-  const handleIncrease = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (inputQty < stock) {
-      updateQuantity(inputQty + 1);
-    }
-  };
-
-  return (
-    <div className="flex justify-between items-center gap-3 p-3 border-b">
-      <div className="flex items-center gap-3">
-        <CartImage
-          src={image}
-          alt={title}
-          className="w-16 h-12 rounded-lg border object-cover"
-          fallback="/fallback.jpg"
-          quality={80}
-        />
-        <div className="max-w-[120px]">
-          <h4 className="font-semibold text-xs text-gray-900 line-clamp-2">{title}</h4>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 border rounded-full">
-          <button
-            type="button"
-            onClick={handleDecrease}
-            className="w-6 h-6 rounded-l-full flex items-center justify-center text-xs font-bold hover:bg-gray-200"
-            disabled={inputQty <= 1}
-          >
-            −
-          </button>
-          <span className="w-8 text-center text-xs font-medium">{inputQty}</span>
-          <button
-            type="button"
-            onClick={handleIncrease}
-            className="w-6 h-6 rounded-r-full flex items-center justify-center text-xs font-bold hover:bg-gray-200"
-            disabled={inputQty >= stock}
-          >
-            +
-          </button>
-        </div>
-        <button
-          onClick={handleRemove}
-          className="text-red-500 hover:text-red-600 text-xs"
-        >
-          Remove
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const BottomNavigation = () => {
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
-  const { items: cartItems = [] } = useSelector((state) => state.cart);
-  const isMobile = useIsMobile();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const [openCheckoutDialog, setOpenCheckoutDialog] = useState(false);
+
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const { openDrawer } = useAuthDrawer();
-
-  // Calculate total quantity
-  const totalQuantity = useMemo(() => 
-    cartItems.reduce((sum, item) => sum + item.quantity, 0), 
-    [cartItems]
-  );
-
-  const handleBuyNow = () => {
-    if (!user) {
-      openDrawer('login');
-      return;
-    }
-    if (cartItems.length === 0) {
-      return;
-    }
-    setOpenCheckoutDialog(true);
-  };
 
   // PWA Install functionality
   useEffect(() => {
@@ -141,7 +23,7 @@ const BottomNavigation = () => {
       e.preventDefault();
       setDeferredPrompt(e);
       // Only show install prompt if not already installed
-      if (!window.matchMedia('(display-mode: standalone)').matches && 
+      if (!window.matchMedia('(display-mode: standalone)').matches &&
           window.navigator.standalone !== true) {
         setShowInstallPrompt(true);
       }
@@ -149,7 +31,7 @@ const BottomNavigation = () => {
 
     // Check if app is already installed
     const checkIfInstalled = () => {
-      if (window.matchMedia('(display-mode: standalone)').matches || 
+      if (window.matchMedia('(display-mode: standalone)').matches ||
           window.navigator.standalone === true) {
         setShowInstallPrompt(false);
         setDeferredPrompt(null);
@@ -185,16 +67,11 @@ const BottomNavigation = () => {
     }
   };
 
-  const handleDismissInstall = () => {
-    localStorage.setItem('pwa-install-dismissed', 'true');
-    setShowInstallPrompt(false);
-  };
-
   const clearCookies = () => {
     const cookies = ['accessToken', 'refreshToken'];
     const domains = [window.location.hostname, 'localhost', '127.0.0.1'];
     const paths = ['/', '/api', '/admin'];
-    
+
     cookies.forEach(cookieName => {
       domains.forEach(domain => {
         paths.forEach(path => {
@@ -213,7 +90,7 @@ const BottomNavigation = () => {
   const handleLogout = async () => {
     // Clear cookies on client side as fallback
     clearCookies();
-    
+
     // Use Redux async thunk to handle logout (includes API call)
     try {
       await dispatch(logoutUser()).unwrap();
@@ -226,11 +103,7 @@ const BottomNavigation = () => {
     }
   };
 
-  // Don't render on desktop - but ensure it shows on mobile
-  // Always render but use responsive classes for visibility
-  // if (!isMobile) return null;
-
-  // Navigation items matching the design: Install, My Orders, Home (center/active), Cart, Profile
+  // Navigation items: Install, My Orders, Home (center/active), Admin, Profile
   const navItems = [
     {
       path: "/",
@@ -278,7 +151,7 @@ const BottomNavigation = () => {
       label: "Logout",
       show: user !== null,
       onClick: handleLogout,
-      className: "text-red-600 hover:text-red-700 hover:bg-red-50"
+      className: "text-destructive hover:text-destructive/80 hover:bg-destructive/10"
     }
   ];
 
@@ -291,17 +164,15 @@ const BottomNavigation = () => {
 
   return (
     <>
-     
-
-      {/* Bottom Navigation - Matching the design */}
+      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-lg lg:hidden">
         <div className="flex items-end justify-around px-2 pb-3 pt-3 relative">
         {navItems.map((item, index) => {
           if (!item.show) return null;
-          
+
           const Icon = item.icon;
           const active = isActive(item.path) || (item.isHome && location.pathname === "/");
-          
+
           // Handle action items (like Install) with onClick
           if (item.isAction && item.onClick) {
             return (
@@ -315,8 +186,8 @@ const BottomNavigation = () => {
                 className="flex flex-col items-center justify-center relative transition-all duration-300 flex-1"
               >
                 <div className="flex flex-col items-center justify-center gap-0.5">
-                  <Icon 
-                    size={22} 
+                  <Icon
+                    size={22}
                     className="text-gray-400 transition-all duration-300"
                     strokeWidth={1.5}
                     fill="none"
@@ -326,7 +197,7 @@ const BottomNavigation = () => {
               </button>
             );
           }
-          
+
           const handleNavClick = (e) => {
             // If profile and user not logged in, open auth drawer
             if (item.path === '/profile' && !user) {
@@ -337,7 +208,7 @@ const BottomNavigation = () => {
             // Scroll to top when clicking navigation
             window.scrollTo({ top: 0, behavior: 'smooth' });
           };
-          
+
           return (
             <Link
               key={`${item.path}-${index}`}
@@ -348,8 +219,8 @@ const BottomNavigation = () => {
               {item.isCenter ? (
                 // Home button - no background, same as other items
                 <div className="flex flex-col items-center justify-center gap-0.5">
-                  <Icon 
-                    size={22} 
+                  <Icon
+                    size={22}
                     className={`transition-all duration-300 ${
                       active ? "text-primary" : "text-gray-400"
                     }`}
@@ -363,8 +234,8 @@ const BottomNavigation = () => {
               ) : (
                 // Inactive items - just icons, no background, light gray/silver color
                 <div className="flex flex-col items-center justify-center gap-0.5">
-                  <Icon 
-                    size={22} 
+                  <Icon
+                    size={22}
                     className={`transition-all duration-300 ${
                       active ? "text-primary" : "text-gray-400"
                     }`}
@@ -380,73 +251,10 @@ const BottomNavigation = () => {
           );
         })}
 
-        {/* Cart button - always visible, no background */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button 
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="flex flex-col items-center justify-center flex-1 py-1 relative"
-            >
-              <div className="flex flex-col items-center justify-center gap-0.5">
-                <div className="relative">
-                  <ShoppingCart 
-                    size={22} 
-                    className={`transition-all duration-300 ${
-                      location.pathname.includes('/checkout') ? "text-primary" : "text-gray-400"
-                    }`}
-                    strokeWidth={1.5}
-                    fill="none"
-                  />
-                  {totalQuantity > 0 && (
-                    <Badge className="absolute -top-2 -right-2 text-[10px] px-1.5 py-0.5 bg-primary text-white border-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full">
-                      {totalQuantity > 9 ? '9+' : totalQuantity}
-                    </Badge>
-                  )}
-                </div>
-                <span className={`text-[10px] font-medium transition-all duration-300 ${
-                  location.pathname.includes('/checkout') ? "text-primary" : "text-gray-400"
-                }`}>Cart</span>
-              </div>
-            </button>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:w-[400px]">
-            <SheetHeader>
-              <SheetTitle className="text-lg font-bold">Your Cart</SheetTitle>
-              <SheetDescription>Total Items: {totalQuantity}</SheetDescription>
-            </SheetHeader>
-            <div className="mt-4 max-h-[60vh] overflow-y-auto">
-              {cartItems.length > 0 ? (
-                cartItems
-                  .filter((item) => item.product && item.product._id)
-                  .map((item) => (
-                    <CartProduct
-                      key={item.product._id}
-                      product={item.product}
-                      quantity={item.quantity}
-                    />
-                  ))
-              ) : (
-                <p className="text-center text-gray-500 py-6">Your cart is empty.</p>
-              )}
-            </div>
-            <SheetFooter className="mt-6">
-              <SheetClose asChild>
-                <Button
-                  onClick={handleBuyNow}
-                  disabled={cartItems.length === 0}
-                  className="w-full"
-                >
-                  Checkout
-                </Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-
         {/* Logout button */}
         {actionItems.map((item, index) => {
           if (!item.show) return null;
-          
+
           const Icon = item.icon;
           return (
             <button
@@ -459,8 +267,8 @@ const BottomNavigation = () => {
               className="flex flex-col items-center justify-center relative transition-all duration-300 flex-1 min-w-0"
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
-                <Icon 
-                  size={22} 
+                <Icon
+                  size={22}
                   className={`transition-all duration-300 ${item.className || 'text-gray-400'}`}
                   strokeWidth={1.5}
                   fill="none"
@@ -474,17 +282,6 @@ const BottomNavigation = () => {
         })}
 
       </div>
-      
-      {/* Checkout Dialog */}
-      <Dialog open={openCheckoutDialog} onOpenChange={setOpenCheckoutDialog}>
-        <DialogContent className="w-full lg:max-w-6xl h-[62vh] sm:h-[70vh] sm:w-[60vw] overflow-hidden p-0 bg-white rounded-xl shadow-xl flex flex-col">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Checkout</DialogTitle>
-            <DialogDescription>Complete your order</DialogDescription>
-          </DialogHeader>
-          <Checkout closeModal={() => setOpenCheckoutDialog(false)} />
-        </DialogContent>
-      </Dialog>
     </nav>
     </>
   );

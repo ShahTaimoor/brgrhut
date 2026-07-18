@@ -98,16 +98,6 @@ const CartProduct = React.memo(({ product, quantity, onValidationChange }) => {
     }
   }, [dispatch, _id, toast]);
 
-  const handleQuantityChange = useCallback((newQty) => {
-    if (isOutOfStock) return;
-    if (newQty === '' || isNaN(newQty)) {
-      setInputQty('');
-      return;
-    }
-    const val = Math.max(1, Math.min(parseInt(newQty), availableStock));
-    updateQuantity(val);
-  }, [availableStock, isOutOfStock, updateQuantity]);
-
   const handleInputChange = useCallback((e) => {
     if (isOutOfStock) return;
     const val = e.target.value;
@@ -174,7 +164,7 @@ const CartProduct = React.memo(({ product, quantity, onValidationChange }) => {
       <div
         className={`flex justify-between items-center gap-4 p-3 border-b transition ${
           isOutOfStock 
-            ? 'bg-red-50 hover:bg-red-100 opacity-75' 
+            ? 'bg-destructive/10 hover:bg-destructive/15 opacity-75'
             : 'hover:bg-gray-50 cursor-pointer'
         }`}
         onClick={!isOutOfStock ? handleBuyNow : undefined}
@@ -196,7 +186,7 @@ const CartProduct = React.memo(({ product, quantity, onValidationChange }) => {
               {title}
             </h4>
             {isOutOfStock && (
-              <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
+              <div className="flex items-center gap-1 mt-1 text-xs text-destructive">
                 <AlertCircle className="w-3 h-3" />
                 <span>Out of Stock</span>
               </div>
@@ -211,7 +201,7 @@ const CartProduct = React.memo(({ product, quantity, onValidationChange }) => {
         </div>
         <div className="flex items-center gap-3 ml-auto">
           {isOutOfStock ? (
-            <div className="text-xs text-red-600 font-medium px-2 py-1 bg-red-100 rounded">
+            <div className="text-xs text-destructive font-medium px-2 py-1 bg-destructive/10 rounded">
               Unavailable
             </div>
           ) : (
@@ -253,7 +243,7 @@ const CartProduct = React.memo(({ product, quantity, onValidationChange }) => {
           <button
             onClick={handleRemove}
             disabled={isRemoving}
-            className="text-red-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Remove from cart"
           >
             {isRemoving ? (
@@ -273,11 +263,9 @@ CartProduct.displayName = 'CartProduct';
 const CartDrawer = () => {
   const { items: cartItems = [] } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { openDrawer } = useAuthDrawer();
-  const toast = useToast();
-  
+
   // Memoized total quantity calculation
   const totalQuantity = useMemo(() => 
     cartItems.reduce((sum, item) => sum + item.quantity, 0), 
@@ -293,17 +281,6 @@ const CartDrawer = () => {
       [productId]: isValid,
     }));
   }, []);
-
-  const handleRemove = useCallback((productId) => {
-    dispatch(removeFromCart(productId))
-      .unwrap()
-      .then(() => {
-        toast.success('Item removed from cart');
-      })
-      .catch((err) => {
-        toast.error(err || 'Failed to remove item from cart');
-      });
-  }, [dispatch, toast]);
 
   const handleBuyNow = useCallback(() => {
     if (!user) {
@@ -327,32 +304,23 @@ const CartDrawer = () => {
     [cartItems]
   );
 
+  if (totalQuantity === 0) return null;
+
   return (
     <>
+      <div className="fixed bottom-24 right-4 z-40 lg:bottom-6 lg:right-6">
       <Sheet>
         <SheetTrigger asChild>
-          <Button 
-            className="relative backdrop-blur-xl border border-white/40 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 rounded-xl p-3"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-            }}
+          <Button
+            className="relative rounded-full bg-primary p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-primary/90 hover:shadow-xl active:scale-95"
+            aria-label="Open cart"
           >
             {totalQuantity > 0 && (
-              <Badge className="absolute -top-1 -right-1 text-xs px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white border-0 shadow-lg">
+              <Badge className="absolute -top-1 -right-1 border-0 bg-white px-2 py-1 text-xs text-primary shadow-lg">
                 {totalQuantity}
               </Badge>
             )}
-            <ShoppingCart
-              strokeWidth={1.5}
-              size={24}
-              className="text-gray-700 hover:text-blue-600 transition-colors duration-300"
-            />
+            <ShoppingCart strokeWidth={1.5} size={24} className="text-primary-foreground" />
           </Button>
         </SheetTrigger>
         <SheetContent className="w-full sm:w-[400px]">
@@ -393,7 +361,8 @@ const CartDrawer = () => {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      
+      </div>
+
       <Dialog open={openCheckoutDialog} onOpenChange={setOpenCheckoutDialog}>
         <DialogContent className="w-full lg:max-w-6xl h-[62vh] sm:h-[70vh] sm:w-[60vw] overflow-hidden p-0 bg-white rounded-xl shadow-xl flex flex-col">
           <DialogHeader className="sr-only">
