@@ -25,7 +25,7 @@ const UpdateProduct = () => {
     category: '',
     picture: '',
     description: '',
-    stock: '',
+    prepTime: '',
     isFeatured: false,
   });
 
@@ -99,14 +99,14 @@ const UpdateProduct = () => {
 
   useEffect(() => {
     if (singleProducts) {
-      const { title, price, category, picture, description, stock, isFeatured } = singleProducts;
+      const { title, price, category, picture, description, prepTime, isFeatured } = singleProducts;
       setInputValue({
         title,
         price,
         category: category?._id || '',
         picture: '',
         description,
-        stock,
+        prepTime,
         isFeatured: isFeatured || false,
       });
       setPreviewImage(picture?.secure_url || '');
@@ -117,7 +117,18 @@ const UpdateProduct = () => {
     e.preventDefault();
     setLoading(true);
 
-    dispatch(updateSingleProduct({ inputValues: inputValue, id }))
+    const formData = new FormData();
+    formData.append('title', inputValue.title);
+    formData.append('price', inputValue.price);
+    formData.append('category', inputValue.category);
+    formData.append('description', inputValue.description || '');
+    formData.append('prepTime', inputValue.prepTime);
+    formData.append('isFeatured', inputValue.isFeatured);
+    if (inputValue.picture instanceof File) {
+      formData.append('picture', inputValue.picture);
+    }
+
+    dispatch(updateSingleProduct({ inputValues: formData, id }))
       .unwrap()
       .then((response) => {
         if (response?.success) {
@@ -127,7 +138,7 @@ const UpdateProduct = () => {
             category: '',
             picture: '',
             description: '',
-            stock: '',
+            prepTime: '',
             isFeatured: false,
           });
           setPreviewImage('');
@@ -183,9 +194,7 @@ const UpdateProduct = () => {
                 <Label htmlFor="category" className="font-semibold text-gray-700">Cuisine Category</Label>
                 <Select value={inputValue.category} onValueChange={handleCategoryChange}>
                   <SelectTrigger id="category" className="focus:ring-primary">
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select Category" />
-                    </SelectTrigger>
+                    <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="max-h-60">
                     {/* Search Input */}
@@ -281,14 +290,14 @@ const UpdateProduct = () => {
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="stock" className="font-semibold text-gray-700">Servings Available (Stock)</Label>
+                <Label htmlFor="prepTime" className="font-semibold text-gray-700">Prep Time (mins)</Label>
                 <Input
                   type="number"
-                  id="stock"
-                  name="stock"
-                  value={inputValue.stock}
+                  id="prepTime"
+                  name="prepTime"
+                  value={inputValue.prepTime}
                   onChange={handleChange}
-                  placeholder="Stock limit for today's shifts"
+                  placeholder="Preparation time in minutes"
                   className="focus-visible:ring-primary"
                 />
               </div>

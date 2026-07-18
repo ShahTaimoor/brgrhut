@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { usePagination } from '@/hooks/use-pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Card } from '../ui/card';
@@ -12,15 +11,14 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { fetchProducts, getSingleProduct, updateSingleProduct } from '@/redux/slices/products/productSlice';
+import { fetchProducts, getSingleProduct, updateSingleProduct, updateProductAvailability } from '@/redux/slices/products/productSlice';
 import { AllCategory } from '@/redux/slices/categories/categoriesSlice';
-import { AlertTriangle, PackageSearch, Edit, Trash2, X, Upload as UploadIcon, Star } from 'lucide-react';
+import { AlertTriangle, PackageSearch, Edit, Trash2, X, Upload as UploadIcon, Star, Power } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 const LowStock = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { products, status, totalItems } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.categories);
   const toast = useToast();
@@ -33,10 +31,8 @@ const LowStock = () => {
   // State for inline editing
   const [editingPriceId, setEditingPriceId] = useState(null);
   const [editingPriceValue, setEditingPriceValue] = useState('');
-  const [editingStockId, setEditingStockId] = useState(null);
-  const [editingStockValue, setEditingStockValue] = useState('');
-  const [isUpdatingStock, setIsUpdatingStock] = useState(false);
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
+  const [togglingId, setTogglingId] = useState(null);
 
   // State for edit modal
   const [showEditModal, setShowEditModal] = useState(false);
@@ -46,7 +42,6 @@ const LowStock = () => {
     title: '',
     description: '',
     price: '',
-    stock: '',
     category: '',
     picture: '',
     isFeatured: false,
@@ -112,7 +107,6 @@ const LowStock = () => {
           title: prod.title || '',
           description: prod.description || '',
           price: prod.price || '',
-          stock: prod.stock || '',
           category: prod.category?._id || '',
           picture: '',
           isFeatured: prod.isFeatured || false,
@@ -157,7 +151,6 @@ const LowStock = () => {
         title: '',
         description: '',
         price: '',
-        stock: '',
         category: '',
         picture: '',
         isFeatured: false,
@@ -225,7 +218,6 @@ const LowStock = () => {
       // Send remaining fields to satisfy backend strict validations
       formDataObj.append('title', productObj.title || '');
       formDataObj.append('description', productObj.description || '');
-      formDataObj.append('stock', productObj.stock !== undefined ? productObj.stock : 0);
       if (productObj.category?._id || productObj.category) {
         formDataObj.append('category', productObj.category._id || productObj.category);
       }
@@ -256,69 +248,25 @@ const LowStock = () => {
     }
   }, [dispatch, editingPriceValue, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
 
-  // Handle inline stock edit
-  const handleStartEditStock = useCallback((product) => {
-    setEditingStockId(product._id);
-    setEditingStockValue(product.stock?.toString() || '');
-  }, []);
-
-  const handleCancelEditStock = useCallback(() => {
-    setEditingStockId(null);
-    setEditingStockValue('');
-  }, []);
-
-  const handleSaveStock = useCallback(async (productObj) => {
-    const productId = productObj._id || productObj.id;
-
-    if (
-      editingStockValue === '' ||
-      isNaN(editingStockValue) ||
-      parseInt(editingStockValue, 10) < 0 ||
-      !productId
-    ) {
-      return;
-    }
-
-    setIsUpdatingStock(true);
+  // Handle marking a sold-out item as available (serving) again
+  const handleSetAvailable = useCallback(async (product) => {
+    setTogglingId(product._id);
     try {
-      const formDataObj = new FormData();
-      // Send the updated stock value
-      formDataObj.append('stock', editingStockValue);
-      // Send remaining fields to satisfy backend strict validations
-      formDataObj.append('title', productObj.title || '');
-      formDataObj.append('description', productObj.description || '');
-      formDataObj.append('price', productObj.price !== undefined ? productObj.price : 0);
-      if (productObj.category?._id || productObj.category) {
-        formDataObj.append('category', productObj.category._id || productObj.category);
-      }
-      if (productObj.isFeatured !== undefined) {
-        formDataObj.append('isFeatured', productObj.isFeatured);
-      }
-
-      await dispatch(
-        updateSingleProduct({
-          id: productId,
-          inputValues: formDataObj,
-        })
-      ).unwrap();
-
-      setEditingStockId(null);
-      setEditingStockValue('');
-
-      // Refresh products list
+      await dispatch(updateProductAvailability({ id: product._id, isAvailable: true })).unwrap();
+      toast.success(`${product.title} marked as Serving`);
       dispatch(fetchProducts({
         category: 'all',
-        page: pagination.currentPage, 
+        page: pagination.currentPage,
         limit,
         availabilityFilter,
         sortBy,
       }));
     } catch (error) {
-      toast.error('Failed to update stock');
+      toast.error(error || 'Failed to update availability');
     } finally {
-      setIsUpdatingStock(false);
+      setTogglingId(null);
     }
-  }, [dispatch, editingStockValue, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
+  }, [dispatch, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
 
   const sortedProducts = useMemo(() => {
     return products.filter((product) => product && product._id);
@@ -328,7 +276,7 @@ const LowStock = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
-          <OneLoader size="large" text="Loading Low Stock Products..." />
+          <OneLoader size="large" text="Loading sold-out items..." />
         </div>
       </div>
     );
@@ -344,14 +292,14 @@ const LowStock = () => {
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-8 w-8 text-orange-600" />
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                  Low Stock Products
+                  Item Availability
                 </h1>
               </div>
               <p className="text-gray-500 text-lg">
-                Products with stock from 1 to 149 units
+                Menu items currently marked Sold Out — edit details or mark them Serving again
               </p>
             </div>
-            
+
             {/* Stats */}
             <div className="bg-white rounded-lg p-4 shadow-sm border border-orange-200">
               <div className="flex items-center gap-3">
@@ -360,7 +308,7 @@ const LowStock = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900 leading-none">{totalItems}</p>
-                  <p className="text-xs text-gray-500 mt-1">Low Stock Items</p>
+                  <p className="text-xs text-gray-500 mt-1">Sold Out Items</p>
                 </div>
               </div>
             </div>
@@ -381,13 +329,13 @@ const LowStock = () => {
                 key={product._id || `product-${index}`} 
                 className="group relative overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
               >
-                {/* Stock Warning Badge */}
+                {/* Sold Out Badge */}
                 <div className="absolute top-3 right-3 z-10">
-                  <Badge 
-                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-2 py-0.5 border-0"
+                  <Badge
+                    className="bg-destructive hover:bg-destructive/90 text-white text-xs font-bold px-2 py-0.5 border-0"
                   >
                     <AlertTriangle className="h-3 w-3 mr-1" />
-                    Low Stock: {product.stock}
+                    Sold Out
                   </Badge>
                 </div>
 
@@ -480,67 +428,8 @@ const LowStock = () => {
                         </div>
                       )}
                       <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                        {editingStockId === product._id ? (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              value={editingStockValue}
-                              onChange={(e) => setEditingStockValue(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleSaveStock(product);
-                                } else if (e.key === 'Escape') {
-                                  handleCancelEditStock();
-                                }
-                              }}
-                              className="h-8 text-xs font-semibold border-blue-500 focus:ring-1 focus:ring-blue-500 w-20"
-                              autoFocus
-                              disabled={isUpdatingStock}
-                            />
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSaveStock(product);
-                              }}
-                              disabled={isUpdatingStock}
-                              className="h-7 w-7 p-0 bg-green-600 hover:bg-green-700"
-                              type="button"
-                            >
-                              ✓
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCancelEditStock();
-                              }}
-                              disabled={isUpdatingStock}
-                              className="h-7 w-7 p-0"
-                              type="button"
-                            >
-                              ✕
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 font-medium">
-                              Stock: {product.stock}
-                            </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartEditStock(product);
-                              }}
-                              className="p-1 hover:bg-gray-100 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                              title="Edit stock"
-                            >
-                              <Edit className="h-3 w-3 text-gray-400 hover:text-blue-600" />
-                            </button>
-                          </div>
-                        )}
+                        <div className="w-1.5 h-1.5 rounded-full bg-destructive"></div>
+                        <span className="text-xs text-gray-500 font-medium">Sold Out</span>
                       </div>
                     </div>
                   </div>
@@ -550,8 +439,18 @@ const LowStock = () => {
                     <Button
                       variant="outline"
                       size="sm"
+                      disabled={togglingId === product._id}
+                      onClick={() => handleSetAvailable(product)}
+                      className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                    >
+                      <Power className="h-3.5 w-3.5 mr-1" />
+                      Set Serving
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleEdit(product)}
-                      className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200"
+                      className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
                     >
                       Edit Details
                     </Button>
@@ -588,11 +487,11 @@ const LowStock = () => {
               </div>
               
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                No Low Stock Products
+                Nothing Sold Out
               </h3>
-              
+
               <p className="text-gray-500 mb-8">
-                All products have sufficient stock (150 or more units).
+                Every menu item is currently marked as Serving.
               </p>
             </div>
           </div>
@@ -618,7 +517,6 @@ const LowStock = () => {
                       title: '',
                       description: '',
                       price: '',
-                      stock: '',
                       category: '',
                       picture: '',
                       isFeatured: false,
@@ -713,23 +611,7 @@ const LowStock = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-stock" className="text-sm font-semibold text-gray-700">
-                        Stock Quantity <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="edit-stock"
-                        name="stock"
-                        type="number"
-                        value={editFormData.stock}
-                        onChange={handleEditChange}
-                        placeholder="Enter stock quantity"
-                        required
-                        className="h-10 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
-                      />
-                    </div>
-
+                  <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="edit-picture" className="text-sm font-semibold text-gray-700">
                         Product Image
@@ -801,7 +683,6 @@ const LowStock = () => {
                           title: '',
                           description: '',
                           price: '',
-                          stock: '',
                           category: '',
                           picture: '',
                           isFeatured: false,
