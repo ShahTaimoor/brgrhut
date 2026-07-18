@@ -63,17 +63,17 @@ const OrderData = ({
       const contentWidth = pageWidth - (margin * 2);
 
       // Styles - TCS Red Theme
-      const primaryColor = [220, 38, 38]; // Red-600 (#DC2626) - Primary brand color
-      const primaryDark = [153, 27, 27]; // Red-800 (#991B1B)
+      const primaryColor = [234, 88, 12]; // Orange-600 (#EA580C) - Primary brand color
+      const primaryDark = [154, 52, 18]; // Orange-800 (#9A3412)
       const darkGray = [51, 51, 51];
       const mediumGray = [100, 100, 100];
       const lightGray = [250, 250, 250];
       const borderGray = [220, 220, 220];
       const accentGray = [245, 245, 245];
 
-      // Get shop information (customer who placed the order)
+      // Get customer information (customer who placed the order)
       const customerInfo = user || {};
-      const shopName = customerInfo.name || "Shop Name";
+      const customerName = customerInfo.name || "Customer Name";
       const username = customerInfo.username || "N/A";
       const cityText = city || "N/A";
       const phoneText = phone ? String(phone) : "N/A";
@@ -117,7 +117,7 @@ const OrderData = ({
       doc.setTextColor(...primaryColor);
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.text('SHOP INFORMATION', margin + 10, currentY);
+      doc.text('CUSTOMER INFORMATION', margin + 10, currentY);
       
       // Divider line
       currentY += 5;
@@ -137,13 +137,13 @@ const OrderData = ({
       const labelWidth = 35;
       const startY = currentY;
       
-      // First line: Shop Name and Username
+      // First line: Customer Name and Username
       doc.setFont(undefined, 'bold');
       doc.setTextColor(...mediumGray);
-      doc.text('Shop Name:', leftCol, currentY);
+      doc.text('Customer Name:', leftCol, currentY);
       doc.setFont(undefined, 'normal');
       doc.setTextColor(...darkGray);
-      doc.text(shopName, leftCol + labelWidth, currentY);
+      doc.text(customerName, leftCol + labelWidth, currentY);
       
       doc.setFont(undefined, 'bold');
       doc.setTextColor(...mediumGray);
@@ -376,8 +376,8 @@ const OrderData = ({
         );
       }
 
-      const sanitizedShopName = shopName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
-      const fileName = `${sanitizedShopName}-Invoice-${orderId}.pdf`;
+      const sanitizedCustomerName = customerName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+      const fileName = `${sanitizedCustomerName}-Invoice-${orderId}.pdf`;
       doc.save(fileName);
     } catch (error) {
       // Error logging should be handled by error boundary or monitoring service
@@ -481,7 +481,7 @@ const OrderData = ({
                     <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => onDelete(_id)}
-                      className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
+                      className="w-full sm:w-auto bg-destructive hover:bg-destructive/90"
                     >
                       Delete Order
                     </AlertDialogAction>
@@ -520,7 +520,7 @@ const OrderData = ({
               <Building className="h-4 w-4 text-gray-500" />
               <div>
                
-                <p className="text-gray-600"><span>Shop Name: </span>{user?.name || "Shop Name"}</p>
+                <p className="text-gray-600"><span>Customer Name: </span>{user?.name || "Customer Name"}</p>
               </div>
             </div>
             

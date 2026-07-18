@@ -313,12 +313,12 @@ const AdminProfile = () => {
                       required
                       className={`h-10 sm:h-11 border-2 transition-all text-sm ${
                         errors.username 
-                          ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20' 
+                          ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
                           : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
                       }`}
                     />
                     {errors.username && (
-                      <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-red-600 dark:text-red-400 text-[10px] sm:text-xs mt-1">
+                      <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-destructive text-[10px] sm:text-xs mt-1">
                         <AlertCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                         <span className="break-words">{errors.username}</span>
                       </div>
@@ -363,7 +363,7 @@ const AdminProfile = () => {
                         required
                         className={`h-10 sm:h-11 border-2 transition-all pr-10 sm:pr-12 text-sm ${
                           errors.oldPassword 
-                            ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20' 
+                            ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
                             : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
                         }`}
                       />
@@ -377,7 +377,7 @@ const AdminProfile = () => {
                       </button>
                     </div>
                     {errors.oldPassword && (
-                      <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <p className="text-xs text-destructive flex items-center gap-1">
                         <AlertCircle className="h-3 w-3 flex-shrink-0" />
                         <span className="break-words">{errors.oldPassword}</span>
                       </p>
@@ -400,7 +400,7 @@ const AdminProfile = () => {
                         required
                         className={`h-10 sm:h-11 border-2 transition-all pr-10 sm:pr-12 text-sm ${
                           errors.newPassword 
-                            ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20' 
+                            ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
                             : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
                         }`}
                       />
@@ -414,7 +414,7 @@ const AdminProfile = () => {
                       </button>
                     </div>
                     {errors.newPassword && (
-                      <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <p className="text-xs text-destructive flex items-center gap-1">
                         <AlertCircle className="h-3 w-3 flex-shrink-0" />
                         <span className="break-words">{errors.newPassword}</span>
                       </p>
@@ -443,7 +443,7 @@ const AdminProfile = () => {
                         required
                         className={`h-10 sm:h-11 border-2 transition-all pr-10 sm:pr-12 text-sm ${
                           errors.confirmPassword 
-                            ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20' 
+                            ? 'border-destructive/40 dark:border-destructive/60 focus:border-destructive focus:ring-destructive/20'
                             : passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
                             ? 'border-green-300 dark:border-green-700 focus:border-green-500 focus:ring-green-500/20'
                             : 'border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/20'
@@ -459,7 +459,7 @@ const AdminProfile = () => {
                       </button>
                     </div>
                     {errors.confirmPassword && (
-                      <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <p className="text-xs text-destructive flex items-center gap-1">
                         <AlertCircle className="h-3 w-3 flex-shrink-0" />
                         <span className="break-words">{errors.confirmPassword}</span>
                       </p>

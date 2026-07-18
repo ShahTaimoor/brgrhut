@@ -474,14 +474,14 @@ const Category = () => {
             >
               <div className="space-y-3">
                 <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                  Category Name <span className="text-red-500">*</span>
+                  Category Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   value={editingCategory ? editingCategory.name : inputValues.name}
                   onChange={handleChange}
-                  placeholder="e.g. Electronics, Clothing, Automotive"
+                  placeholder="e.g. Burgers, Fries, Beverages"
                   required
                   disabled={loading}
                   className="h-11 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
@@ -548,7 +548,7 @@ const Category = () => {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <Label htmlFor="picture" className="text-sm font-medium text-gray-700">
-                    Category Image <span className="text-red-500">*</span>
+                    Category Image <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <div className="flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 group bg-gray-50">
@@ -621,7 +621,7 @@ const Category = () => {
                                 setInputValues((v) => ({ ...v, picture: null }));
                               }
                             }}
-                            className="text-sm font-medium text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
+                            className="text-sm font-medium text-destructive hover:text-destructive/80 flex items-center gap-1 transition-colors"
                           >
                             <X className="w-4 h-4" />
                             Remove
@@ -883,12 +883,12 @@ const Category = () => {
             )}
 
             {status === 'failed' && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-                <div className="text-red-600 mb-2">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center">
+                <div className="text-destructive mb-2">
                   <X className="h-8 w-8 mx-auto mb-2" />
                   <p className="font-medium">Failed to load categories</p>
                 </div>
-                <p className="text-red-500 text-sm">{error || 'Something went wrong'}</p>
+                <p className="text-destructive text-sm">{error || 'Something went wrong'}</p>
               </div>
             )}
 
@@ -993,7 +993,7 @@ const Category = () => {
                                         size="sm"
                                         onClick={() => handleDelete(category)}
                                         disabled={loading}
-                                        className="h-8 w-8 p-0 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full"
+                                        className="h-8 w-8 p-0 text-gray-500 hover:text-destructive hover:bg-destructive/10 rounded-full"
                                         title="Delete"
                                       >
                                         <Trash2 className="h-4 w-4" />
@@ -1016,7 +1016,7 @@ const Category = () => {
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                         <AlertDialogAction
                                           onClick={confirmDelete}
-                                          className="bg-red-600 hover:bg-red-700"
+                                          className="bg-destructive hover:bg-destructive/90"
                                         >
                                           Delete Category
                                         </AlertDialogAction>
@@ -1117,7 +1117,7 @@ const Category = () => {
                                     size="sm"
                                     onClick={() => handleDelete(category)}
                                     disabled={loading}
-                                    className="h-8 sm:h-9 px-2 sm:px-3 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 text-xs sm:text-sm flex-1 sm:flex-initial"
+                                    className="h-8 sm:h-9 px-2 sm:px-3 text-destructive hover:text-destructive/80 hover:bg-destructive/10 border-gray-200 text-xs sm:text-sm flex-1 sm:flex-initial"
                                   >
                                     <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1.5" />
                                     <span className="hidden sm:inline">Delete</span>
@@ -1140,7 +1140,7 @@ const Category = () => {
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={confirmDelete}
-                                      className="bg-red-600 hover:bg-red-700"
+                                      className="bg-destructive hover:bg-destructive/90"
                                     >
                                       Delete Category
                                     </AlertDialogAction>

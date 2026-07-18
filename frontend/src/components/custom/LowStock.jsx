@@ -27,8 +27,8 @@ const LowStock = () => {
 
   const [limit] = useState(24);
   const [currentPage, setCurrentPage] = useState(1);
-  const [stockFilter] = useState('low-stock'); // Always low-stock
-  const [sortBy] = useState('stock-low'); // Sort by stock low to high
+  const [availabilityFilter] = useState('low-stock'); // Always low-stock for this page
+  const [sortBy] = useState('stock-low'); // Sort by availability ascending
 
   // State for inline editing
   const [editingPriceId, setEditingPriceId] = useState(null);
@@ -64,16 +64,16 @@ const LowStock = () => {
     }
   });
 
-  // Fetch products with low stock filter
+  // Fetch products with low-stock (unavailable) filter
   useEffect(() => {
     dispatch(fetchProducts({ 
       category: 'all', 
       page: currentPage, 
       limit, 
-      stockFilter, 
+      availabilityFilter, 
       sortBy 
     }));
-  }, [dispatch, currentPage, limit, stockFilter, sortBy]);
+  }, [dispatch, currentPage, limit, availabilityFilter, sortBy]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -89,7 +89,7 @@ const LowStock = () => {
 
   // Memoized combined categories
   const combinedCategories = useMemo(() => [
-    { _id: 'all', name: 'All', image: 'https://cdn.pixabay.com/photo/2023/07/19/12/16/car-8136751_1280.jpg' },
+    { _id: 'all', name: 'All' },
     ...(categories || [])
   ], [categories]);
 
@@ -169,7 +169,7 @@ const LowStock = () => {
         category: 'all', 
         page: pagination.currentPage, 
         limit, 
-        stockFilter,
+        availabilityFilter,
         sortBy
       }));
     } catch (error) {
@@ -177,7 +177,7 @@ const LowStock = () => {
     } finally {
       setIsUpdating(false);
     }
-  }, [dispatch, editFormData, isUpdating, selectedProduct, pagination.currentPage, limit, stockFilter, sortBy, toast]);
+  }, [dispatch, editFormData, isUpdating, selectedProduct, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
 
   // Handle edit form change
   const handleEditChange = useCallback((e) => {
@@ -246,7 +246,7 @@ const LowStock = () => {
         category: 'all', 
         page: pagination.currentPage, 
         limit, 
-        stockFilter,
+        availabilityFilter,
         sortBy
       }));
     } catch (error) {
@@ -254,7 +254,7 @@ const LowStock = () => {
     } finally {
       setIsUpdatingPrice(false);
     }
-  }, [dispatch, editingPriceValue, pagination.currentPage, limit, stockFilter, sortBy, toast]);
+  }, [dispatch, editingPriceValue, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
 
   // Handle inline stock edit
   const handleStartEditStock = useCallback((product) => {
@@ -310,7 +310,7 @@ const LowStock = () => {
         category: 'all',
         page: pagination.currentPage, 
         limit,
-        stockFilter,
+        availabilityFilter,
         sortBy,
       }));
     } catch (error) {
@@ -318,7 +318,7 @@ const LowStock = () => {
     } finally {
       setIsUpdatingStock(false);
     }
-  }, [dispatch, editingStockValue, pagination.currentPage, limit, stockFilter, sortBy, toast]);
+  }, [dispatch, editingStockValue, pagination.currentPage, limit, availabilityFilter, sortBy, toast]);
 
   const sortedProducts = useMemo(() => {
     return products.filter((product) => product && product._id);
@@ -600,7 +600,7 @@ const LowStock = () => {
 
         {/* Edit Product Modal */}
         {showEditModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-stone-950/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
               <div className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center flex-shrink-0">
@@ -637,7 +637,7 @@ const LowStock = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-700">
-                        Product Title <span className="text-red-500">*</span>
+                        Product Title <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="edit-title"
@@ -652,7 +652,7 @@ const LowStock = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="edit-price" className="text-sm font-semibold text-gray-700">
-                        Price (PKR) <span className="text-red-500">*</span>
+                        Price (PKR) <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="edit-price"
@@ -669,7 +669,7 @@ const LowStock = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="edit-category" className="text-sm font-semibold text-gray-700">
-                      Category <span className="text-red-500">*</span>
+                      Category <span className="text-destructive">*</span>
                     </Label>
                     <Select value={editFormData.category} onValueChange={handleEditCategoryChange}>
                       <SelectTrigger className="h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20">
@@ -699,7 +699,7 @@ const LowStock = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="edit-description" className="text-sm font-semibold text-gray-700">
-                      Description <span className="text-red-500">*</span>
+                      Description <span className="text-destructive">*</span>
                     </Label>
                     <Textarea
                       id="edit-description"
@@ -716,7 +716,7 @@ const LowStock = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="edit-stock" className="text-sm font-semibold text-gray-700">
-                        Stock Quantity <span className="text-red-500">*</span>
+                        Stock Quantity <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="edit-stock"
@@ -764,7 +764,7 @@ const LowStock = () => {
                               setEditPreviewImage('');
                               setEditFormData((prev) => ({ ...prev, picture: '' }));
                             }}
-                            className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-red-600 rounded-full p-1.5 shadow-sm transition-colors"
+                            className="absolute top-2 right-2 bg-white/90 hover:bg-destructive/10 text-destructive rounded-full p-1.5 shadow-sm transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

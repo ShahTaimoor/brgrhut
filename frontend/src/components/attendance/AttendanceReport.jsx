@@ -177,7 +177,7 @@ const AttendanceReport = () => {
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
               Present: {summaryStats.present}
             </Badge>
-            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 px-3 py-1">
+            <Badge variant="outline" className="bg-destructive/5 text-destructive border-destructive/20 px-3 py-1">
               Absent: {summaryStats.absent}
             </Badge>
             <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 px-3 py-1">
@@ -191,7 +191,7 @@ const AttendanceReport = () => {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="all">All History</TabsTrigger>
               <TabsTrigger value="Present" className="text-green-600 data-[state=active]:text-green-700">Present</TabsTrigger>
-              <TabsTrigger value="Absent" className="text-red-600 data-[state=active]:text-red-700">Absent</TabsTrigger>
+              <TabsTrigger value="Absent" className="text-destructive data-[state=active]:text-destructive/80">Absent</TabsTrigger>
               <TabsTrigger value="Late" className="text-orange-600 data-[state=active]:text-orange-700">Late</TabsTrigger>
             </TabsList>
           </div>
@@ -219,7 +219,7 @@ const AttendanceReport = () => {
                           variant="outline" 
                           className={`
                             ${record.status === 'Present' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                            ${record.status === 'Absent' ? 'bg-red-50 text-red-700 border-red-200' : ''}
+                            ${record.status === 'Absent' ? 'bg-destructive/5 text-destructive border-destructive/20' : ''}
                             ${record.status === 'Late' ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
                           `}
                         >

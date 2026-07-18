@@ -26,16 +26,15 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer className="relative overflow-hidden bg-black text-white pb-20 lg:pb-0 -mt-16 lg:mt-0">
-      {/* Modern background effects */}
+    <footer className="relative overflow-hidden bg-stone-950 text-white pb-20 lg:pb-0 -mt-16 lg:mt-0">
+      {/* Ambient background accents — solid blurred circles, no gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full filter blur-3xl animate-pulse-slow"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
         <div
-          className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full filter blur-3xl animate-pulse-slow"
+          className="absolute -bottom-40 -right-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow"
           style={{ animationDelay: '2s' }}
         ></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-orange-500/10 to-pink-500/10 rounded-full filter blur-3xl animate-float-gentle"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl animate-float-gentle"></div>
       </div>
 
       {/* Main content */}
@@ -46,7 +45,7 @@ const Footer = () => {
             {/* Company Brand Section */}
             <div className="lg:col-span-1 space-y-6">
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold text-red-500">
+                <h2 className="text-3xl font-bold text-primary">
                   {COMPANY_INFO.name}
                 </h2>
                 <p className="text-slate-300 text-sm font-medium tracking-wide uppercase">
@@ -114,7 +113,7 @@ const Footer = () => {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-5 h-5 mt-0.5 text-red-400">
+                  <div className="w-5 h-5 mt-0.5 text-primary">
                     <svg fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
@@ -152,7 +151,7 @@ const Footer = () => {
             <div className="flex justify-center items-center">
               <p className="text-slate-400 text-sm">
                 © {currentYear}{' '}
-                <span className="text-red-500 font-semibold">
+                <span className="text-primary font-semibold">
                   {COMPANY_INFO.name}
                 </span>
                 . {COPYRIGHT_TEXT}

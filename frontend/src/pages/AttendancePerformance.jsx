@@ -39,7 +39,7 @@ const AttendancePerformance = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-green-50 to-white border-green-100">
+        <Card className="bg-green-50 border-green-100">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-green-600 flex items-center gap-2">
               <Award size={18} /> Top Performer
@@ -55,7 +55,7 @@ const AttendancePerformance = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-100">
+        <Card className="bg-blue-50 border-blue-100">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-blue-600 flex items-center gap-2">
               <TrendingUp size={18} /> Average Score

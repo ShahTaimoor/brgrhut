@@ -69,7 +69,7 @@ const TopAttendance = ({ topEmployees, vertical = false, onReset }) => {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
+                      className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleReset(employee.employeeName)}
                       title="Reset Attendance Stats"
                     >

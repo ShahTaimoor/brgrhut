@@ -93,7 +93,7 @@ const ToggleLogout = ({ user }) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleLogout}
-                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="text-destructive focus:text-destructive focus:bg-destructive/10"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -138,7 +138,7 @@ const ToggleLogout = ({ user }) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleLogout}
-                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="text-destructive focus:text-destructive focus:bg-destructive/10"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

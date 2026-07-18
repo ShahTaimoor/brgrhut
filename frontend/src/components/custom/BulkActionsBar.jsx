@@ -61,7 +61,7 @@ const BulkActionsBar = ({
           size="sm"
           onClick={() => onBulkStockUpdate(0)}
           disabled={isBulkUpdating}
-          className="border-gray-300 text-red-600 hover:bg-red-50 h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 flex-1 sm:flex-initial"
+          className="border-gray-300 text-destructive hover:bg-destructive/10 h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 flex-1 sm:flex-initial"
         >
           <span className="hidden sm:inline">Mark Out of Stock</span>
           <span className="sm:hidden">Out Stock</span>

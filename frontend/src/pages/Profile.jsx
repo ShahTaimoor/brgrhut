@@ -80,7 +80,7 @@ const Profile = () => {
   return (
     <div className="container mt-20 mx-auto p-4 max-w-4xl">
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-r from-primary to-secondary h-32 relative">
+        <div className="bg-primary h-32 relative">
           <div className="absolute -bottom-16 left-6">
             <Avatar className="w-32 h-32 border-4 border-background">
               <AvatarImage src={user?.avatar} />
@@ -171,7 +171,7 @@ const Profile = () => {
         peer-placeholder-shown:text-sm peer-placeholder-shown:text-muted-foreground 
         peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[#FED700]"
                     >
-                      Phone Number <span className="text-red-500">*</span>
+                      Phone Number <span className="text-destructive">*</span>
                     </label>
                   </div>
 

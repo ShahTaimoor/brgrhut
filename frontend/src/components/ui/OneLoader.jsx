@@ -3,7 +3,7 @@ import React from 'react';
 const OneLoader = ({ 
   size = 'medium', 
   color = 'primary', 
-  text = 'Gultraders...', 
+  text = 'brgrhut...',
   showText = true,
   className = '' 
 }) => {
@@ -20,7 +20,7 @@ const OneLoader = ({
     gray: 'border-gray-600',
     white: 'border-white',
     green: 'border-green-600',
-    red: 'border-red-600'
+    red: 'border-destructive'
   };
 
   return (

@@ -87,7 +87,7 @@ const CartProduct = ({ product, quantity }) => {
         </div>
         <button
           onClick={handleRemove}
-          className="text-red-500 hover:text-red-700 text-sm font-medium hover:bg-red-50 px-2 py-1 rounded-md transition-colors"
+          className="text-destructive hover:text-destructive/80 text-sm font-medium hover:bg-destructive/10 px-2 py-1 rounded-md transition-colors"
         >
           Remove
         </button>
@@ -165,7 +165,7 @@ const Success = () => {
   }, [user, cartItems.length, navigate, openDrawer])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-primary/8 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         {/* Success Icon */}
         <div className="mb-8 flex justify-center">

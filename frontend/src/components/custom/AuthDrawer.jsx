@@ -170,7 +170,7 @@ const AuthDrawer = () => {
             {/* Shop Name Field */}
             <div className="space-y-2">
               <Label htmlFor="shopName" className="text-sm font-semibold text-gray-900">
-                Shop Name <span className="text-red-500">*</span>
+                Shop Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="shopName"
@@ -185,7 +185,7 @@ const AuthDrawer = () => {
                 className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
               {errorMsg.shopName && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-destructive text-xs mt-1">
                   {errorMsg.shopName}
                 </p>
               )}
@@ -194,7 +194,7 @@ const AuthDrawer = () => {
             {/* Password Field */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-semibold text-gray-900">
-                Password <span className="text-red-500">*</span>
+                Password <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Input
@@ -220,7 +220,7 @@ const AuthDrawer = () => {
                 </button>
               </div>
               {errorMsg.password && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-destructive text-xs mt-1">
                   {errorMsg.password}
                 </p>
               )}
@@ -253,7 +253,7 @@ const AuthDrawer = () => {
               {/* Phone Field - Required */}
               <div className="space-y-2 mb-4">
                 <Label htmlFor="phone" className="text-sm font-semibold text-gray-900">
-                  Phone Number <span className="text-red-500">*</span>
+                  Phone Number <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="phone"

@@ -135,7 +135,7 @@ const AdminLogin = () => {
   }, [forgotPasswordName, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-md">
         {/* Back to Home Link */}
         <Link 
@@ -168,7 +168,7 @@ const AdminLogin = () => {
             {/* Shop Name Field */}
             <div className="space-y-2">
               <Label htmlFor="shopName" className="text-sm font-semibold text-gray-900">
-                Shop Name <span className="text-red-500">*</span>
+                Shop Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="shopName"
@@ -183,7 +183,7 @@ const AdminLogin = () => {
                 className="h-12 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
               {errorMsg.shopName && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-destructive text-xs mt-1">
                   {errorMsg.shopName}
                 </p>
               )}
@@ -192,7 +192,7 @@ const AdminLogin = () => {
             {/* Password Field */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-semibold text-gray-900">
-                Password <span className="text-red-500">*</span>
+                Password <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Input
@@ -218,7 +218,7 @@ const AdminLogin = () => {
                 </button>
               </div>
               {errorMsg.password && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-destructive text-xs mt-1">
                   {errorMsg.password}
                 </p>
               )}

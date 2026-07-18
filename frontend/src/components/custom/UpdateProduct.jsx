@@ -255,7 +255,7 @@ const UpdateProduct = () => {
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-700 transition"
+                      className="absolute -top-1.5 -right-1.5 bg-destructive text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-destructive/90 transition"
                       title="Remove"
                     >
                       ✕

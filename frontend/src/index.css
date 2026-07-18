@@ -13,8 +13,8 @@
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  /* TCS Primary Red Color - Vibrant red for main branding and CTAs */
-  --primary: oklch(0.5 0.22 25);
+  /* BRGRHUT Primary Orange - warm orange for main branding and CTAs */
+  --primary: oklch(0.646 0.222 41.116);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
@@ -22,8 +22,8 @@
   --muted-foreground: oklch(0.552 0.016 285.938);
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
-  /* TCS Destructive/Error Red - Slightly different shade */
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Destructive/Error - deep rust-brown, not red */
+  --destructive: oklch(0.45 0.09 35);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
@@ -34,7 +34,7 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.5 0.22 25);
+  --sidebar-primary: oklch(0.646 0.222 41.116);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.967 0.001 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
@@ -49,15 +49,15 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
+  --primary: oklch(0.7 0.19 45);
+  --primary-foreground: oklch(0.141 0.005 285.823);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.274 0.006 286.033);
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.58 0.1 35);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
@@ -68,8 +68,8 @@
   --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.7 0.19 45);
+  --sidebar-primary-foreground: oklch(0.141 0.005 285.823);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
@@ -156,7 +156,7 @@ html{
   scroll-behavior: smooth;
 }
 
-/* Custom GULTRADERS Design Enhancements */
+/* Custom BRGRHUT Design Enhancements */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -202,23 +202,21 @@ button, [role="button"] {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Gradient text effect - TCS Red Theme */
+/* Accent text effect - BRGRHUT Orange Theme */
 .gradient-text {
-  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #EA580C;
 }
 
-/* Custom button hover effects - TCS Red Theme */
+/* Custom button hover effects - BRGRHUT Orange Theme */
 .btn-primary {
-  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  background: #EA580C;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
+  background: #C2410C;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 10px 25px rgba(234, 88, 12, 0.4);
 }
 
 /* Card hover effects */
@@ -323,25 +321,25 @@ button, [role="button"] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  background: #EA580C;
   border-radius: 10px;
   border: 2px solid #f1f1f1;
   transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, #7F1D1D 100%);
+  background: #C2410C;
   border: 1px solid #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, #991B1B 0%, #7F1D1D 100%);
+  background: #9A3412;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #DC2626 #f1f1f1;
+  scrollbar-color: #EA580C #f1f1f1;
 }
 
 /* Dark mode scrollbar */
@@ -351,17 +349,17 @@ button, [role="button"] {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    background: #FB923C;
     border: 2px solid #1f1f1f;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    background: #EA580C;
     border: 1px solid #1f1f1f;
   }
 
   * {
-    scrollbar-color: #EF4444 #1f1f1f;
+    scrollbar-color: #FB923C #1f1f1f;
   }
 }
 
@@ -468,13 +466,13 @@ button, [role="button"] {
 }
 
 [data-sonner-toast][data-type="success"] {
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  background: #16a34a;
   color: white;
   border: none;
 }
 
 [data-sonner-toast][data-type="error"] {
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  background: #8a4a2b;
   color: white;
   border: none;
 }
@@ -486,7 +484,7 @@ button, [role="button"] {
 }
 
 [data-sonner-toast][data-type="warning"] {
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  background: #d97706;
   color: white;
   border: none;
 }
@@ -515,7 +513,7 @@ button, [role="button"] {
 .swiper-pagination-bullet-active {
   width: 24px !important;
   height: 8px !important;
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  background: #EA580C !important;
   border-radius: 4px !important;
 }
 
@@ -525,7 +523,7 @@ button, [role="button"] {
 }
 
 .swiper-pagination-bullet-active:hover {
-  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%) !important;
+  background: #C2410C !important;
 }
 
 /* Footer Animations */
