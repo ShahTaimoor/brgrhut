@@ -98,7 +98,7 @@ class ProductSearchService {
       };
     }
 
-    const baseQuery = { stock: { $gt: 0 } };
+    const baseQuery = { isAvailable: true };
     const regexPatterns = keywords.map(keyword => {
       const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return new RegExp(escaped, 'i');
@@ -116,7 +116,7 @@ class ProductSearchService {
       ...baseQuery,
       $and: searchConditions
     }, {
-      select: 'title picture price description stock isFeatured createdAt category tags',
+      select: 'title picture price description isFeatured createdAt category tags',
       populate: [{ path: 'category', select: 'name' }]
     });
 
@@ -192,7 +192,7 @@ class ProductSearchService {
       };
     }
 
-    const baseQuery = { stock: { $gt: 0 } };
+    const baseQuery = { isAvailable: true };
     const regexPatterns = keywords.map(keyword => {
       const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return new RegExp(escaped, 'i');

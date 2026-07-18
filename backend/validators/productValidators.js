@@ -67,9 +67,11 @@ const getProductsQuerySchema = Joi.object({
     Joi.number().integer().min(1),
     Joi.string().valid('all')
   ).optional(),
-  // Adjusted filters to handle food availability instead of retail levels
-  availabilityFilter: Joi.string().valid('active', 'sold-out', 'all').optional(),
-  sortBy: Joi.string().valid('az', 'za', 'price-low', 'price-high', 'newest', 'oldest', 'prep-fast', 'relevance').optional()
+  // Supports all frontend filter values: 'active', 'sold-out', 'all', 'low-stock', 'available'
+  availabilityFilter: Joi.string().valid('active', 'available', 'sold-out', 'all', 'low-stock').optional(),
+  // Supports all sort options including admin dashboard stock sorts
+  sortBy: Joi.string().valid('az', 'za', 'price-low', 'price-high', 'newest', 'oldest', 'prep-fast', 'relevance', 'stock-low', 'stock-high').optional(),
+  _t: Joi.number().optional() // Cache-busting timestamp added by axiosInstance interceptor
 });
 
 const searchQuerySchema = Joi.object({
@@ -79,12 +81,14 @@ const searchQuerySchema = Joi.object({
     'any.required': 'Search query is required'
   }),
   limit: Joi.number().integer().min(1).max(100).optional(),
-  page: Joi.number().integer().min(1).optional()
+  page: Joi.number().integer().min(1).optional(),
+  _t: Joi.number().optional()
 });
 
 const searchSuggestionsQuerySchema = Joi.object({
   q: Joi.string().trim().min(2).optional(),
-  limit: Joi.number().integer().min(1).max(8).optional()
+  limit: Joi.number().integer().min(1).max(8).optional(),
+  _t: Joi.number().optional()
 });
 
 module.exports = {

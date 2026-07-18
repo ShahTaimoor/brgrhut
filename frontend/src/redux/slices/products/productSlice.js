@@ -141,68 +141,16 @@ export const fetchSoldOutCount = createAsyncThunk(
 // Fallback alias for components still referencing the old name layout
 export const fetchLowStockCount = fetchSoldOutCount;
 
-// High-quality Fast Food Mock Data updated with menu flags instead of wholesale levels
-const mockFastFoodProducts = [
-    {
-        _id: "mock-1",
-        title: "Classic Beef Smash Burger",
-        description: "Double smashed premium beef patty, melted cheddar cheese, signature burger sauce, toasted brioche bun.",
-        price: 550,
-        category: "burgers",
-        prepTime: 12,
-        isSpicy: false,
-        isVegetarian: false,
-        isAvailable: true,
-        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80"
-    },
-    {
-        _id: "mock-2",
-        title: "Spicy Fried Chicken Burger",
-        description: "Crispy double-breaded chicken breast, spicy house-mayo sauce, shredded lettuce, fresh bun.",
-        price: 480,
-        category: "burgers",
-        prepTime: 10,
-        isSpicy: true,
-        isVegetarian: false,
-        isAvailable: true,
-        image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=600&auto=format&fit=crop&q=80"
-    },
-    {
-        _id: "mock-3",
-        title: "Pepperoni Feast Pizza",
-        description: "Loaded with double spicy beef pepperoni, gourmet mozzarella, and rich hand-cooked marinara sauce.",
-        price: 1200,
-        category: "pizza",
-        prepTime: 18,
-        isSpicy: true,
-        isVegetarian: false,
-        isAvailable: true,
-        image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80"
-    },
-    {
-        _id: "mock-4",
-        title: "Peri Peri French Fries",
-        description: "Golden premium crispy potato fries tossed in our spicy peri peri shaker seasoning.",
-        price: 250,
-        category: "sides",
-        prepTime: 5,
-        isSpicy: true,
-        isVegetarian: true,
-        isAvailable: true,
-        image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80"
-    }
-];
-
 const initialState = {
-    products: mockFastFoodProducts,
+    products: [],
     singleProducts: null,
     status: 'idle',
     error: null,
     currentPage: 1,
     totalPages: 1,
-    totalItems: mockFastFoodProducts.length,
-    soldOutCount: 0, 
-    lowStockCount: 0, // Retained fallback declaration for dashboard state select references
+    totalItems: 0,
+    soldOutCount: 0,
+    lowStockCount: 0,
     // Search state
     searchResults: [],
     searchStatus: 'idle',
@@ -271,24 +219,16 @@ export const productsSlice = createSlice({
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 const { data, pagination } = action.payload || {};
-                
-                if (!data || data.length === 0) {
-                    state.products = mockFastFoodProducts;
-                    state.totalItems = mockFastFoodProducts.length;
-                    state.currentPage = 1;
-                    state.totalPages = 1;
-                } else {
-                    state.products = data;
-                    state.currentPage = pagination?.page || 1;
-                    state.totalPages = pagination?.totalPages || 1;
-                    state.totalItems = pagination?.total || 0;
-                }
+                state.products = data || [];
+                state.currentPage = pagination?.page || 1;
+                state.totalPages = pagination?.totalPages || 1;
+                state.totalItems = pagination?.total || 0;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
-                state.products = mockFastFoodProducts;
-                state.totalItems = mockFastFoodProducts.length;
+                state.products = [];
+                state.totalItems = 0;
             })
             .addCase(updateSingleProduct.pending, (state) => {
                 state.status = 'loading';

@@ -275,12 +275,16 @@ class ProductService {
 
     const query = { isDeleted: false };
     
-    // Filter by availability state instead of stock integers
-    if (availabilityFilter === 'available') {
+    // Filter by availability state
+    if (availabilityFilter === 'available' || availabilityFilter === 'active') {
       query.isAvailable = true;
     } else if (availabilityFilter === 'sold-out') {
       query.isAvailable = false;
+    } else if (availabilityFilter === 'low-stock') {
+      // For a food menu, 'low-stock' means unavailable items (sold out)
+      query.isAvailable = false;
     }
+    // 'all' means no filter - return everything
 
     if (category && category.trim().toLowerCase() !== 'all') {
       const trimmedCategory = category.trim().toLowerCase();
@@ -375,7 +379,9 @@ class ProductService {
       'price-high': { isFeatured: -1, price: -1 },
       'newest': { isFeatured: -1, createdAt: -1 },
       'oldest': { isFeatured: -1, createdAt: 1 },
-      'relevance': { isFeatured: -1, createdAt: -1 }
+      'relevance': { isFeatured: -1, createdAt: -1 },
+      'stock-low': { isFeatured: -1, isAvailable: 1, title: 1 },
+      'stock-high': { isFeatured: -1, isAvailable: -1, title: 1 }
     };
 
     return sortMap[sortBy] || { isFeatured: -1, title: 1 };

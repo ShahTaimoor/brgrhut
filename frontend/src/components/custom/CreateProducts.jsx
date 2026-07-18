@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AddProduct } from "@/redux/slices/products/productSlice"; // Aligned with your Redux slice
+import { AllCategory } from "@/redux/slices/categories/categoriesSlice";
 import { PlusCircle, Image, Sparkles, Clock, Flame, Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast"; // Or your custom toast hook
@@ -8,12 +9,17 @@ import { useToast } from "@/hooks/use-toast"; // Or your custom toast hook
 export default function CreateProducts() {
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const { categories } = useSelector((state) => state.categories);
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
+  useEffect(() => {
+    dispatch(AllCategory(''));
+  }, [dispatch]);
+
   const [formData, setFormData] = useState({
-    name: "",
+    title: "",
     price: "",
     category: "",
     prepTime: "10",
@@ -43,14 +49,14 @@ export default function CreateProducts() {
 
     // Using FormData to handle text fields along with image uploads safely
     const submissionData = new FormData();
-    submissionData.append("name", formData.name);
+    submissionData.append("title", formData.title);
     submissionData.append("price", formData.price);
     submissionData.append("category", formData.category);
     submissionData.append("prepTime", formData.prepTime);
     submissionData.append("isSpicy", formData.isSpicy);
     submissionData.append("description", formData.description);
     if (imageFile) {
-      submissionData.append("image", imageFile);
+      submissionData.append("picture", imageFile);
     }
 
     try {
@@ -62,7 +68,7 @@ export default function CreateProducts() {
       });
       // Reset Form
       setFormData({
-        name: "",
+        title: "",
         price: "",
         category: "",
         prepTime: "10",
@@ -107,10 +113,10 @@ export default function CreateProducts() {
               </label>
               <input
                 type="text"
-                name="name"
+                name="title"
                 required
                 placeholder="e.g., Spicy Double Zinger, Pizza, Classic Fries"
-                value={formData.name}
+                value={formData.title}
                 onChange={handleInputChange}
                 className="w-full px-3.5 py-2 border border-zinc-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-zinc-50/30 placeholder-zinc-400"
               />
@@ -146,11 +152,11 @@ export default function CreateProducts() {
                   className="w-full px-3.5 py-2 border border-zinc-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white"
                 >
                   <option value="" disabled>Select category</option>
-                  <option value="Burgers">Burgers</option>
-                  <option value="Pizza">Pizza</option>
-                  <option value="Sides">Sides & Appetizers</option>
-                  <option value="Drinks">Beverages</option>
-                  <option value="Desserts">Desserts</option>
+                  {(categories || []).map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -181,7 +187,7 @@ export default function CreateProducts() {
                   className="w-4 h-4 rounded border-zinc-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
                 />
                 <span className="text-xs font-bold text-orange-700 flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5 fill-current text-red-500" /> Mark as Hot & Spicy
+                  <Flame className="w-3.5 h-3.5 fill-current text-primary" /> Mark as Hot & Spicy
                 </span>
               </label>
             </div>
@@ -220,7 +226,7 @@ export default function CreateProducts() {
                     setImageFile(null);
                     setImagePreview(null);
                   }}
-                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-colors shadow-sm"
+                  className="absolute top-2 right-2 bg-destructive hover:bg-destructive/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-colors shadow-sm"
                 >
                   Remove
                 </button>

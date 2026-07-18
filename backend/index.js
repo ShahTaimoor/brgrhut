@@ -64,7 +64,6 @@ app.use(express.static('public'));
 // CORS configuration
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  'https://gultraders.com',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5174',
@@ -132,7 +131,7 @@ app.use('/api', employeeRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
-    res.send('Welcome to Zaryab Auto API');
+    res.send('Welcome to brgrhut API');
 });
 
 // Global error handling

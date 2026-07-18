@@ -58,12 +58,17 @@ const updateOrderStatusSchema = Joi.object({
 
 const getAllOrdersQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).optional(),
-  limit: Joi.number().integer().min(1).optional()
+  limit: Joi.number().integer().min(1).optional(),
+  status: Joi.string().valid('Pending', 'Preparing', 'Ready for Pickup', 'Completed', 'Cancelled', 'all').optional(),
+  search: Joi.string().trim().allow('').optional(),
+  sortBy: Joi.string().optional(),
+  _t: Joi.number().optional() // Cache-busting timestamp added by axiosInstance interceptor
 });
 
 const getMetricsQuerySchema = Joi.object({
   startDate: Joi.date().optional(),
-  endDate: Joi.date().optional()
+  endDate: Joi.date().optional(),
+  _t: Joi.number().optional() // Cache-busting timestamp added by axiosInstance interceptor
 });
 
 const bulkDeleteOrdersSchema = Joi.object({

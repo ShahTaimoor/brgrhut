@@ -20,7 +20,7 @@ const Media = () => {
   const [category, setCategory] = useState('all');
   const [page, setPage] = useState(1);
   const [limit] = useState(24);
-  const [stockFilter] = useState('all');
+  const [availabilityFilter] = useState('all');
   const [sortBy] = useState('relevance');
 
   // Use pagination hook to eliminate pagination duplication
@@ -76,8 +76,8 @@ const Media = () => {
 
   // Fetch products when filters change
   useEffect(() => {
-    dispatch(fetchProducts({ category, page, limit, stockFilter, sortBy }));
-  }, [dispatch, category, page, limit, stockFilter, sortBy]);
+    dispatch(fetchProducts({ category, page, limit, availabilityFilter, sortBy }));
+  }, [dispatch, category, page, limit, availabilityFilter, sortBy]);
 
   // Get deduplicated search results count for accurate display
   const uniqueSearchResultsCount = useMemo(() => {
@@ -1127,7 +1127,7 @@ const Media = () => {
 
                     {/* Hover overlay with actions */}
                     {!selectMode && (
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
                         <Button
                           variant="secondary"
                           size="sm"
@@ -1135,7 +1135,7 @@ const Media = () => {
                             e.stopPropagation();
                             handlePreviewImage(product.picture?.secure_url || product.image);
                           }}
-                          className="bg-white/90 hover:bg-white text-black"
+                          className="bg-white/90 hover:bg-white text-gray-900"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -1147,7 +1147,7 @@ const Media = () => {
                             e.stopPropagation();
                             handleDownloadImage(product.picture?.secure_url || product.image, product.title || 'product');
                           }}
-                          className="bg-white/90 hover:bg-white text-black"
+                          className="bg-white/90 hover:bg-white text-gray-900"
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -1246,7 +1246,7 @@ const Media = () => {
                 <Button
                   variant={deleteMode ? "destructive" : "outline"}
                   onClick={toggleDeleteMode}
-                  className="flex items-center gap-1.5 sm:gap-2 transition-all duration-200 hover:bg-red-50 hover:border-red-300 text-xs sm:text-sm px-3 sm:px-4 h-8 sm:h-9 flex-shrink-0"
+                  className="flex items-center gap-1.5 sm:gap-2 transition-all duration-200 hover:bg-destructive/10 hover:border-destructive/40 text-xs sm:text-sm px-3 sm:px-4 h-8 sm:h-9 flex-shrink-0"
                 >
                   <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">{deleteMode ? 'Cancel Delete' : 'Delete Mode'}</span>
@@ -1371,7 +1371,7 @@ const Media = () => {
                         </button>
                         {selectedItems.length > 0 && (
                           <span className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
-                            selectMode ? 'text-blue-600' : 'text-red-600'
+                            selectMode ? 'text-blue-600' : 'text-destructive'
                           }`}>
                             {selectedItems.length} selected
                           </span>
@@ -1422,7 +1422,7 @@ const Media = () => {
                         
                         {/* Hover overlay with actions */}
                         {!selectMode && !deleteMode && (
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                          <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
                             <Button
                               variant="secondary"
                               size="sm"
@@ -1430,7 +1430,7 @@ const Media = () => {
                                 e.stopPropagation();
                                 handlePreviewImage(media.url);
                               }}
-                              className="bg-white/90 hover:bg-white text-black"
+                              className="bg-white/90 hover:bg-white text-gray-900"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -1442,7 +1442,7 @@ const Media = () => {
                                 e.stopPropagation();
                                 handleDownloadImage(media.url, media.name || 'uploaded-image');
                               }}
-                              className="bg-white/90 hover:bg-white text-black"
+                              className="bg-white/90 hover:bg-white text-gray-900"
                             >
                               <Download className="h-4 w-4" />
                             </Button>
@@ -1456,7 +1456,7 @@ const Media = () => {
                                   handleDeleteSingle(media._id);
                                 }
                               }}
-                              className="bg-red-500/90 hover:bg-red-500 text-white"
+                              className="bg-destructive/90 hover:bg-destructive text-white"
                               disabled={isDeleting}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1502,7 +1502,7 @@ const Media = () => {
       {/* Image Preview Modal */}
       {previewImage && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] bg-stone-950/70 backdrop-blur-sm flex items-center justify-center px-4"
           onClick={() => setPreviewImage(null)}
           role="dialog"
           aria-modal="true"
@@ -1529,7 +1529,7 @@ const Media = () => {
             />
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-2 right-2 md:top-4 md:right-4 lg:right-24 xl:right-24 bg-black/70 hover:bg-red-500 text-white rounded-full p-1 px-2 text-sm md:text-base"
+              className="absolute top-2 right-2 md:top-4 md:right-4 lg:right-24 xl:right-24 bg-stone-950/70 hover:bg-primary text-white rounded-full p-1 px-2 text-sm md:text-base"
               aria-label="Close preview"
             >
               ✕
@@ -1540,7 +1540,7 @@ const Media = () => {
 
       {/* Import Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-stone-950/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Import Images</h2>
@@ -1587,11 +1587,11 @@ const Media = () => {
                       
                       return (
                         <div key={index} className={`text-xs truncate flex items-center gap-2 ${
-                          isDuplicate ? 'text-red-600' : 'text-gray-500'
+                          isDuplicate ? 'text-destructive' : 'text-gray-500'
                         }`}>
-                          {isDuplicate && <span className="text-red-500">⚠️</span>}
+                          {isDuplicate && <span className="text-destructive">⚠️</span>}
                           <span className={isDuplicate ? 'font-medium' : ''}>{file.name}</span>
-                          {isDuplicate && <span className="text-red-500 text-xs">(already exists)</span>}
+                          {isDuplicate && <span className="text-destructive text-xs">(already exists)</span>}
                         </div>
                       );
                     })}
@@ -1602,7 +1602,7 @@ const Media = () => {
                     const existingNames = uploadedMedia.map(media => media.name?.toLowerCase());
                     return existingNames.includes(sanitizedName);
                   }) && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                    <div className="mt-2 p-2 bg-destructive/5 border border-destructive/20 rounded text-xs text-destructive">
                       ⚠️ Some files have names that already exist. Please rename them or remove them from selection.
                     </div>
                   )}
@@ -1645,7 +1645,7 @@ const Media = () => {
 
       {/* Export Modal */}
       {showExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-stone-950/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">
@@ -1707,10 +1707,10 @@ const Media = () => {
 
       {/* Bulk Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-stone-950/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-red-600">Confirm Bulk Delete</h2>
+              <h2 className="text-xl font-semibold text-destructive">Confirm Bulk Delete</h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -1723,7 +1723,7 @@ const Media = () => {
             <div className="space-y-4">
               <div className="text-sm text-gray-600">
                 <p>Are you sure you want to delete <strong>{selectedItems.length}</strong> media items?</p>
-                <p className="mt-2 text-red-600 font-medium">This action cannot be undone.</p>
+                <p className="mt-2 text-destructive font-medium">This action cannot be undone.</p>
               </div>
 
               <div className="flex gap-2">

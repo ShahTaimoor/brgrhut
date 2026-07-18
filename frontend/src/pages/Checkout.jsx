@@ -126,6 +126,7 @@ const Checkout = ({ closeModal }) => {
       const orderData = {
         products: productArray,
         amount: totalPrice.toFixed(2),
+        orderType: 'Delivery',
         address,
         phone,
         city,
@@ -159,12 +160,12 @@ const Checkout = ({ closeModal }) => {
   }, [cartItems]);
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden">
+    <div className="h-full flex flex-col bg-slate-50 overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 bg-white border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg">
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
             <div>
@@ -185,7 +186,7 @@ const Checkout = ({ closeModal }) => {
             <div className="lg:col-span-2 space-y-6">
               {/* Shipping Information Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 overflow-hidden">
-                <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-6 py-4 border-b border-gray-200/60">
+                <div className="bg-primary/8 px-6 py-4 border-b border-gray-200/60">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white rounded-lg shadow-sm">
@@ -261,7 +262,7 @@ const Checkout = ({ closeModal }) => {
                         <div className="space-y-2">
                           <label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
                             <Phone className="w-4 h-4 text-gray-500" />
-                            Phone Number <span className="text-red-500">*</span>
+                            Phone Number <span className="text-destructive">*</span>
                           </label>
                           <input
                             type="tel"
@@ -340,10 +341,10 @@ const Checkout = ({ closeModal }) => {
 
               {/* Error Display */}
               {error && (
-                <Alert className="border-red-200 bg-red-50/50 rounded-xl">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <AlertTitle className="text-red-900 font-semibold">Order Issue</AlertTitle>
-                  <AlertDescription className="text-red-700 text-sm mt-1 break-words">
+                <Alert className="border-destructive/30 bg-destructive/5 rounded-xl">
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  <AlertTitle className="text-destructive font-semibold">Order Issue</AlertTitle>
+                  <AlertDescription className="text-destructive/90 text-sm mt-1 break-words">
                     {error}
                   </AlertDescription>
                 </Alert>
@@ -371,8 +372,8 @@ const Checkout = ({ closeModal }) => {
                           <div
                             key={item.product._id}
                             className={`flex gap-3 p-3 rounded-xl border transition-all ${
-                              isOutOfStock 
-                                ? 'bg-red-50/50 border-red-200/50' 
+                              isOutOfStock
+                                ? 'bg-destructive/5 border-destructive/20'
                                 : 'bg-gray-50/50 border-gray-200/50 hover:bg-gray-100/50'
                             }`}
                           >
@@ -399,7 +400,7 @@ const Checkout = ({ closeModal }) => {
                                 </span>
                               </div>
                               {isOutOfStock && (
-                                <div className="flex items-center gap-1 mt-2 text-xs text-red-600">
+                                <div className="flex items-center gap-1 mt-2 text-xs text-destructive">
                                   <AlertCircle className="w-3 h-3" />
                                   <span>Out of Stock</span>
                                 </div>
@@ -410,7 +411,7 @@ const Checkout = ({ closeModal }) => {
                                 dispatch(removeFromCart(item.product._id));
                                 toast.success('Item removed from cart');
                               }}
-                              className="flex-shrink-0 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors touch-manipulation"
+                              className="flex-shrink-0 p-1.5 text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-lg transition-colors touch-manipulation"
                               aria-label="Remove item"
                             >
                               <Trash2 className="w-4 h-4" />
