@@ -142,7 +142,7 @@ export default function AllProducts() {
             <div key={product._id} className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden flex flex-col">
               <div className="aspect-square w-full bg-zinc-100 overflow-hidden">
                 <img
-                  src={product.picture?.secure_url || product.image || "/logo.jpeg"}
+                  src={product.picture?.secure_url || product.image || "/placeholder.png"}
                   alt={product.title}
                   className="w-full h-full object-cover"
                 />

@@ -1114,7 +1114,7 @@ const Media = () => {
                       src={product.picture?.secure_url || product.image}
                       alt={product.title || 'Product Image'}
                       className="w-full h-full object-cover"
-                      fallback="/logo.jpeg"
+                      fallback="/placeholder.png"
                       quality={85}
                       loading="eager"
                     />
@@ -1412,7 +1412,7 @@ const Media = () => {
                           src={media.url}
                           alt={media.name || 'Uploaded Image'}
                           className="w-full h-full object-cover"
-                          fallback="/logo.jpeg"
+                          fallback="/placeholder.png"
                           quality={85}
                         />
                         <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -1522,8 +1522,8 @@ const Media = () => {
               decoding="async"
               fetchPriority="high"
               onError={(e) => {
-                if (e.target.src !== '/logo.jpeg') {
-                  e.target.src = '/logo.jpeg';
+                if (e.target.src !== '/placeholder.png') {
+                  e.target.src = '/placeholder.png';
                 }
               }}
             />

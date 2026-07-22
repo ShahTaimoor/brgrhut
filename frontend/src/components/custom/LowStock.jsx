@@ -347,7 +347,7 @@ const LowStock = () => {
                     src={product.image || product.picture?.secure_url}
                     alt={product.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    fallback="/logo.jpeg"
+                    fallback="/placeholder.png"
                     quality={90}
                     loading="eager"
                   />

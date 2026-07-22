@@ -13,7 +13,7 @@ export default defineConfig({
       filename: 'manifest.webmanifest',
       strategies: 'generateSW',
       injectRegister: 'auto',
-      includeAssets: ["vite.svg", "robots.txt", "logo.jpeg"],
+      includeAssets: ["robots.txt", "favicon.svg", "favicon-32.png", "apple-touch-icon.png"],
       workbox: {
         // Don't cache index.html - exclude it from precaching
         globPatterns: ['**/*.{js,css,ico,png,svg,webmanifest,woff,woff2}'],
@@ -67,15 +67,28 @@ export default defineConfig({
         theme_color: "#EA580C",
         icons: [
           {
-            src: "maskable.png",
-            sizes: "196x196",
+            src: "favicon-192.png",
+            sizes: "192x192",
             type: "image/png",
-            purpose: "any maskable"
+            purpose: "any"
           },
           {
-            src: "logo.jpeg",
+            src: "favicon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any"
+          },
+          {
+            src: "maskable-192.png",
             sizes: "192x192",
-            type: "image/jpeg"
+            type: "image/png",
+            purpose: "maskable"
+          },
+          {
+            src: "maskable-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable"
           }
         ]
       },

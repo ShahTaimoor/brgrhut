@@ -97,7 +97,7 @@ const ProductCardAdmin = ({
           })()}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          fallback="/logo.jpeg"
+          fallback="/placeholder.png"
           quality={90}
           loading="eager"
           key={`${product._id}-${product._imageUpdated || product.picture?.secure_url || product.image || 'default'}`}

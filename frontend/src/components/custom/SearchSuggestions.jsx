@@ -440,7 +440,7 @@ const SearchSuggestions = ({
             <div ref={suggestionsRef} className="py-1">
               {/* Product Suggestions */}
               {uniqueSuggestions.map((product, index) => {
-                const productImage = product.image || product.picture?.secure_url || '/logo.jpeg';
+                const productImage = product.image || product.picture?.secure_url || '/placeholder.png';
                 const isSelected = index === selectedIndex;
                 
                 return (
@@ -459,7 +459,7 @@ const SearchSuggestions = ({
                         src={productImage}
                         alt={product.title}
                         className="w-full h-full object-cover"
-                        fallback="/logo.jpeg"
+                        fallback="/placeholder.png"
                         quality={80}
                       />
                     </div>
