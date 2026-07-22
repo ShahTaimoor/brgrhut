@@ -2,6 +2,7 @@ const express = require('express');
 const userController = require('../controllers/UserController');
 const { isAuthorized, isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/authMiddleware');
 const { authLimiter, generalLimiter } = require('../middleware/security');
+const demoOnlyGuard = require('../middleware/demoOnlyGuard');
 const validate = require('../middleware/validate');
 const {
   signupOrLoginSchema,
@@ -21,6 +22,18 @@ router.post('/auth/signup-or-login', authLimiter, validate(signupOrLoginSchema),
 router.post('/signup', authLimiter, validate(signupSchema), userController.signup);
 router.post('/login', authLimiter, validate(loginSchema), userController.login);
 router.post('/admin/login', authLimiter, validate(loginSchema), userController.adminLogin);
+// ============================================================================
+// !!! DEMO MODE ONLY - SECURITY WARNING !!!
+// This route grants full super-admin access with ZERO credentials to anyone
+// who calls it. demoOnlyGuard blocks it unless NODE_ENV isn't "production"
+// AND the request comes from a loopback/private-network address (see
+// middleware/demoOnlyGuard.js) - but that guard is a safety net, not a
+// substitute for deleting this. DELETE THIS ROUTE (and UserService.demoLogin
+// / UserController.demoLogin / middleware/demoOnlyGuard.js / the frontend
+// authService.demoLogin + authSlice.demoLogin + DemoAutoLogin.jsx) BEFORE
+// this app is ever deployed anywhere real users or the public can reach it.
+// ============================================================================
+router.post('/demo-login', demoOnlyGuard, authLimiter, userController.demoLogin);
 router.post('/refresh-token', authLimiter, userController.refreshToken);
 router.get('/logout', userController.logout);
 router.post('/logout', userController.logout);

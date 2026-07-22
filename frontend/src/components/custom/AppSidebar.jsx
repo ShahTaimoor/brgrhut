@@ -1,11 +1,10 @@
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/use-auth";
 import {
   FilePlus2Icon,
   GalleryVerticalEnd,
   UserCog,
-  LogOut,
+  Home,
 } from "lucide-react";
 import {
   Sidebar,
@@ -20,7 +19,6 @@ import {
 } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useState } from "react";
 
 const items = [
   {
@@ -50,18 +48,7 @@ const secondaryLinks = [
 export function AppSidebar() {
   const { pathname } = useLocation();
   const { user } = useSelector((state) => state.auth);
-  const [loading, setLoading] = useState(false);
-  const { handleLogout } = useAuth();
   const { setOpenMobile, isMobile } = useSidebar();
-
-  const onLogout = async () => {
-    setLoading(true);
-    try {
-      await handleLogout();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const closeOnMobile = () => {
     if (isMobile) setOpenMobile(false);
@@ -164,21 +151,13 @@ export function AppSidebar() {
           </div>
 
           <Button
-            onClick={onLogout}
-            className="w-full bg-destructive hover:bg-destructive/90 text-white font-semibold shadow-sm hover:shadow transition-all duration-150 h-9 rounded-xl text-xs"
-            disabled={loading}
+            asChild
+            className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-sm hover:shadow transition-all duration-150 h-9 rounded-xl text-xs"
           >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Logging out...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Logout</span>
-              </div>
-            )}
+            <Link to="/" className="flex items-center justify-center gap-2">
+              <Home className="w-3.5 h-3.5" />
+              <span>Back to Site</span>
+            </Link>
           </Button>
         </div>
       </SidebarFooter>

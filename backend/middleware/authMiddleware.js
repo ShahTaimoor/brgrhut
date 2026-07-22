@@ -59,6 +59,37 @@ const isAuthorized = async (req, res, next) => {
     }
 };
 
+// Attaches req.user if a valid access token is present, but never blocks the request (guest checkout)
+const optionalAuth = async (req, res, next) => {
+    try {
+        const { accessToken } = req.cookies;
+
+        if (!accessToken) {
+            return next();
+        }
+
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+
+        if (decodedToken.type === 'refresh') {
+            return next();
+        }
+
+        const user = await userRepository.findById(decodedToken.id);
+        if (user) {
+            req.user = {
+                ...user,
+                id: user._id || user.id,
+                _id: user._id || user.id
+            };
+        }
+
+        next();
+    } catch (error) {
+        // Invalid/expired token on an optional-auth route just means "treat as guest"
+        next();
+    }
+};
+
 // Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
     try {
@@ -121,6 +152,7 @@ const isAdminOrSuperAdmin = (req, res, next) => {
 
 module.exports = {
     isAuthorized,
+    optionalAuth,
     isAdmin,
     isSuperAdmin,
     isAdminOrSuperAdmin,

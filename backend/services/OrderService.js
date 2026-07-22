@@ -37,34 +37,37 @@ class OrderService {
       });
     }
 
-    const user = await userRepository.findById(userId);
-    if (!user) {
+    // Guest checkout: userId is optional. Only registered accounts get profile sync/lookup.
+    const user = userId ? await userRepository.findById(userId) : null;
+    if (userId && !user) {
       throw new NotFoundError('User not found');
     }
 
-    // Sync profile phone number if not present
-    if (!user.phone && phone) {
-      await userRepository.updateById(userId, { phone });
-    }
+    if (user) {
+      // Sync profile phone number if not present
+      if (!user.phone && phone) {
+        await userRepository.updateById(userId, { phone });
+      }
 
-    // Handle profile sync for delivery addresses safely
-    if (orderType === 'Delivery') {
-      const updateData = {};
-      if (!user.address && address) updateData.address = address;
-      if (!user.city && city) updateData.city = city;
-      if (Object.keys(updateData).length > 0) {
-        await userRepository.updateById(userId, updateData);
+      // Handle profile sync for delivery addresses safely
+      if (orderType === 'Delivery') {
+        const updateData = {};
+        if (!user.address && address) updateData.address = address;
+        if (!user.city && city) updateData.city = city;
+        if (Object.keys(updateData).length > 0) {
+          await userRepository.updateById(userId, updateData);
+        }
       }
     }
 
     const order = await orderRepository.create({
       products: processedProducts,
-      userId,
+      userId: userId || undefined,
       orderType: orderType || 'Takeaway',
       tableNumber: orderType === 'Dine-In' ? tableNumber : undefined,
-      address: orderType === 'Delivery' ? (user.address || address) : undefined,
-      city: orderType === 'Delivery' ? (user.city || city) : undefined,
-      phone: user.phone || phone,
+      address: orderType === 'Delivery' ? (user?.address || address) : undefined,
+      city: orderType === 'Delivery' ? (user?.city || city) : undefined,
+      phone: user?.phone || phone,
       amount: parseFloat(amount),
       paymentMethod: paymentMethod || 'Cash on Counter',
       status: 'Pending'

@@ -50,5 +50,14 @@ const adminLogin = async (userData) => {
   return response.data;
 };
 
-const authService = { loginUser, updateProfile, updateUserRole, changePassword, updateUsername, signupOrLogin, adminLogin };
+// DEMO MODE ONLY: silently authenticates as the demo admin, no credentials needed.
+// Remove alongside the backend /demo-login route post-demo.
+const demoLogin = async () => {
+  const response = await axiosInstance.post('/demo-login', {}, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data;
+};
+
+const authService = { loginUser, updateProfile, updateUserRole, changePassword, updateUsername, signupOrLogin, adminLogin, demoLogin };
 export default authService;

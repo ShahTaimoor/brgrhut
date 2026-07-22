@@ -4,7 +4,7 @@ class OrderController {
   async createOrder(req, res, next) {
     try {
       const orderData = req.body;
-      const userId = req.user.id;
+      const userId = req.user?.id;
 
       const order = await orderService.createOrder(orderData, userId);
 

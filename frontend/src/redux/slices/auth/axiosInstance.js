@@ -130,11 +130,6 @@ axiosInstance.interceptors.response.use(
         // Attempt server logout to clear cookies
         try { await axiosInstance.post('/logout', null, { withCredentials: true }); } catch {}
 
-        // Open auth drawer instead of redirecting to login
-        if (typeof window !== 'undefined') {
-          // Dispatch custom event to open auth drawer
-          window.dispatchEvent(new CustomEvent('openAuthDrawer', { detail: { mode: 'login' } }));
-        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

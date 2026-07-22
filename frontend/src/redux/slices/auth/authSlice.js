@@ -91,6 +91,19 @@ export const adminLogin = createAsyncThunk(
   }
 );
 
+// DEMO MODE ONLY: see authService.demoLogin - remove alongside it post-demo.
+export const demoLogin = createAsyncThunk(
+  'auth/demoLogin',
+  async (_, thunkAPI) => {
+    try {
+      return await authService.demoLogin();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Demo login failed';
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, thunkAPI) => {
@@ -223,6 +236,19 @@ const authSlice = createSlice({
         state.tokenExpired = false;
       })
       .addCase(adminLogin.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(demoLogin.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(demoLogin.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+        state.tokenExpired = false;
+      })
+      .addCase(demoLogin.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })

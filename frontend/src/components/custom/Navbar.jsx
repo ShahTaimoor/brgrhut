@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import LogoutToggle from "./LogoutToggle";
+import { LayoutDashboard } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Home", hash: "#home" },
@@ -10,7 +9,6 @@ const NAV_LINKS = [
 ];
 
 const Navbar = () => {
-  const user = useSelector((state) => state.auth.user);
   const { pathname } = useLocation();
   const onHome = pathname === "/";
 
@@ -64,9 +62,15 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Account (only shown once signed in — sign-in itself happens via Add to Cart / Checkout) */}
+          {/* Demo mode: direct link into the admin dashboard, no login required */}
           <div className="flex-shrink-0">
-            {user != null && <LogoutToggle user={user} />}
+            <Link
+              to="/admin/dashboard"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Link>
           </div>
         </div>
       </div>
