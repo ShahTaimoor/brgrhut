@@ -45,13 +45,13 @@ const Footer = () => {
             {/* Company Brand Section */}
             <div className="lg:col-span-1 space-y-6">
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold text-primary">
+                <h2 className="font-['Fredoka',sans-serif] text-3xl font-bold text-primary">
                   {COMPANY_INFO.name}
                 </h2>
-                <p className="text-slate-300 text-sm font-medium tracking-wide uppercase">
+                <p className="font-['Fredoka',sans-serif] text-slate-300 text-sm font-medium tracking-wide uppercase">
                   {COMPANY_INFO.tagline}
                 </p>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <p className="font-['Poppins',sans-serif] text-slate-400 text-sm leading-relaxed">
                   {COMPANY_INFO.description}
                 </p>
               </div>
@@ -74,7 +74,7 @@ const Footer = () => {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="font-['Fredoka',sans-serif] text-lg font-semibold text-white">
                 {SECTION_TITLES.contactInfo}
               </h3>
               <div className="space-y-4">
@@ -85,7 +85,7 @@ const Footer = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-slate-300 text-sm">{CONTACT_INFO.phone}</p>
+                    <p className="font-['Poppins',sans-serif] text-slate-300 text-sm">{CONTACT_INFO.phone}</p>
                   </div>
                 </div>
 
@@ -94,7 +94,7 @@ const Footer = () => {
 
             {/* Address & Map */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="font-['Fredoka',sans-serif] text-lg font-semibold text-white">
                 {SECTION_TITLES.location}
               </h3>
               <div className="space-y-4">
@@ -105,7 +105,7 @@ const Footer = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-slate-300 text-sm leading-relaxed">
+                    <p className="font-['Poppins',sans-serif] text-slate-300 text-sm leading-relaxed">
                       {LOCATION.address.map((line, index) => (
                         <span key={index}>
                           {line}
@@ -135,9 +135,9 @@ const Footer = () => {
         <div className="border-t border-slate-700/50">
           <div className="container mx-auto px-4 py-6">
             <div className="flex justify-center items-center">
-              <p className="text-slate-400 text-sm">
+              <p className="font-['Poppins',sans-serif] text-slate-400 text-sm">
                 © {currentYear}{' '}
-                <span className="text-primary font-semibold">
+                <span className="font-['Fredoka',sans-serif] text-primary font-semibold">
                   {COMPANY_INFO.name}
                 </span>
                 . {COPYRIGHT_TEXT}

@@ -25,14 +25,14 @@ const AboutSection = () => {
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">About brgrhut</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">About brgrhut</p>
+            <h2 className="font-['Fredoka',sans-serif] mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Smoky, handcrafted burgers since day one
             </h2>
-            <p className="mt-4 text-sm italic text-gray-400">
+            <p className="font-['Poppins',sans-serif] mt-4 text-sm italic text-gray-400">
               Placeholder brand story below — replace with your real founding story and details.
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600 sm:text-base">
+            <p className="font-['Poppins',sans-serif] mt-2 text-sm leading-relaxed text-gray-600 sm:text-base">
               [Placeholder] brgrhut started with one simple idea: fast food doesn&apos;t have to mean
               average food. Every burger is flame-grilled to order, every side is made fresh, and
               every order is packed with the same care whether it&apos;s your first visit or your
@@ -47,8 +47,8 @@ const AboutSection = () => {
                   <f.icon size={20} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900">{f.title}</h3>
-                  <p className="mt-1 text-sm text-gray-600">{f.text}</p>
+                  <h3 className="font-['Fredoka',sans-serif] text-sm font-bold text-gray-900">{f.title}</h3>
+                  <p className="font-['Poppins',sans-serif] mt-1 text-sm text-gray-600">{f.text}</p>
                 </div>
               </div>
             ))}

@@ -6,8 +6,8 @@ const ContactSection = () => {
     <section id="contact" className="w-full scroll-mt-14 bg-orange-50/40 py-16 sm:scroll-mt-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">Get in touch</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Get in touch</p>
+          <h2 className="font-['Fredoka',sans-serif] mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             Contact Us
           </h2>
         </div>
@@ -19,8 +19,8 @@ const ContactSection = () => {
                 <Phone size={18} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Call us</p>
-                <a href={`tel:${CONTACT_INFO.phone}`} className="text-sm font-semibold text-gray-900 hover:text-primary">
+                <p className="font-['Fredoka',sans-serif] text-xs font-semibold uppercase tracking-wide text-gray-400">Call us</p>
+                <a href={`tel:${CONTACT_INFO.phone}`} className="font-['Poppins',sans-serif] text-sm font-semibold text-gray-900 hover:text-primary">
                   {CONTACT_INFO.phone}
                 </a>
               </div>
@@ -31,8 +31,8 @@ const ContactSection = () => {
                 <MapPin size={18} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Address</p>
-                <p className="text-sm font-semibold leading-relaxed text-gray-900">
+                <p className="font-['Fredoka',sans-serif] text-xs font-semibold uppercase tracking-wide text-gray-400">Address</p>
+                <p className="font-['Poppins',sans-serif] text-sm font-semibold leading-relaxed text-gray-900">
                   {LOCATION.address.map((line, index) => (
                     <span key={index}>
                       {line}

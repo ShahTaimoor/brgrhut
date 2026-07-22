@@ -44,8 +44,8 @@ const Navbar = () => {
               <path d="M16 95H104C104 103 92 108 60 108C28 108 16 103 16 95Z" fill="#D97706" />
             </svg>
             <div className="hidden sm:block">
-              <div className="text-lg sm:text-xl font-bold tracking-tight text-primary leading-none">brgrhut</div>
-              <div className="text-[9px] uppercase tracking-wider text-amber-600 font-extrabold mt-0.5">Flame Grilled Burgers</div>
+              <div className="font-['Fredoka',sans-serif] text-lg sm:text-xl font-bold tracking-tight text-primary leading-none">brgrhut</div>
+              <div className="font-['Fredoka',sans-serif] text-[9px] uppercase tracking-wider text-amber-600 font-extrabold mt-0.5">Flame Grilled Burgers</div>
             </div>
           </Link>
 
@@ -55,7 +55,7 @@ const Navbar = () => {
               <Link
                 key={link.hash}
                 to={`/${link.hash}`}
-                className="text-xs sm:text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
+                className="font-['Poppins',sans-serif] text-xs sm:text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
               >
                 {link.label}
               </Link>
@@ -66,7 +66,7 @@ const Navbar = () => {
           <div className="flex-shrink-0">
             <Link
               to="/admin/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+              className="font-['Poppins',sans-serif] inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
             >
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>

@@ -40,25 +40,25 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-orange-300">Welcome to</p>
-        <h1 className="mt-3 text-5xl font-extrabold tracking-tight sm:text-7xl">brgrhut</h1>
-        <p className="mt-4 text-sm uppercase tracking-[0.25em] text-orange-200 sm:text-base">
+        <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.3em] text-orange-300">Welcome to</p>
+        <h1 className="font-['Fredoka',sans-serif] mt-3 text-5xl font-extrabold tracking-tight sm:text-7xl">brgrhut</h1>
+        <p className="font-['Fredoka',sans-serif] mt-4 text-sm uppercase tracking-[0.25em] text-orange-200 sm:text-base">
           Flame Grilled Burgers
         </p>
-        <p className="mx-auto mt-6 max-w-xl text-sm text-white/85 sm:text-base">
+        <p className="font-['Poppins',sans-serif] mx-auto mt-6 max-w-xl text-sm text-white/85 sm:text-base">
           Smoky, flame-grilled goodness — handcrafted burgers, crispy golden fries, and gourmet
           pizzas made with fresh ingredients daily.
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <a
             href="#menu"
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/40"
+            className="font-['Poppins',sans-serif] inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/40"
           >
             View Menu
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+            className="font-['Poppins',sans-serif] inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
           >
             Contact Us
           </a>

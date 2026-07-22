@@ -31,11 +31,11 @@ const TestimonialsSection = () => {
     <section id="testimonials" className="w-full bg-orange-50/40 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">Reviews</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Reviews</p>
+          <h2 className="font-['Fredoka',sans-serif] mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
             What our customers say
           </h2>
-          <p className="mt-2 text-xs italic text-gray-400">
+          <p className="font-['Poppins',sans-serif] mt-2 text-xs italic text-gray-400">
             Placeholder testimonials shown below — swap in real customer reviews when ready.
           </p>
         </div>
@@ -55,10 +55,10 @@ const TestimonialsSection = () => {
                   />
                 ))}
               </div>
-              <p className="mt-4 flex-1 text-sm leading-relaxed text-gray-600">&ldquo;{t.quote}&rdquo;</p>
+              <p className="font-['Poppins',sans-serif] mt-4 flex-1 text-sm leading-relaxed text-gray-600">&ldquo;{t.quote}&rdquo;</p>
               <div className="mt-5 border-t border-gray-100 pt-4">
-                <p className="text-sm font-semibold text-gray-900">{t.name}</p>
-                <p className="text-xs text-gray-400">{t.location}</p>
+                <p className="font-['Poppins',sans-serif] text-sm font-semibold text-gray-900">{t.name}</p>
+                <p className="font-['Poppins',sans-serif] text-xs text-gray-400">{t.location}</p>
               </div>
             </div>
           ))}
