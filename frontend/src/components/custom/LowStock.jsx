@@ -462,21 +462,23 @@ const LowStock = () => {
         </div>
 
         {/* Pagination */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between w-full">
-            <div className="text-sm text-gray-500">
-              Showing <span className="font-semibold text-gray-900">{pagination.startItem}</span> to{' '}
-              <span className="font-semibold text-gray-900">{pagination.endItem}</span> of{' '}
-              <span className="font-semibold text-gray-900">{totalItems}</span> products
-            </div>
+        {totalItems > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between w-full">
+              <div className="text-sm text-gray-500">
+                Showing <span className="font-semibold text-gray-900">{pagination.startItem}</span> to{' '}
+                <span className="font-semibold text-gray-900">{pagination.endItem}</span> of{' '}
+                <span className="font-semibold text-gray-900">{totalItems}</span> products
+              </div>
 
-            <Pagination
-              currentPage={pagination.currentPage}
-              totalPages={pagination.totalPages}
-              onPageChange={handlePageChange}
-            />
+              <Pagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Empty State */}
         {sortedProducts.length === 0 && (

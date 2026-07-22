@@ -6,7 +6,6 @@ export const COMPANY_INFO = {
 
 export const CONTACT_INFO = {
   phone: '+92 311 4000096',
-  whatsapp: ['+92 311 4000096'],
 }
 
 export const LOCATION = {
@@ -31,12 +30,6 @@ export const SOCIAL_MEDIA = [
     name: 'Instagram',
     icon: 'instagram',
     color: 'hover:text-pink-400',
-    href: '#',
-  },
-  {
-    name: 'WhatsApp',
-    icon: 'whatsapp',
-    color: 'hover:text-green-400',
     href: '#',
   },
 ]

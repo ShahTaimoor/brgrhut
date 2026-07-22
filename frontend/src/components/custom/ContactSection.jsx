@@ -1,4 +1,4 @@
-import { Phone, MapPin, MessageCircle } from 'lucide-react';
+import { Phone, MapPin } from 'lucide-react';
 import { CONTACT_INFO, LOCATION } from '@/constants/footer';
 
 const ContactSection = () => {
@@ -23,26 +23,6 @@ const ContactSection = () => {
                 <a href={`tel:${CONTACT_INFO.phone}`} className="text-sm font-semibold text-gray-900 hover:text-primary">
                   {CONTACT_INFO.phone}
                 </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <MessageCircle size={18} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">WhatsApp</p>
-                {CONTACT_INFO.whatsapp.map((phone) => (
-                  <a
-                    key={phone}
-                    href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-sm font-semibold text-gray-900 hover:text-primary"
-                  >
-                    {phone}
-                  </a>
-                ))}
               </div>
             </div>
 
