@@ -6,7 +6,7 @@ const { BadRequestError, NotFoundError } = require('../errors');
 
 class ProductService {
   async createProduct(productData, userId, file) {
-    const { title, description, price, category, isAvailable, prepTime, isSpicy, isVegetarian, isFeatured } = productData;
+    const { title, description, price, category, isAvailable, prepTime, isSpicy, isVegetarian, isFeatured, discountPercent } = productData;
 
     if (!title || !price || !category || !file) {
       throw new BadRequestError('All fields are required including image');
@@ -30,6 +30,7 @@ class ProductService {
       title,
       description,
       price: parseFloat(price),
+      discountPercent: discountPercent !== undefined ? Math.min(100, Math.max(0, parseFloat(discountPercent) || 0)) : 0,
       category,
       isAvailable: isAvailable === undefined ? true : (isAvailable === 'true' || isAvailable === true),
       prepTime: parseInt(prepTime) || 15,
@@ -179,6 +180,9 @@ class ProductService {
     if (title) updateFields.title = title;
     if (updateData.description !== undefined) updateFields.description = updateData.description;
     if (updateData.price !== undefined) updateFields.price = parseFloat(updateData.price);
+    if (updateData.discountPercent !== undefined) {
+      updateFields.discountPercent = Math.min(100, Math.max(0, parseFloat(updateData.discountPercent) || 0));
+    }
     if (updateData.category !== undefined) updateFields.category = updateData.category;
     
     // Fast Food toggles
@@ -323,7 +327,7 @@ class ProductService {
     const sortObject = this._getSortObject(sortBy);
 
     const products = await productRepository.find(query, {
-      select: 'title picture price description isAvailable prepTime isSpicy isVegetarian isFeatured createdAt',
+      select: 'title picture price discountPercent description isAvailable prepTime isSpicy isVegetarian isFeatured createdAt',
       populate: [
         { path: 'user', select: 'name' },
         { path: 'category', select: 'name' }

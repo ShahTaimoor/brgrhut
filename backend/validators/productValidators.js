@@ -11,6 +11,11 @@ const createProductSchema = Joi.object({
     'number.positive': 'Price must be positive',
     'any.required': 'Price is required'
   }),
+  discountPercent: Joi.number().min(0).max(100).optional().messages({
+    'number.base': 'Discount must be a number',
+    'number.min': 'Discount cannot be negative',
+    'number.max': 'Discount cannot exceed 100%'
+  }),
   category: Joi.string().required().messages({
     'string.empty': 'Category is required',
     'any.required': 'Category is required'
@@ -31,6 +36,11 @@ const updateProductSchema = Joi.object({
   price: Joi.number().positive().optional().messages({
     'number.base': 'Price must be a number',
     'number.positive': 'Price must be positive'
+  }),
+  discountPercent: Joi.number().min(0).max(100).optional().messages({
+    'number.base': 'Discount must be a number',
+    'number.min': 'Discount cannot be negative',
+    'number.max': 'Discount cannot exceed 100%'
   }),
   category: Joi.string().optional(),
   prepTime: Joi.number().integer().min(0).optional(),

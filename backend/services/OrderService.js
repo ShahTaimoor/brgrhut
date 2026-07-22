@@ -30,10 +30,14 @@ class OrderService {
         throw new NotFoundError(`Menu item not found: ${item.id}`);
       }
 
+      const effectivePrice = product.discountPercent
+        ? Math.round(product.price * (1 - product.discountPercent / 100) * 100) / 100
+        : product.price;
+
       processedProducts.push({
         id: item.id,
         quantity: item.quantity,
-        priceAtPurchase: product.price
+        priceAtPurchase: effectivePrice
       });
     }
 

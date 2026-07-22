@@ -116,7 +116,7 @@ class ProductSearchService {
       ...baseQuery,
       $and: searchConditions
     }, {
-      select: 'title picture price description isFeatured createdAt category tags',
+      select: 'title picture price discountPercent description isFeatured createdAt category tags',
       populate: [{ path: 'category', select: 'name' }]
     });
 

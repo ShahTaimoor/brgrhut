@@ -21,6 +21,7 @@ export default function CreateProducts() {
   const [formData, setFormData] = useState({
     title: "",
     price: "",
+    discountPercent: "",
     category: "",
     prepTime: "10",
     isSpicy: false,
@@ -51,6 +52,7 @@ export default function CreateProducts() {
     const submissionData = new FormData();
     submissionData.append("title", formData.title);
     submissionData.append("price", formData.price);
+    submissionData.append("discountPercent", formData.discountPercent || "0");
     submissionData.append("category", formData.category);
     submissionData.append("prepTime", formData.prepTime);
     submissionData.append("isSpicy", formData.isSpicy);
@@ -67,6 +69,7 @@ export default function CreateProducts() {
       setFormData({
         title: "",
         price: "",
+        discountPercent: "",
         category: "",
         prepTime: "10",
         isSpicy: false,
@@ -115,7 +118,7 @@ export default function CreateProducts() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Price Input */}
               <div>
                 <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
@@ -127,6 +130,23 @@ export default function CreateProducts() {
                   required
                   placeholder="0.00"
                   value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 border border-zinc-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-zinc-50/30"
+                />
+              </div>
+
+              {/* Discount Input */}
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Discount (%)
+                </label>
+                <input
+                  type="number"
+                  name="discountPercent"
+                  min="0"
+                  max="100"
+                  placeholder="0"
+                  value={formData.discountPercent}
                   onChange={handleInputChange}
                   className="w-full px-3.5 py-2 border border-zinc-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-zinc-50/30"
                 />

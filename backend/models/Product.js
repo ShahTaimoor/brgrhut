@@ -14,6 +14,13 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    // Percentage off the base price (0-100), shown as a strikethrough discount on the menu
+    discountPercent: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
     // Fast food is made-to-order, so we swap stock counts for a simple availability toggle
     isAvailable: {
         type: Boolean,

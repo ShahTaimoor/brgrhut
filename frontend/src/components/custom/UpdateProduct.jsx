@@ -22,6 +22,7 @@ const UpdateProduct = () => {
   const [inputValue, setInputValue] = useState({
     title: '',
     price: '',
+    discountPercent: '',
     category: '',
     picture: '',
     description: '',
@@ -99,10 +100,11 @@ const UpdateProduct = () => {
 
   useEffect(() => {
     if (singleProducts) {
-      const { title, price, category, picture, description, prepTime, isFeatured } = singleProducts;
+      const { title, price, discountPercent, category, picture, description, prepTime, isFeatured } = singleProducts;
       setInputValue({
         title,
         price,
+        discountPercent: discountPercent || '',
         category: category?._id || '',
         picture: '',
         description,
@@ -120,6 +122,7 @@ const UpdateProduct = () => {
     const formData = new FormData();
     formData.append('title', inputValue.title);
     formData.append('price', inputValue.price);
+    formData.append('discountPercent', inputValue.discountPercent || '0');
     formData.append('category', inputValue.category);
     formData.append('description', inputValue.description || '');
     formData.append('prepTime', inputValue.prepTime);
@@ -135,6 +138,7 @@ const UpdateProduct = () => {
           setInputValue({
             title: '',
             price: '',
+            discountPercent: '',
             category: '',
             picture: '',
             description: '',
@@ -176,7 +180,7 @@ const UpdateProduct = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="price" className="font-semibold text-gray-700">Price (Rs.)</Label>
                 <Input
@@ -186,6 +190,21 @@ const UpdateProduct = () => {
                   value={inputValue.price}
                   onChange={handleChange}
                   placeholder="Enter Price"
+                  className="focus-visible:ring-primary"
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="discountPercent" className="font-semibold text-gray-700">Discount (%)</Label>
+                <Input
+                  type="number"
+                  id="discountPercent"
+                  name="discountPercent"
+                  min="0"
+                  max="100"
+                  value={inputValue.discountPercent}
+                  onChange={handleChange}
+                  placeholder="0"
                   className="focus-visible:ring-primary"
                 />
               </div>
