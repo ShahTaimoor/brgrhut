@@ -49,10 +49,10 @@ const HeroSection = () => {
           Smoky, flame-grilled goodness — handcrafted burgers, crispy golden fries, and gourmet
           pizzas made with fresh ingredients daily.
         </p>
-        <div className="mt-9 flex items-center justify-center gap-3">
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <a
             href="#menu"
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/40"
           >
             View Menu
           </a>

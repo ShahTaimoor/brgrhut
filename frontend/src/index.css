@@ -554,3 +554,96 @@ button, [role="button"] {
 .animate-float-gentle {
   animation: float-gentle 6s ease-in-out infinite;
 }
+
+/* Menu flip-book */
+
+/* Vendored from the page-flip engine's src/Style/stPageFlip.css (not published
+   in its dist build, so react-pageflip silently relies on consumers to supply
+   it). Without these rules the flip container has no 3D perspective context,
+   which is what made backward page turns render as a flat slide instead of a
+   realistic curl. Class names must match exactly - the engine's JS applies
+   them directly to the DOM it renders. */
+.stf__parent {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  transform: translateZ(0);
+  -ms-touch-action: pan-y;
+  touch-action: pan-y;
+}
+
+.sft__wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stf__parent canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
+.stf__block {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  perspective: 2000px;
+}
+
+.stf__item {
+  display: none;
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.stf__outerShadow,
+.stf__innerShadow,
+.stf__hardShadow,
+.stf__hardInnerShadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.menu-flipbook {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.menu-book-page {
+  width: 100%;
+  height: 100%;
+  background: #fffaf3;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(28, 25, 23, 0.06);
+}
+
+.menu-book-cover,
+.menu-book-divider {
+  background: #fffaf3;
+}
+
+/* Item pages have a fixed height (it's a book page), so an unusually long
+   description scrolls instead of getting silently clipped - thin scrollbar
+   so that's a graceful fallback rather than a jarring default one. */
+.menu-book-items-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(234, 88, 12, 0.3) transparent;
+}
+
+.menu-book-items-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.menu-book-items-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-book-items-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(234, 88, 12, 0.3);
+  border-radius: 3px;
+}

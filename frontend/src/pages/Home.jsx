@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import ProductList from '@/components/custom/ProductList'
+import MenuBook from '@/components/custom/MenuBook'
 import HeroSection from '@/components/custom/HeroSection'
 import AboutSection from '@/components/custom/AboutSection'
 import TestimonialsSection from '@/components/custom/TestimonialsSection'
@@ -24,9 +24,7 @@ const Home = () => {
   return (
     <div>
       <HeroSection />
-      <section id="menu" className="scroll-mt-14 sm:scroll-mt-16">
-        <ProductList />
-      </section>
+      <MenuBook />
       <AboutSection />
       <TestimonialsSection />
       <ContactSection />
