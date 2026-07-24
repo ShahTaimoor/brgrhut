@@ -630,23 +630,3 @@ button, [role="button"] {
   background: #fffaf3;
 }
 
-/* Item pages have a fixed height (it's a book page), so an unusually long
-   description scrolls instead of getting silently clipped - thin scrollbar
-   so that's a graceful fallback rather than a jarring default one. */
-.menu-book-items-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(234, 88, 12, 0.3) transparent;
-}
-
-.menu-book-items-scroll::-webkit-scrollbar {
-  width: 5px;
-}
-
-.menu-book-items-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.menu-book-items-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(234, 88, 12, 0.3);
-  border-radius: 3px;
-}
