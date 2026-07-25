@@ -5,7 +5,7 @@ const MotionImg = motion.img;
 // To switch from the animated-image placeholder to a real looping video
 // background, just set HERO_VIDEO_SRC to a video file/URL (e.g. '/hero.mp4')
 // — the component will automatically render a <video> instead of the image.
-const HERO_VIDEO_SRC = null;
+const HERO_VIDEO_SRC = '/hero-video.mp4';
 const HERO_IMAGE_SRC =
   'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1600&q=80';
 
