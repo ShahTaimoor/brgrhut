@@ -1,9 +1,14 @@
+import { useRef } from 'react';
 import { Phone, MapPin } from 'lucide-react';
 import { CONTACT_INFO, LOCATION } from '@/constants/footer';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const ContactSection = () => {
+  const sectionRef = useRef(null);
+  useScrollReveal(sectionRef);
+
   return (
-    <section id="contact" className="w-full scroll-mt-14 bg-orange-50/40 py-16 sm:scroll-mt-16 sm:py-20">
+    <section ref={sectionRef} id="contact" className="w-full scroll-mt-14 bg-orange-50/40 py-16 sm:scroll-mt-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Get in touch</p>

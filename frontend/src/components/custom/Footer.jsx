@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 import {
   COMPANY_INFO,
   CONTACT_INFO,
@@ -8,9 +8,12 @@ import {
   SECTION_TITLES,
 } from '@/constants/footer'
 import { getCurrentYear, renderSocialIcon } from '@/utils/footerHelpers'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 const Footer = () => {
   const [hoveredIcon, setHoveredIcon] = useState(null)
+  const footerRef = useRef(null)
+  useScrollReveal(footerRef)
 
   const currentYear = useMemo(() => getCurrentYear(), [])
 
@@ -26,7 +29,7 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer className="relative overflow-hidden bg-stone-950 text-white pb-20 lg:pb-0 -mt-16 lg:mt-0">
+    <footer ref={footerRef} className="relative overflow-hidden bg-stone-950 text-white pb-20 lg:pb-0 -mt-16 lg:mt-0">
       {/* Ambient background accents — solid blurred circles, no gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow"></div>

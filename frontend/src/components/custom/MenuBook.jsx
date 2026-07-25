@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import productService from '@/redux/slices/products/productService';
 import categoryService from '@/redux/slices/categories/categoriesService';
 import { getCategoryEmoji } from '@/utils/categoryEmoji';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 // Canvas text measurement (used below to fit title/description font sizes)
 // reads whatever font is *actually* loaded at the moment it runs - if
@@ -383,8 +384,10 @@ const MenuBook = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const bookRef = useRef(null);
+  const sectionRef = useRef(null);
   const { width, height, isSpread, itemsPerPage } = useResponsiveBookSize();
   const fontsReady = useFontsReady();
+  useScrollReveal(sectionRef);
 
   // The book remounts (via `key`) when isSpread flips, which resets the
   // underlying engine to its first page - keep our own counter in sync.
@@ -461,7 +464,7 @@ const MenuBook = () => {
   const goPrev = useCallback(() => bookRef.current?.pageFlip()?.flipPrev(), []);
 
   return (
-    <section id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
+    <section ref={sectionRef} id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">The Full Menu</p>

@@ -1,4 +1,9 @@
+import { useRef, useState } from 'react';
 import { Star } from 'lucide-react';
+import { gsap, useGSAP } from '@/lib/gsap';
+import { horizontalLoop } from '@/utils/horizontalLoop';
+import { useCanHover } from '@/hooks/useCanHover';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 // PLACEHOLDER TESTIMONIALS — replace with real customer reviews.
 // Each entry: { name, location, quote, rating (1-5) }
@@ -26,9 +31,61 @@ const PLACEHOLDER_TESTIMONIALS = [
   },
 ];
 
+// A 3-card loop repeats too fast to read comfortably - repeat the set so the
+// marquee has enough visual length. Purely a render-time duplication; swap
+// PLACEHOLDER_TESTIMONIALS for real reviews and this still works unchanged.
+const LOOP_REPEATS = 3;
+const LOOP_ITEMS = Array.from({ length: LOOP_REPEATS }).flatMap((_, dupIndex) =>
+  PLACEHOLDER_TESTIMONIALS.map((t, i) => ({ ...t, _loopKey: `${dupIndex}-${i}` }))
+);
+
 const TestimonialsSection = () => {
+  const sectionRef = useRef(null);
+  const viewportRef = useRef(null);
+  const loopTlRef = useRef(null);
+  const canHover = useCanHover();
+  const [isPaused, setIsPaused] = useState(false);
+
+  useScrollReveal(sectionRef);
+
+  useGSAP(
+    () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+      const cards = gsap.utils.toArray('.testimonial-card', viewportRef.current);
+      if (cards.length === 0) return undefined;
+
+      loopTlRef.current = horizontalLoop(cards, { repeat: -1, speed: 0.5, paddingRight: 24 });
+
+      return () => {
+        loopTlRef.current?.kill();
+        loopTlRef.current = null;
+      };
+    },
+    { scope: viewportRef, dependencies: [] }
+  );
+
+  const handleMouseEnter = () => {
+    if (canHover) loopTlRef.current?.pause();
+  };
+  const handleMouseLeave = () => {
+    if (canHover) loopTlRef.current?.play();
+  };
+  const handleTap = () => {
+    if (canHover) return; // desktop uses hover, not tap
+    const tl = loopTlRef.current;
+    if (!tl) return;
+    if (tl.paused()) {
+      tl.play();
+      setIsPaused(false);
+    } else {
+      tl.pause();
+      setIsPaused(true);
+    }
+  };
+
   return (
-    <section id="testimonials" className="w-full bg-orange-50/40 py-16 sm:py-20">
+    <section ref={sectionRef} id="testimonials" className="w-full bg-orange-50/40 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Reviews</p>
@@ -39,12 +96,20 @@ const TestimonialsSection = () => {
             Placeholder testimonials shown below — swap in real customer reviews when ready.
           </p>
         </div>
+      </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PLACEHOLDER_TESTIMONIALS.map((t) => (
+      <div
+        ref={viewportRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleTap}
+        className="relative mt-10 w-full overflow-hidden py-2"
+      >
+        <div className="flex w-max gap-6 px-4">
+          {LOOP_ITEMS.map((t) => (
             <div
-              key={t.name}
-              className="flex flex-col rounded-2xl border border-orange-100 bg-white p-6 shadow-sm"
+              key={t._loopKey}
+              className="testimonial-card flex w-[280px] flex-shrink-0 flex-col rounded-2xl border border-orange-100 bg-white p-6 shadow-sm sm:w-[340px]"
             >
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -64,6 +129,12 @@ const TestimonialsSection = () => {
           ))}
         </div>
       </div>
+
+      {!canHover && (
+        <p className="font-['Poppins',sans-serif] mt-3 text-center text-[11px] text-gray-400">
+          {isPaused ? 'Tap again to resume scrolling' : 'Tap a card to pause'}
+        </p>
+      )}
     </section>
   );
 };

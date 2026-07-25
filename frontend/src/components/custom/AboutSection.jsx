@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { Flame, Clock, Leaf } from 'lucide-react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 // PLACEHOLDER COPY — replace with the real brand story when ready.
 const FEATURES = [
@@ -20,8 +22,11 @@ const FEATURES = [
 ];
 
 const AboutSection = () => {
+  const sectionRef = useRef(null);
+  useScrollReveal(sectionRef);
+
   return (
-    <section id="about" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
+    <section ref={sectionRef} id="about" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <div>
