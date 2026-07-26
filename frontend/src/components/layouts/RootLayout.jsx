@@ -1,14 +1,19 @@
 import React from 'react'
+import { useLocation } from 'react-router-dom'
 import Navbar from '../custom/Navbar'
 import BottomNavigation from '../custom/BottomNavigation'
 import Footer from '../custom/Footer'
+import CustomCursor from '../custom/CustomCursor'
 import { useIsMobile } from '../../hooks/use-mobile'
 
 const RootLayout = ({ children }) => {
     const isMobile = useIsMobile()
+    const { pathname } = useLocation()
+    const onHome = pathname === '/'
 
     return (
         <>
+            {onHome && <CustomCursor />}
             <Navbar />
             <main className={`pt-14 sm:pt-16 ${isMobile ? 'pb-20' : ''}`}>
                 {children}
