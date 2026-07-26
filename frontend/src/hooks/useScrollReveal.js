@@ -5,7 +5,7 @@ import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap';
 // scroll-up/scroll-down passes. Skips the animation entirely (content just
 // renders in its final state) when the OS-level reduced-motion preference is on.
 export function useScrollReveal(ref, options = {}) {
-  const { y = 28, duration = 0.7, delay = 0, start = 'top 85%' } = options;
+  const { y = 60, duration = 0.9, delay = 0, start = 'top 85%' } = options;
 
   useGSAP(
     () => {
