@@ -6,9 +6,9 @@ const { BadRequestError, NotFoundError } = require('../errors');
 
 class ProductService {
   async createProduct(productData, userId, file) {
-    const { title, description, price, category, stock, isFeatured } = productData;
+    const { title, description, price, category, isAvailable, prepTime, isSpicy, isVegetarian, isFeatured, discountPercent } = productData;
 
-    if (!title || !price || !category || !stock || !file) {
+    if (!title || !price || !category || !file) {
       throw new BadRequestError('All fields are required including image');
     }
 
@@ -29,9 +29,13 @@ class ProductService {
     return await productRepository.create({
       title,
       description,
-      price,
+      price: parseFloat(price),
+      discountPercent: discountPercent !== undefined ? Math.min(100, Math.max(0, parseFloat(discountPercent) || 0)) : 0,
       category,
-      stock,
+      isAvailable: isAvailable === undefined ? true : (isAvailable === 'true' || isAvailable === true),
+      prepTime: parseInt(prepTime) || 15,
+      isSpicy: isSpicy === 'true' || isSpicy === true,
+      isVegetarian: isVegetarian === 'true' || isVegetarian === true,
       isFeatured: isFeatured === 'true' || isFeatured === true,
       user: userId,
       picture: { secure_url, public_id }
@@ -65,34 +69,17 @@ class ProductService {
       headers.forEach((header, index) => {
         if (header) {
           const cleanHeader = header.toString().toLowerCase().trim();
-          if (cleanHeader.includes('name') || cleanHeader === 'name') {
-            headerMap[index] = 'name';
-          } else if (cleanHeader.includes('stock') || cleanHeader === 'stock') {
-            headerMap[index] = 'stock';
-          } else if (cleanHeader.includes('price') || cleanHeader === 'price') {
+          if (cleanHeader.includes('name') || cleanHeader === 'title') {
+            headerMap[index] = 'title';
+          } else if (cleanHeader.includes('price')) {
             headerMap[index] = 'price';
+          } else if (cleanHeader.includes('preptime') || cleanHeader.includes('prep')) {
+            headerMap[index] = 'prepTime';
+          } else if (cleanHeader.includes('spicy')) {
+            headerMap[index] = 'isSpicy';
           }
         }
       });
-
-      if (Object.keys(headerMap).length === 0) {
-        for (let i = 0; i < Math.min(3, jsonData.length); i++) {
-          const row = jsonData[i];
-          for (let j = 0; j < row.length; j++) {
-            const cell = row[j];
-            if (cell && typeof cell === 'string') {
-              const cleanCell = cell.toLowerCase().trim();
-              if (cleanCell.includes('steering') || cleanCell.includes('lock') || cleanCell.includes('product')) {
-                if (!headerMap[j]) headerMap[j] = 'name';
-              } else if (!isNaN(parseFloat(cell)) && parseFloat(cell) > 1000) {
-                if (!headerMap[j]) headerMap[j] = 'stock';
-              } else if (!isNaN(parseFloat(cell)) && parseFloat(cell) < 10000) {
-                if (!headerMap[j]) headerMap[j] = 'price';
-              }
-            }
-          }
-        }
-      }
 
       jsonData = jsonData.slice(1).map(row => {
         const obj = {};
@@ -103,24 +90,6 @@ class ProductService {
       });
     } else {
       jsonData = XLSX.utils.sheet_to_json(worksheet);
-    }
-
-    if (jsonData.length === 0 || (jsonData[0] && Object.keys(jsonData[0]).length === 0)) {
-      jsonData = XLSX.utils.sheet_to_json(worksheet, {
-        raw: false,
-        defval: '',
-        blankrows: false
-      });
-
-      if (jsonData.length > 0 && jsonData[0].__EMPTY) {
-        jsonData = jsonData.map(row => {
-          const obj = {};
-          if (row.__EMPTY) obj.name = row.__EMPTY;
-          if (row.__EMPTY_1) obj.stock = row.__EMPTY_1;
-          if (row.__EMPTY_2) obj.price = row.__EMPTY_2;
-          return obj;
-        });
-      }
     }
 
     if (jsonData.length === 0) {
@@ -135,29 +104,15 @@ class ProductService {
       const rowNumber = i + 2;
 
       try {
-        let name, stock, price;
+        const title = row.title || row.name;
+        const price = row.price;
 
-        if (row.name && row.stock && row.price) {
-          ({ name, stock, price } = row);
-        } else {
-          name = row.__EMPTY || row.name;
-          stock = row.__EMPTY_1 || row.stock;
-          price = row.__EMPTY_2 || row.price;
-        }
+        if (!title && !price) continue;
 
-        if (name === 'name' && stock === 'stock' && price === 'price') {
-          continue;
-        }
-
-        if (!name && !stock && !price) {
-          continue;
-        }
-
-        const productName = name ? name.trim() : `Product ${rowNumber}`;
-        const cleanStock = stock ? stock.toString().replace(/,/g, '') : '0';
-        const cleanPrice = price ? price.toString().replace(/,/g, '') : '0';
-        const productStock = parseInt(cleanStock) || 0;
-        const productPrice = parseFloat(cleanPrice) || 0;
+        const productName = title ? title.trim() : `Dish ${rowNumber}`;
+        const productPrice = parseFloat(price.toString().replace(/,/g, '')) || 0;
+        const productPrepTime = parseInt(row.prepTime) || 15;
+        const productIsSpicy = row.isSpicy === 'true' || row.isSpicy === true || row.isSpicy === 'yes';
 
         if (!defaultCategoryId) {
           const existingCategory = await categoryRepository.findOne({ name: 'General' });
@@ -167,6 +122,7 @@ class ProductService {
             const newCategory = await categoryRepository.create({
               name: 'General',
               slug: 'general',
+              emoji: '🍔',
               picture: {
                 secure_url: '/logos.png',
                 public_id: 'default-category-image'
@@ -181,7 +137,9 @@ class ProductService {
           description: `Imported from Excel - Row ${rowNumber}`,
           price: productPrice,
           category: defaultCategoryId,
-          stock: productStock,
+          isAvailable: true,
+          prepTime: productPrepTime,
+          isSpicy: productIsSpicy,
           user: userId,
           picture: {
             secure_url: '/logos.png',
@@ -221,9 +179,25 @@ class ProductService {
     const updateFields = {};
     if (title) updateFields.title = title;
     if (updateData.description !== undefined) updateFields.description = updateData.description;
-    if (updateData.price !== undefined) updateFields.price = updateData.price;
+    if (updateData.price !== undefined) updateFields.price = parseFloat(updateData.price);
+    if (updateData.discountPercent !== undefined) {
+      updateFields.discountPercent = Math.min(100, Math.max(0, parseFloat(updateData.discountPercent) || 0));
+    }
     if (updateData.category !== undefined) updateFields.category = updateData.category;
-    if (updateData.stock !== undefined) updateFields.stock = updateData.stock;
+    
+    // Fast Food toggles
+    if (updateData.isAvailable !== undefined) {
+      updateFields.isAvailable = updateData.isAvailable === 'true' || updateData.isAvailable === true;
+    }
+    if (updateData.prepTime !== undefined) {
+      updateFields.prepTime = parseInt(updateData.prepTime) || 15;
+    }
+    if (updateData.isSpicy !== undefined) {
+      updateFields.isSpicy = updateData.isSpicy === 'true' || updateData.isSpicy === true;
+    }
+    if (updateData.isVegetarian !== undefined) {
+      updateFields.isVegetarian = updateData.isVegetarian === 'true' || updateData.isVegetarian === true;
+    }
     if (updateData.isFeatured !== undefined) {
       updateFields.isFeatured = updateData.isFeatured === 'true' || updateData.isFeatured === true;
     }
@@ -241,9 +215,9 @@ class ProductService {
     return await productRepository.updateById(productId, updateFields);
   }
 
-  async updateProductStock(productId, stock) {
-    if (stock === undefined || stock === null) {
-      throw new BadRequestError('Stock value is required');
+  async updateProductAvailability(productId, isAvailable) {
+    if (isAvailable === undefined || isAvailable === null) {
+      throw new BadRequestError('Availability state is required');
     }
 
     const product = await productRepository.findById(productId);
@@ -251,7 +225,8 @@ class ProductService {
       throw new NotFoundError('Product not found');
     }
 
-    return await productRepository.updateById(productId, { stock: parseInt(stock) });
+    const availabilityState = isAvailable === 'true' || isAvailable === true;
+    return await productRepository.updateById(productId, { isAvailable: availabilityState });
   }
 
   async bulkUpdateFeatured(productIds, isFeatured) {
@@ -290,7 +265,7 @@ class ProductService {
   }
 
   async getProducts(filters) {
-    let { category, page = 1, limit = 24, stockFilter = 'active', sortBy = 'az' } = filters;
+    let { category, page = 1, limit = 24, availabilityFilter = 'all', sortBy = 'az' } = filters;
 
     if (limit === 'all') {
       limit = 0;
@@ -302,14 +277,18 @@ class ProductService {
     if (page < 1) page = 1;
     if (limit < 0) limit = 24;
 
-    const query = {};
-    if (stockFilter === 'active') {
-      query.stock = { $gt: 0 };
-    } else if (stockFilter === 'out-of-stock') {
-      query.stock = { $lte: 0 };
-    } else if (stockFilter === 'low-stock') {
-      query.stock = { $gt: 0, $lt: 150 };
+    const query = { isDeleted: false };
+    
+    // Filter by availability state
+    if (availabilityFilter === 'available' || availabilityFilter === 'active') {
+      query.isAvailable = true;
+    } else if (availabilityFilter === 'sold-out') {
+      query.isAvailable = false;
+    } else if (availabilityFilter === 'low-stock') {
+      // For a food menu, 'low-stock' means unavailable items (sold out)
+      query.isAvailable = false;
     }
+    // 'all' means no filter - return everything
 
     if (category && category.trim().toLowerCase() !== 'all') {
       const trimmedCategory = category.trim().toLowerCase();
@@ -345,11 +324,10 @@ class ProductService {
     }
 
     const totalProducts = await productRepository.countDocuments(query);
-
     const sortObject = this._getSortObject(sortBy);
 
     const products = await productRepository.find(query, {
-      select: 'title picture price description stock isFeatured createdAt',
+      select: 'title picture price discountPercent description isAvailable prepTime isSpicy isVegetarian isFeatured createdAt',
       populate: [
         { path: 'user', select: 'name' },
         { path: 'category', select: 'name' }
@@ -389,9 +367,11 @@ class ProductService {
     return product;
   }
 
-  async getLowStockCount() {
+  // Quick count of temporarily disabled menu items
+  async getSoldOutCount() {
     return await productRepository.countDocuments({
-      stock: { $gt: 0, $lt: 150 }
+      isAvailable: false,
+      isDeleted: false
     });
   }
 
@@ -403,9 +383,9 @@ class ProductService {
       'price-high': { isFeatured: -1, price: -1 },
       'newest': { isFeatured: -1, createdAt: -1 },
       'oldest': { isFeatured: -1, createdAt: 1 },
-      'stock-high': { isFeatured: -1, stock: -1 },
-      'stock-low': { isFeatured: -1, stock: 1 },
-      'relevance': { isFeatured: -1, createdAt: -1 }
+      'relevance': { isFeatured: -1, createdAt: -1 },
+      'stock-low': { isFeatured: -1, isAvailable: 1, title: 1 },
+      'stock-high': { isFeatured: -1, isAvailable: -1, title: 1 }
     };
 
     return sortMap[sortBy] || { isFeatured: -1, title: 1 };
@@ -413,4 +393,3 @@ class ProductService {
 }
 
 module.exports = new ProductService();
-

@@ -24,7 +24,7 @@ export const userService = {
    * @returns {Promise<Object>} Updated user data
    */
   updateUserRole: async (userId, role) => {
-    const response = await axiosInstance.patch(`/users/${userId}/role`, { role });
+    const response = await axiosInstance.put(`/update-user-role/${userId}`, { role });
     return response.data;
   },
 

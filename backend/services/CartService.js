@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const { cartRepository, productRepository } = require('../repositories');
 const { BadRequestError, NotFoundError } = require('../errors');
 
+// Fast food is made-to-order (no stock count), so cap quantity per item to a sane order size
+const MAX_ORDER_QUANTITY = 99;
+
 class CartService {
   async getCart(userId) {
     // Validate userId
@@ -31,10 +34,10 @@ class CartService {
     const itemsToUpdate = [];
     validItems = validItems.map(item => {
       const product = item.product;
-      const currentStock = product.stock || 0;
+      const isAvailable = product.isAvailable === true;
       const requestedQty = item.quantity;
 
-      if (currentStock <= 0) {
+      if (!isAvailable) {
         return {
           ...item.toObject(),
           product: {
@@ -45,18 +48,18 @@ class CartService {
         };
       }
 
-      if (requestedQty > currentStock) {
+      if (requestedQty > MAX_ORDER_QUANTITY) {
         itemsToUpdate.push({
           productId: product._id.toString(),
-          quantity: currentStock
+          quantity: MAX_ORDER_QUANTITY
         });
         return {
           ...item.toObject(),
-          quantity: currentStock,
+          quantity: MAX_ORDER_QUANTITY,
           product: {
             ...product.toObject(),
             isOutOfStock: false,
-            availableStock: currentStock,
+            availableStock: MAX_ORDER_QUANTITY,
             quantityAdjusted: true,
             originalQuantity: requestedQty
           }
@@ -68,7 +71,7 @@ class CartService {
         product: {
           ...product.toObject(),
           isOutOfStock: false,
-          availableStock: currentStock
+          availableStock: MAX_ORDER_QUANTITY
         }
       };
     });
@@ -111,13 +114,13 @@ class CartService {
       throw new NotFoundError('Product not found');
     }
 
-    if (product.stock <= 0) {
-      throw new BadRequestError(`Product "${product.title}" is out of stock`);
+    if (!product.isAvailable) {
+      throw new BadRequestError(`Product "${product.title}" is currently unavailable`);
     }
 
     // Convert userId to ObjectId for consistency
-    const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
-      ? new mongoose.Types.ObjectId(userId) 
+    const userObjectId = mongoose.Types.ObjectId.isValid(userId)
+      ? new mongoose.Types.ObjectId(userId)
       : userId;
 
     let cart = await cartRepository.findOne({ user: userObjectId });
@@ -130,9 +133,9 @@ class CartService {
       ? cart.items[itemIndex].quantity + quantity
       : quantity;
 
-    if (requestedQuantity > product.stock) {
+    if (requestedQuantity > MAX_ORDER_QUANTITY) {
       throw new BadRequestError(
-        `Only ${product.stock} units available for "${product.title}". You requested ${requestedQuantity}.`
+        `Maximum order quantity for "${product.title}" is ${MAX_ORDER_QUANTITY}. You requested ${requestedQuantity}.`
       );
     }
 
@@ -252,13 +255,13 @@ class CartService {
       throw new NotFoundError('Product not found');
     }
 
-    if (product.stock <= 0) {
-      throw new BadRequestError(`Product "${product.title}" is out of stock`);
+    if (!product.isAvailable) {
+      throw new BadRequestError(`Product "${product.title}" is currently unavailable`);
     }
 
-    if (quantity > product.stock) {
+    if (quantity > MAX_ORDER_QUANTITY) {
       throw new BadRequestError(
-        `Only ${product.stock} units available for "${product.title}". You requested ${quantity}.`
+        `Maximum order quantity for "${product.title}" is ${MAX_ORDER_QUANTITY}. You requested ${quantity}.`
       );
     }
 
@@ -293,27 +296,45 @@ class CartService {
 
     for (const item of products) {
       const product = await productRepository.findById(item.id || item.productId);
+      const requestedQuantity = item.quantity || 0;
 
       if (!product) {
         outOfStockItems.push({
           productId: item.id || item.productId,
+          productTitle: 'Product',
           message: 'Product not found'
         });
         continue;
       }
 
-      const availableStock = product.stock || 0;
-      const requestedQuantity = item.quantity || 0;
+      if (!product.isAvailable) {
+        outOfStockItems.push({
+          productId: product._id.toString(),
+          productTitle: product.title,
+          message: `"${product.title}" is currently unavailable`
+        });
+        continue;
+      }
+
+      if (requestedQuantity > MAX_ORDER_QUANTITY) {
+        insufficientStockItems.push({
+          productId: product._id.toString(),
+          productTitle: product.title,
+          availableStock: MAX_ORDER_QUANTITY,
+          requestedQuantity
+        });
+        continue;
+      }
 
       stockStatus.push({
         productId: product._id.toString(),
         available: true,
-        availableStock,
+        availableStock: MAX_ORDER_QUANTITY,
         requestedQuantity
       });
     }
 
-    const isValid = true;
+    const isValid = outOfStockItems.length === 0 && insufficientStockItems.length === 0;
 
     return {
       isValid,

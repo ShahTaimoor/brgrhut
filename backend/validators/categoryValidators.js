@@ -17,7 +17,8 @@ const updateCategorySchema = Joi.object({
 });
 
 const getAllCategoriesQuerySchema = Joi.object({
-  search: Joi.string().trim().allow('').optional()
+  search: Joi.string().trim().allow('').optional(),
+  _t: Joi.number().optional() // Cache-busting timestamp from axiosInstance
 });
 
 module.exports = {

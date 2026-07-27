@@ -15,52 +15,65 @@ class OrderService {
   }
 
   async createOrder(orderData, userId) {
-    const { products, address, amount, phone, city } = orderData;
+    const { products, orderType, tableNumber, address, amount, phone, city, paymentMethod } = orderData;
 
     if (!products || products.length === 0) {
       throw new BadRequestError('No products provided');
     }
 
+    // Verify all menu items are valid and attach historical pricing snapshots
+    const processedProducts = [];
     for (const item of products) {
       const product = await productRepository.findById(item.id);
 
       if (!product) {
-        throw new NotFoundError(`Product not found: ${item.id}`);
+        throw new NotFoundError(`Menu item not found: ${item.id}`);
       }
 
-      await productRepository.updateById(item.id, {
-        $inc: { stock: -item.quantity }
+      const effectivePrice = product.discountPercent
+        ? Math.round(product.price * (1 - product.discountPercent / 100) * 100) / 100
+        : product.price;
+
+      processedProducts.push({
+        id: item.id,
+        quantity: item.quantity,
+        priceAtPurchase: effectivePrice
       });
     }
 
-    const user = await userRepository.findById(userId);
-    if (!user) {
+    // Guest checkout: userId is optional. Only registered accounts get profile sync/lookup.
+    const user = userId ? await userRepository.findById(userId) : null;
+    if (userId && !user) {
       throw new NotFoundError('User not found');
     }
 
-    const updateData = {};
-    if (!user.address && address) {
-      updateData.address = address;
-    }
-    if (!user.phone && phone) {
-      updateData.phone = phone;
-    }
-    if (!user.city && city) {
-      updateData.city = city;
-    }
+    if (user) {
+      // Sync profile phone number if not present
+      if (!user.phone && phone) {
+        await userRepository.updateById(userId, { phone });
+      }
 
-    if (Object.keys(updateData).length > 0) {
-      await userRepository.updateById(userId, updateData);
+      // Handle profile sync for delivery addresses safely
+      if (orderType === 'Delivery') {
+        const updateData = {};
+        if (!user.address && address) updateData.address = address;
+        if (!user.city && city) updateData.city = city;
+        if (Object.keys(updateData).length > 0) {
+          await userRepository.updateById(userId, updateData);
+        }
+      }
     }
 
     const order = await orderRepository.create({
-      products,
-      userId,
-      address: user.address || address,
-      phone: user.phone || phone,
-      city: user.city || city,
-      amount,
-      paymentMethod: 'COD',
+      products: processedProducts,
+      userId: userId || undefined,
+      orderType: orderType || 'Takeaway',
+      tableNumber: orderType === 'Dine-In' ? tableNumber : undefined,
+      address: orderType === 'Delivery' ? (user?.address || address) : undefined,
+      city: orderType === 'Delivery' ? (user?.city || city) : undefined,
+      phone: user?.phone || phone,
+      amount: parseFloat(amount),
+      paymentMethod: paymentMethod || 'Cash on Counter',
       status: 'Pending'
     });
 
@@ -72,19 +85,19 @@ class OrderService {
     ]);
   }
 
-  async updateOrderStatus(orderId, status, packerName) {
+  async updateOrderStatus(orderId, status, chefOrPackerName) {
     if (!status) {
       throw new BadRequestError('Status is required');
     }
 
-    const validStatuses = ['Pending', 'Completed'];
+    const validStatuses = ['Pending', 'Preparing', 'Ready for Pickup', 'Completed', 'Cancelled'];
     if (!validStatuses.includes(status)) {
       throw new BadRequestError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
 
     const updateData = { status };
-    if (packerName) {
-      updateData.packerName = packerName;
+    if (chefOrPackerName) {
+      updateData.chefOrPackerName = chefOrPackerName;
     }
 
     const order = await orderRepository.updateById(orderId, updateData);
@@ -102,7 +115,7 @@ class OrderService {
 
   async getOrdersByUserId(userId, page = 1, limit = 20) {
     const pageNum = Math.max(1, parseInt(page));
-    const limitNum = Math.max(1, Math.min(parseInt(limit) || 20, 100)); // Max 100 per page
+    const limitNum = Math.max(1, Math.min(parseInt(limit) || 20, 100));
     const skip = (pageNum - 1) * limitNum;
 
     const orders = await orderRepository.find(
@@ -174,7 +187,8 @@ class OrderService {
     const end = new Date(endDate || new Date());
 
     const ordersInRange = await orderRepository.find({
-      createdAt: { $gte: start, $lte: end }
+      createdAt: { $gte: start, $lte: end },
+      status: { $ne: 'Cancelled' } // Ignore cancelled food orders in revenue metrics
     });
 
     const totalSales = ordersInRange.reduce((acc, order) => acc + Number(order.amount), 0);
@@ -195,7 +209,8 @@ class OrderService {
 
     const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 2));
     const lastMonthOrders = await orderRepository.find({
-      createdAt: { $gte: lastMonth, $lte: start }
+      createdAt: { $gte: lastMonth, $lte: start },
+      status: { $ne: 'Cancelled' }
     });
 
     const totalLastMonth = lastMonthOrders.reduce((acc, order) => acc + Number(order.amount), 0);
@@ -240,7 +255,7 @@ class OrderService {
             select: 'name email username'
           }
         ],
-        select: 'amount userId createdAt',
+        select: 'amount userId status orderType createdAt',
         sort: { createdAt: -1 },
         limit: 10
       }
@@ -276,65 +291,16 @@ class OrderService {
   }
 
   async deleteOrder(orderId) {
-    const order = await orderRepository.findByIdWithPopulate(orderId, [
-      {
-        path: 'products.id',
-        select: 'title stock'
-      }
-    ]);
-
+    const order = await orderRepository.findById(orderId);
     if (!order) {
       throw new NotFoundError('Order not found');
     }
-
-    for (const item of order.products) {
-      if (item.id) {
-        const productId = item.id._id || item.id;
-        const product = await productRepository.findById(productId);
-        if (product) {
-          await productRepository.updateById(productId, {
-            $inc: { stock: item.quantity }
-          });
-        }
-      }
-    }
-
     await orderRepository.deleteById(orderId);
   }
 
   async bulkDeleteOrders(orderIds) {
     if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
       throw new BadRequestError('Order IDs array is required');
-    }
-
-    const orders = await orderRepository.find(
-      { _id: { $in: orderIds } },
-      {
-        populate: [
-          {
-            path: 'products.id',
-            select: 'title stock'
-          }
-        ]
-      }
-    );
-
-    if (orders.length === 0) {
-      throw new NotFoundError('No orders found');
-    }
-
-    for (const order of orders) {
-      for (const item of order.products) {
-        if (item.id) {
-          const productId = item.id._id || item.id;
-          const product = await productRepository.findById(productId);
-          if (product) {
-            await productRepository.updateById(productId, {
-              $inc: { stock: item.quantity }
-            });
-          }
-        }
-      }
     }
 
     const deleteResult = await orderRepository.deleteMany({ _id: { $in: orderIds } });
@@ -346,4 +312,3 @@ class OrderService {
 }
 
 module.exports = new OrderService();
-

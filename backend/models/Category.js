@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema({
     name: {
@@ -14,14 +14,19 @@ const categorySchema = new mongoose.Schema({
         required: true,
         lowercase: true
     },
+    emoji: {
+        type: String,
+        trim: true,
+        default: "🍔" // Default fallback emoji for quick creation
+    },
     picture: {
         secure_url: {
             type: String,
-            required: true
+            required: false // Made optional for pure emoji-based categories
         },
         public_id: {
             type: String,
-            required: true
+            required: false // Made optional for pure emoji-based categories
         },
     },
     position: {
@@ -36,12 +41,12 @@ const categorySchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-
-}, { timestamps: true })
+}, { timestamps: true });
 
 // Indexes for frequently used fields
-categorySchema.index({ name: 1 });
-categorySchema.index({ slug: 1 });
+// (name/slug already get a unique index from `unique: true` above - adding
+// another single-field index for them here previously triggered Mongoose's
+// "Duplicate schema index" warning at startup)
 categorySchema.index({ isDeleted: 1 });
 categorySchema.index({ active: 1, isDeleted: 1 }); // Compound index for active categories
 

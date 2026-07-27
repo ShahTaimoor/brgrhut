@@ -215,7 +215,7 @@ const AttendanceTable = ({ onSaveSuccess, employees = [] }) => {
                       variant="ghost"
                       size="icon"
                       onClick={() => removeRow(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
                     >
                       <Trash2 size={16} />
                     </Button>

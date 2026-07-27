@@ -16,16 +16,17 @@ import {
   SelectTrigger,
   SelectValue
 } from '../ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Utensils, Flame } from 'lucide-react';
 
 const UpdateProduct = () => {
   const [inputValue, setInputValue] = useState({
     title: '',
     price: '',
+    discountPercent: '',
     category: '',
     picture: '',
     description: '',
-    stock: '',
+    prepTime: '',
     isFeatured: false,
   });
 
@@ -99,14 +100,15 @@ const UpdateProduct = () => {
 
   useEffect(() => {
     if (singleProducts) {
-      const { title, price, category, picture, description, stock, isFeatured } = singleProducts;
+      const { title, price, discountPercent, category, picture, description, prepTime, isFeatured } = singleProducts;
       setInputValue({
         title,
         price,
+        discountPercent: discountPercent || '',
         category: category?._id || '',
         picture: '',
         description,
-        stock,
+        prepTime,
         isFeatured: isFeatured || false,
       });
       setPreviewImage(picture?.secure_url || '');
@@ -117,67 +119,100 @@ const UpdateProduct = () => {
     e.preventDefault();
     setLoading(true);
 
-    dispatch(updateSingleProduct({ inputValues: inputValue, id }))
+    const formData = new FormData();
+    formData.append('title', inputValue.title);
+    formData.append('price', inputValue.price);
+    formData.append('discountPercent', inputValue.discountPercent || '0');
+    formData.append('category', inputValue.category);
+    formData.append('description', inputValue.description || '');
+    formData.append('prepTime', inputValue.prepTime);
+    formData.append('isFeatured', inputValue.isFeatured);
+    if (inputValue.picture instanceof File) {
+      formData.append('picture', inputValue.picture);
+    }
+
+    dispatch(updateSingleProduct({ inputValues: formData, id }))
       .unwrap()
       .then((response) => {
         if (response?.success) {
           setInputValue({
             title: '',
             price: '',
+            discountPercent: '',
             category: '',
             picture: '',
             description: '',
-            stock: '',
+            prepTime: '',
             isFeatured: false,
           });
           setPreviewImage('');
-          toast.success('Product updated successfully!');
+          toast.success('Menu item updated successfully!');
           navigate(`/admin/dashboard/all-products?page=${returnPage}`);
         }
       })
       .catch((error) => {
-        toast.error(error || 'Failed to update product. Please try again.');
+        toast.error(error || 'Failed to update menu item. Please try again.');
       })
       .finally(() => setLoading(false));
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Update Product</CardTitle>
+    <Card className="border border-gray-100 shadow-sm">
+      <CardHeader className="border-b border-gray-50 pb-4">
+        <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <Utensils className="h-5 w-5 text-primary" />
+          Update Menu Item
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="grid gap-6">
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title" className="font-semibold text-gray-700">Dish / Drink Name</Label>
               <Input
                 type="text"
                 id="title"
                 name="title"
                 value={inputValue.title}
                 onChange={handleChange}
-                placeholder="Enter Product Title"
+                placeholder="e.g. Double Cheese Smashed Burger"
+                className="focus-visible:ring-primary"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="price">Price</Label>
+                <Label htmlFor="price" className="font-semibold text-gray-700">Price (Rs.)</Label>
                 <Input
                   type="text"
                   id="price"
                   name="price"
                   value={inputValue.price}
                   onChange={handleChange}
-                  placeholder="Enter Product Price"
+                  placeholder="Enter Price"
+                  className="focus-visible:ring-primary"
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="discountPercent" className="font-semibold text-gray-700">Discount (%)</Label>
+                <Input
+                  type="number"
+                  id="discountPercent"
+                  name="discountPercent"
+                  min="0"
+                  max="100"
+                  value={inputValue.discountPercent}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className="focus-visible:ring-primary"
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="category" className="font-semibold text-gray-700">Cuisine Category</Label>
                 <Select value={inputValue.category} onValueChange={handleCategoryChange}>
-                  <SelectTrigger id="category">
+                  <SelectTrigger id="category" className="focus:ring-primary">
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="max-h-60">
@@ -187,7 +222,7 @@ const UpdateProduct = () => {
                         placeholder="Type first letter to filter..."
                         value={categorySearch}
                         onChange={handleCategorySearch}
-                        className="h-8"
+                        className="h-8 focus-visible:ring-primary"
                       />
                     </div>
                     
@@ -214,100 +249,105 @@ const UpdateProduct = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-3">
-                 <Label htmlFor="picture" className="text-sm font-medium text-gray-700">
-    Picture
-  </Label>
+                <Label htmlFor="picture" className="text-sm font-semibold text-gray-700">
+                  Dish Presentation Image
+                </Label>
 
-  <label
-    htmlFor="picture"
-    className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition duration-200 ease-in-out"
-  >
-    <span className="text-gray-500 text-sm">Click to upload</span>
-    <span className="text-xs text-gray-400">(JPEG, PNG, WebP)</span>
-    <Input
-      type="file"
-      id="picture"
-      name="picture"
-      accept="image/*"
-      onChange={handleChange}
-      className="hidden"
-    />
-  </label>
-                {previewImage && (
-                  <div className="relative mt-2 w-32 h-32">
+                <label
+                  htmlFor="picture"
+                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:border-primary hover:bg-orange-50/30 transition duration-200 ease-in-out"
+                >
+                  <span className="text-gray-500 text-sm font-medium">Click to change picture</span>
+                  <span className="text-xs text-gray-400">(JPEG, PNG, WebP)</span>
+                  <Input
+                    type="file"
+                    id="picture"
+                    name="picture"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              
+              <div className="flex items-center justify-center border rounded-lg p-2 bg-gray-50/50 min-h-[9rem]">
+                {previewImage ? (
+                  <div className="relative w-32 h-32">
                     <img
                       src={previewImage}
                       alt="Preview"
-                      className="w-full h-full object-cover rounded"
+                      className="w-full h-full object-cover rounded-md border shadow-sm"
                     />
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-700"
+                      className="absolute -top-1.5 -right-1.5 bg-destructive text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-destructive/90 transition"
                       title="Remove"
                     >
                       ✕
                     </button>
                   </div>
+                ) : (
+                  <span className="text-xs text-gray-400 italic">No image uploaded yet</span>
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="font-semibold text-gray-700">Recipe Description / Ingredients</Label>
                 <Input
                   type="text"
                   id="description"
                   name="description"
                   value={inputValue.description}
                   onChange={handleChange}
-                  placeholder="Enter Product Description"
+                  placeholder="Describe flavors, toppings, patties..."
+                  className="focus-visible:ring-primary"
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="stock">Stock</Label>
+                <Label htmlFor="prepTime" className="font-semibold text-gray-700">Prep Time (mins)</Label>
                 <Input
                   type="number"
-                  id="stock"
-                  name="stock"
-                  value={inputValue.stock}
+                  id="prepTime"
+                  name="prepTime"
+                  value={inputValue.prepTime}
                   onChange={handleChange}
-                  placeholder="Enter Product Stock"
+                  placeholder="Preparation time in minutes"
+                  className="focus-visible:ring-primary"
                 />
               </div>
             </div>
 
-            {/* Featured Checkbox */}
-            <div className="flex items-center space-x-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            {/* Featured Checkbox / Chef Recommendation */}
+            <div className="flex items-center space-x-3 p-4 bg-amber-50/50 border border-amber-200/60 rounded-lg">
               <input
                 type="checkbox"
                 id="isFeatured"
                 name="isFeatured"
                 checked={inputValue.isFeatured || false}
                 onChange={handleChange}
-                className="h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2 cursor-pointer"
+                className="h-5 w-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
               />
-              <Label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 flex items-center gap-2 cursor-pointer">
-                <svg className="h-4 w-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span>Mark as Featured Product</span>
-                <span className="text-xs text-gray-500 ml-2">(Featured products appear at the top)</span>
+              <Label htmlFor="isFeatured" className="text-sm font-semibold text-gray-800 flex items-center gap-2 cursor-pointer">
+                <Flame className="h-4 w-4 text-primary fill-primary/20 animate-pulse" />
+                <span>Mark as a Chef&apos;s Special Recommendation</span>
+                <span className="text-xs text-gray-500 font-normal ml-1">(Appears in the featured menu section)</span>
               </Label>
             </div>
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
+            <div className="flex gap-4 pt-2">
+              <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/95 text-white">
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
-                    Updating...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating kitchen data...
                   </>
                 ) : (
-                  'Update Product'
+                  'Update Menu Item'
                 )}
               </Button>
               <Button type="button" variant="outline" onClick={handleCancel}>

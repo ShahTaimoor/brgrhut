@@ -44,9 +44,9 @@ router.post(
   cartController.updateItemQuantity
 );
 
+// Public: guests need to validate stock/availability before checkout too, and this doesn't touch user data
 router.post(
   '/check-stock',
-  isAuthorized,
   validate(checkStockSchema),
   cartController.checkStock
 );

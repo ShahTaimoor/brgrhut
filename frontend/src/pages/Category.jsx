@@ -449,7 +449,7 @@ const Category = () => {
               <DialogTrigger asChild>
                 <Button 
                   onClick={startAdding} 
-                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+                  className="bg-primary hover:bg-primary/90 text-white shadow-sm transition-all duration-200 flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base w-full sm:w-auto"
                 >
                   <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                   Add Category
@@ -474,17 +474,17 @@ const Category = () => {
             >
               <div className="space-y-3">
                 <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                  Category Name <span className="text-red-500">*</span>
+                  Category Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   value={editingCategory ? editingCategory.name : inputValues.name}
                   onChange={handleChange}
-                  placeholder="e.g. Electronics, Clothing, Automotive"
+                  placeholder="e.g. Burgers, Fries, Beverages"
                   required
                   disabled={loading}
-                  className="h-11 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
+                  className="h-11 border-gray-300 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg"
                 />
               </div>
 
@@ -503,7 +503,7 @@ const Category = () => {
                       placeholder="Enter position number (1, 2, 3...)"
                       min="1"
                       disabled={loading}
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg"
+                      className="h-11 border-gray-300 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg"
                     />
                     <p className="text-sm text-gray-500">
                       Lower numbers appear first. Leave empty to keep current position.
@@ -548,19 +548,19 @@ const Category = () => {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <Label htmlFor="picture" className="text-sm font-medium text-gray-700">
-                    Category Image <span className="text-red-500">*</span>
+                    Category Image <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <div className="flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 group bg-gray-50">
+                    <div className="flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary/60 hover:bg-primary/5 transition-all duration-200 group bg-gray-50">
                       <div className="space-y-3 text-center">
-                        <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200 shadow-sm border border-gray-100">
-                          <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-blue-500" />
+                        <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-200 shadow-sm border border-gray-100">
+                          <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-primary" />
                         </div>
                         <div className="space-y-1">
                           <div className="flex text-sm text-gray-600 justify-center">
                             <label
                               htmlFor="picture"
-                              className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none px-3 py-1 border border-blue-200 hover:border-blue-300 transition-colors"
+                              className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none px-3 py-1 border border-primary/30 hover:border-primary/50 transition-colors"
                             >
                               <span>Choose File</span>
                               <input
@@ -621,7 +621,7 @@ const Category = () => {
                                 setInputValues((v) => ({ ...v, picture: null }));
                               }
                             }}
-                            className="text-sm font-medium text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
+                            className="text-sm font-medium text-destructive hover:text-destructive/80 flex items-center gap-1 transition-colors"
                           >
                             <X className="w-4 h-4" />
                             Remove
@@ -670,7 +670,7 @@ const Category = () => {
                   <Button 
                     type="submit" 
                     disabled={loading}
-                    className="flex-1 h-10 sm:h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 text-sm sm:text-base"
+                    className="flex-1 h-10 sm:h-11 bg-primary hover:bg-primary/90 text-white shadow-sm transition-all duration-200 text-sm sm:text-base"
                   >
                     {loading ? (
                       <>
@@ -709,7 +709,7 @@ const Category = () => {
                   placeholder="Search categories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-10 h-9 sm:h-10 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-lg text-sm"
+                  className="pl-10 pr-10 h-9 sm:h-10 border-gray-300 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg text-sm"
                 />
                 {searchTerm && (
                   <button
@@ -772,7 +772,7 @@ const Category = () => {
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
-                  className={`h-7 sm:h-7 px-2 ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`h-7 sm:h-7 px-2 ${viewMode === 'grid' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                 >
                   <Grid3X3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
@@ -780,7 +780,7 @@ const Category = () => {
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
-                  className={`h-7 sm:h-7 px-2 ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`h-7 sm:h-7 px-2 ${viewMode === 'list' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                 >
                   <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
@@ -820,7 +820,7 @@ const Category = () => {
                   <Checkbox
                     checked={isAllSelected}
                     onCheckedChange={handleSelectAll}
-                    className="h-4 w-4 sm:h-5 sm:w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 sm:h-5 sm:w-5 border-gray-300 text-primary focus:ring-primary"
                   />
                   <Label 
                     htmlFor="select-all"
@@ -832,7 +832,7 @@ const Category = () => {
                 </div>
                 {selectedCategories.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <Badge variant="secondary" className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 border-0 text-xs">
+                    <Badge variant="secondary" className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-primary/10 text-primary hover:bg-primary/20 border-0 text-xs">
                       {selectedCategories.length} selected
                     </Badge>
                     <Button
@@ -876,19 +876,19 @@ const Category = () => {
             {status === 'loading' && (
               <div className="flex justify-center py-12">
                 <div className="text-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
                   <p className="text-gray-500">Loading categories...</p>
                 </div>
               </div>
             )}
 
             {status === 'failed' && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-                <div className="text-red-600 mb-2">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center">
+                <div className="text-destructive mb-2">
                   <X className="h-8 w-8 mx-auto mb-2" />
                   <p className="font-medium">Failed to load categories</p>
                 </div>
-                <p className="text-red-500 text-sm">{error || 'Something went wrong'}</p>
+                <p className="text-destructive text-sm">{error || 'Something went wrong'}</p>
               </div>
             )}
 
@@ -916,12 +916,12 @@ const Category = () => {
                     {viewMode === 'grid' ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                         {filteredCategories.map((category, index) => (
-                          <div key={category._id} className={`group relative bg-white border rounded-xl hover:shadow-lg transition-all duration-200 overflow-hidden ${selectedCategories.includes(category._id) ? 'border-blue-500 ring-2 ring-blue-50' : 'border-gray-200'}`}>
+                          <div key={category._id} className={`group relative bg-white border rounded-xl hover:shadow-lg transition-all duration-200 overflow-hidden ${selectedCategories.includes(category._id) ? 'border-primary ring-2 ring-primary/10' : 'border-gray-200'}`}>
                             <div className="absolute top-3 left-3 z-10">
                               <Checkbox
                                 checked={selectedCategories.includes(category._id)}
                                 onCheckedChange={() => handleCategorySelect(category._id)}
-                                className="h-5 w-5 bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                className="h-5 w-5 bg-white border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                               />
                             </div>
                             <div className="aspect-[4/3] bg-gray-50 flex items-center justify-center overflow-hidden border-b border-gray-100">
@@ -943,7 +943,7 @@ const Category = () => {
                             </div>
                             <div className="p-4">
                               <div className="flex items-start justify-between mb-2">
-                                <h3 className="font-semibold text-gray-900 text-base line-clamp-1 group-hover:text-blue-600 transition-colors">
+                                <h3 className="font-semibold text-gray-900 text-base line-clamp-1 group-hover:text-primary transition-colors">
                                   {category.name
                                     .split(' ')
                                     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -971,7 +971,7 @@ const Category = () => {
                                     size="sm"
                                     onClick={() => startEditing(category)}
                                     disabled={loading}
-                                    className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                                    className="h-8 w-8 p-0 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-full"
                                     title="Edit"
                                   >
                                     <Edit className="h-4 w-4" />
@@ -993,7 +993,7 @@ const Category = () => {
                                         size="sm"
                                         onClick={() => handleDelete(category)}
                                         disabled={loading}
-                                        className="h-8 w-8 p-0 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full"
+                                        className="h-8 w-8 p-0 text-gray-500 hover:text-destructive hover:bg-destructive/10 rounded-full"
                                         title="Delete"
                                       >
                                         <Trash2 className="h-4 w-4" />
@@ -1003,20 +1003,19 @@ const Category = () => {
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Delete Category</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Are you sure you want to delete the category <strong>"{category.name}"</strong>? 
-                                          This action will:
-                                          <ul className="list-disc list-inside mt-2 space-y-1">
-                                            <li>Permanently remove the category from the system</li>
-                                            <li>Delete the category image</li>
-                                            <li>This action cannot be undone</li>
-                                          </ul>
+                                          Are you sure you want to delete the category <strong>"{category.name}"</strong>? This action will:
                                         </AlertDialogDescription>
+                                        <ul className="text-sm text-muted-foreground list-disc list-inside mt-2 space-y-1">
+                                          <li>Permanently remove the category from the system</li>
+                                          <li>Delete the category image</li>
+                                          <li>This action cannot be undone</li>
+                                        </ul>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                         <AlertDialogAction
                                           onClick={confirmDelete}
-                                          className="bg-red-600 hover:bg-red-700"
+                                          className="bg-destructive hover:bg-destructive/90"
                                         >
                                           Delete Category
                                         </AlertDialogAction>
@@ -1032,13 +1031,13 @@ const Category = () => {
                     ) : (
                       <div className="space-y-2 sm:space-y-3">
                         {filteredCategories.map((category, index) => (
-                          <div key={category._id} className={`flex flex-col sm:flex-row items-stretch sm:items-center p-3 sm:p-4 rounded-xl border hover:shadow-md transition-all duration-200 bg-white gap-3 sm:gap-0 ${selectedCategories.includes(category._id) ? 'border-blue-500 bg-blue-50/30' : 'border-gray-200'}`}>
+                          <div key={category._id} className={`flex flex-col sm:flex-row items-stretch sm:items-center p-3 sm:p-4 rounded-xl border hover:shadow-md transition-all duration-200 bg-white gap-3 sm:gap-0 ${selectedCategories.includes(category._id) ? 'border-primary bg-primary/5' : 'border-gray-200'}`}>
                             <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                               <div className="flex-shrink-0">
                                 <Checkbox
                                   checked={selectedCategories.includes(category._id)}
                                   onCheckedChange={() => handleCategorySelect(category._id)}
-                                  className="h-4 w-4 sm:h-5 sm:w-5 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                  className="h-4 w-4 sm:h-5 sm:w-5 border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                 />
                               </div>
                               <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border border-gray-200">
@@ -1117,7 +1116,7 @@ const Category = () => {
                                     size="sm"
                                     onClick={() => handleDelete(category)}
                                     disabled={loading}
-                                    className="h-8 sm:h-9 px-2 sm:px-3 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 text-xs sm:text-sm flex-1 sm:flex-initial"
+                                    className="h-8 sm:h-9 px-2 sm:px-3 text-destructive hover:text-destructive/80 hover:bg-destructive/10 border-gray-200 text-xs sm:text-sm flex-1 sm:flex-initial"
                                   >
                                     <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1.5" />
                                     <span className="hidden sm:inline">Delete</span>
@@ -1140,7 +1139,7 @@ const Category = () => {
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={confirmDelete}
-                                      className="bg-red-600 hover:bg-red-700"
+                                      className="bg-destructive hover:bg-destructive/90"
                                     >
                                       Delete Category
                                     </AlertDialogAction>
@@ -1158,8 +1157,8 @@ const Category = () => {
             ) : (
               status === 'succeeded' && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                    <PlusCircle className="h-8 w-8 text-blue-600" />
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <PlusCircle className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No categories yet</h3>
                   <p className="text-gray-600 mb-6">
@@ -1167,7 +1166,7 @@ const Category = () => {
                   </p>
                   <Button
                     onClick={startAdding}
-                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-sm transition-all duration-200"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Your First Category

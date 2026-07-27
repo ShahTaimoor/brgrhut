@@ -57,7 +57,13 @@ axiosInstance.interceptors.response.use(
     // Check if it's a login POST request
     const isLoginRequest = originalRequest?.url?.includes('/login') && originalRequest?.method === 'post';
     const isRefreshRequest = originalRequest?.url?.includes('/refresh-token');
-    
+
+    // The boot-time silent auth check (AuthInitializer/ProtectedRoute call this on every
+    // page load, including the public home page). A guest visitor failing this check is
+    // completely normal and must never surface a UI action — only an authenticated user's
+    // session expiring mid-use should prompt them to sign back in.
+    const isVerifyTokenRequest = originalRequest?.url?.includes('/verify-token');
+
     // Check if it's a cart request (cart routes are at /api/, /api/add, /api/remove, etc.)
     const url = originalRequest?.url || '';
     const isCartRequest = url === '/' || 
@@ -106,22 +112,24 @@ axiosInstance.interceptors.response.use(
         }
         throw new Error('Refresh failed');
       } catch (refreshError) {
-        // Refresh failed, clear auth state
         processQueue(refreshError);
-        
+
+        // Silent background check failed (guest, or no valid session yet) — reject quietly.
+        // Do not log out a session the user never knew they had, and do not pop the
+        // sign-in drawer over content the user hasn't tried to access yet.
+        if (isVerifyTokenRequest) {
+          return Promise.reject(refreshError);
+        }
+
+        // Refresh failed on an actively-used session — clear auth state
         if (storeRef) {
           storeRef.dispatch(logout());
           storeRef.dispatch(setTokenExpired());
         }
-        
+
         // Attempt server logout to clear cookies
         try { await axiosInstance.post('/logout', null, { withCredentials: true }); } catch {}
 
-        // Open auth drawer instead of redirecting to login
-        if (typeof window !== 'undefined') {
-          // Dispatch custom event to open auth drawer
-          window.dispatchEvent(new CustomEvent('openAuthDrawer', { detail: { mode: 'login' } }));
-        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

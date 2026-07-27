@@ -181,7 +181,7 @@ const EmployeeManager = ({ onEmployeesChange }) => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(employee._id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8"
                       >
                         <Trash2 size={14} />
                       </Button>

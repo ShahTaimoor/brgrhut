@@ -3,10 +3,10 @@ const categoryService = require('../services/CategoryService');
 class CategoryController {
   async createCategory(req, res, next) {
     try {
-      const { name } = req.body;
-      const file = req.file;
+      const { name, emoji } = req.body;
+const file = req.file;
 
-      const category = await categoryService.createCategory(name, file);
+const category = await categoryService.createCategory(name, file, emoji);
 
       return res.status(201).json({
         success: true,

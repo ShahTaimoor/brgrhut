@@ -93,6 +93,33 @@ class UserController {
     }
   }
 
+  // ==========================================================================
+  // !!! DEMO MODE ONLY - SECURITY WARNING !!!
+  // Grants super-admin access with ZERO credentials. No environment guard.
+  // MUST be deleted (with UserService.demoLogin and the /demo-login route)
+  // before any real/public deployment. See UserService.demoLogin for details.
+  // ==========================================================================
+  async demoLogin(req, res, next) {
+    try {
+      const user = await userService.demoLogin();
+
+      const tokens = userService.generateTokens(user, false);
+
+      return res
+        .cookie('accessToken', tokens.accessToken, tokens.cookieOptions)
+        .cookie('refreshToken', tokens.refreshToken, tokens.refreshCookieOptions)
+        .status(200)
+        .json({
+          success: true,
+          user,
+          accessToken: tokens.accessToken,
+          message: 'Demo login successful'
+        });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async refreshToken(req, res, next) {
     try {
       const { refreshToken } = req.cookies;

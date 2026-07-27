@@ -33,7 +33,7 @@ const consoleFormat = winston.format.combine(
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
-  defaultMeta: { service: 'gul-autos-api' },
+  defaultMeta: { service: 'brgrhut-api' },
   transports: [
     // Write all logs to `combined.log`
     new winston.transports.File({

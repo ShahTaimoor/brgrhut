@@ -96,7 +96,25 @@ const categoriesSlice = createSlice({
             })
             .addCase(AllCategory.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
             .addCase(SingleCategory.pending, (state) => { state.status = 'loading'; })
-            .addCase(SingleCategory.fulfilled, (state, action) => { state.status = 'succeeded'; state.categories = action.payload.data; })
+            .addCase(SingleCategory.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+
+                const fetchedCategory = action.payload?.data?.category;
+
+                if (fetchedCategory && fetchedCategory._id) {
+                    // Update the category in the array instead of replacing the whole list
+                    const categoryIndex = state.categories.findIndex(
+                        (cat) => cat._id === fetchedCategory._id || cat.slug === fetchedCategory.slug
+                    );
+
+                    if (categoryIndex !== -1) {
+                        state.categories[categoryIndex] = { ...state.categories[categoryIndex], ...fetchedCategory };
+                    } else {
+                        // If not found, add it (shouldn't happen, but just in case)
+                        state.categories.push(fetchedCategory);
+                    }
+                }
+            })
             .addCase(SingleCategory.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
             .addCase(deleteCategory.pending, (state) => { state.status = 'loading'; })
             .addCase(deleteCategory.fulfilled, (state, action) => {

@@ -111,6 +111,31 @@ class UserService {
     return this._sanitizeUser(user);
   }
 
+  // ============================================================================
+  // !!! DEMO MODE ONLY - SECURITY WARNING - DO NOT SHIP TO PRODUCTION !!!
+  //
+  // Silently signs in as the site's super-admin account with NO credentials
+  // check whatsoever, so the pitch/demo build never shows a login screen.
+  // There is no environment guard here - this works identically on a laptop
+  // during a live pitch and on any public deployment.
+  //
+  // Anyone who calls POST /api/demo-login gets full super-admin access
+  // instantly. Whoever picks this project back up MUST delete:
+  //   - this method
+  //   - UserController.demoLogin
+  //   - the POST /demo-login route in userRoutes.js
+  //   - frontend: authService.demoLogin, authSlice.demoLogin, DemoAutoLogin.jsx
+  // before the app is deployed anywhere real users or the public can reach it.
+  // ============================================================================
+  async demoLogin() {
+    const user = await userRepository.findOne({ name: 'brgrhut' });
+    if (!user || (user.role !== 1 && user.role !== 2)) {
+      throw new NotFoundError('Demo admin account not found');
+    }
+
+    return this._sanitizeUser(user);
+  }
+
   async refreshToken(refreshToken, rememberMe = false) {
     if (!refreshToken) {
       throw new BadRequestError('Refresh token not provided');

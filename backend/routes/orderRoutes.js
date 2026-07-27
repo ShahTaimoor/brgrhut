@@ -1,6 +1,6 @@
 const express = require('express');
 const orderController = require('../controllers/OrderController');
-const { isAuthorized, isAdminOrSuperAdmin } = require('../middleware/authMiddleware');
+const { isAuthorized, optionalAuth, isAdminOrSuperAdmin } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validate');
 const {
   createOrderSchema,
@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post(
   '/order',
-  isAuthorized,
+  optionalAuth,
   validate(createOrderSchema),
   orderController.createOrder
 );
