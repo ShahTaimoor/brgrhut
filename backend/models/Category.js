@@ -44,8 +44,9 @@ const categorySchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for frequently used fields
-categorySchema.index({ name: 1 });
-categorySchema.index({ slug: 1 });
+// (name/slug already get a unique index from `unique: true` above - adding
+// another single-field index for them here previously triggered Mongoose's
+// "Duplicate schema index" warning at startup)
 categorySchema.index({ isDeleted: 1 });
 categorySchema.index({ active: 1, isDeleted: 1 }); // Compound index for active categories
 

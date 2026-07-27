@@ -16,7 +16,9 @@ const cartSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for frequently used fields
-cartSchema.index({ user: 1 });
+// (user already gets a unique index from `unique: true` above - adding
+// another single-field index for it here previously triggered Mongoose's
+// "Duplicate schema index" warning at startup)
 cartSchema.index({ isDeleted: 1 });
 cartSchema.index({ user: 1, isDeleted: 1 }); // Compound index for user carts
 

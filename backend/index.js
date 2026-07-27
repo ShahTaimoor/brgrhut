@@ -154,8 +154,9 @@ server.on('error', (error) => {
     logger.error('Server error:', { error: error.message, stack: error.stack });
 });
 
-// Handle timeout errors
+// Routine idle keep-alive socket cleanup, not a request failure - logged at
+// debug (not warn) so it doesn't read as an alarm during normal operation.
 server.on('timeout', (socket) => {
-    logger.warn('Server timeout - client connection timed out');
+    logger.debug('Idle keep-alive connection closed after timeout');
     socket.destroy();
 });

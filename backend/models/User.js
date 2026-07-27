@@ -40,7 +40,9 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes for frequently used fields
-userSchema.index({ name: 1 });
+// (name already gets a unique index from `unique: true` above - adding
+// another single-field index for it here previously triggered Mongoose's
+// "Duplicate schema index" warning at startup)
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 });
 userSchema.index({ name: 1, isDeleted: 1 }); // Compound index for common queries
