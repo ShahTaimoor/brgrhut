@@ -325,14 +325,14 @@ const LowStock = () => {
 
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {sortedProducts.map((product, index) => (
-              <Card 
-                key={product._id || `product-${index}`} 
-                className="group relative overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
+              <Card
+                key={product._id || `product-${index}`}
+                className="group relative overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 p-0 gap-0"
               >
                 {/* Sold Out Badge */}
-                <div className="absolute top-3 right-3 z-10">
+                <div className="absolute top-2 right-2 z-10">
                   <Badge
-                    className="bg-destructive hover:bg-destructive/90 text-white text-xs font-bold px-2 py-0.5 border-0"
+                    className="bg-destructive hover:bg-destructive/90 text-white text-[10px] font-bold px-1.5 py-0.5 border-0"
                   >
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Sold Out
@@ -340,8 +340,8 @@ const LowStock = () => {
                 </div>
 
                 {/* Product Image */}
-                <div 
-                  className="relative overflow-hidden bg-gray-50 aspect-square w-full border-b border-gray-100"
+                <div
+                  className="relative overflow-hidden bg-gray-50 aspect-[4/3] w-full border-b border-gray-100"
                 >
                   <LazyImage
                     src={product.image || product.picture?.secure_url}
@@ -354,94 +354,86 @@ const LowStock = () => {
                 </div>
 
                 {/* Product Info */}
-                <div className="p-5 space-y-4">
-                  <div className="space-y-1.5">
-                    <h3 className="font-semibold text-base text-gray-900 line-clamp-2 group-hover:text-primary transition-colors duration-200">
+                <div className="p-3.5 space-y-2">
+                  <div className="space-y-0.5">
+                    <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-primary transition-colors duration-200">
                       {product.title}
                     </h3>
-                    
-                    <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
+
+                    <p className="text-gray-500 text-xs line-clamp-2 leading-snug">
                       {product.description}
                     </p>
                   </div>
-                  
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="space-y-1 flex-1">
-                      {editingPriceId === product._id ? (
-                        <div className="flex items-center gap-2 relative z-0">
-                          <Input
-                            type="number"
-                            value={editingPriceValue}
-                            onChange={(e) => setEditingPriceValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleSavePrice(product);
-                              } else if (e.key === 'Escape') {
-                                handleCancelEditPrice();
-                              }
-                            }}
-                            className="h-8 text-sm font-semibold border-primary focus:ring-1 focus:ring-primary w-24"
-                            autoFocus
-                            disabled={isUpdatingPrice}
-                          />
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSavePrice(product);
-                            }}
-                            disabled={isUpdatingPrice}
-                            className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
-                            type="button"
-                          >
-                            ✓
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCancelEditPrice();
-                            }}
-                            disabled={isUpdatingPrice}
-                            className="h-8 w-8 p-0"
-                            type="button"
-                          >
-                            ✕
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-gray-900">
-                            PKR {product.price?.toLocaleString()}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStartEditPrice(product);
-                            }}
-                            className="p-1 hover:bg-gray-100 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                            title="Edit price"
-                          >
-                            <Edit className="h-3.5 w-3.5 text-gray-400 hover:text-primary" />
-                          </button>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-destructive"></div>
-                        <span className="text-xs text-gray-500 font-medium">Sold Out</span>
-                      </div>
+
+                  {editingPriceId === product._id ? (
+                    <div className="flex items-center gap-2 relative z-0">
+                      <Input
+                        type="number"
+                        value={editingPriceValue}
+                        onChange={(e) => setEditingPriceValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSavePrice(product);
+                          } else if (e.key === 'Escape') {
+                            handleCancelEditPrice();
+                          }
+                        }}
+                        className="h-8 text-sm font-semibold border-primary focus:ring-1 focus:ring-primary w-24"
+                        autoFocus
+                        disabled={isUpdatingPrice}
+                      />
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSavePrice(product);
+                        }}
+                        disabled={isUpdatingPrice}
+                        className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
+                        type="button"
+                      >
+                        ✓
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancelEditPrice();
+                        }}
+                        disabled={isUpdatingPrice}
+                        className="h-8 w-8 p-0"
+                        type="button"
+                      >
+                        ✕
+                      </Button>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-base font-bold text-gray-900">
+                        PKR {product.price?.toLocaleString()}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartEditPrice(product);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                        title="Edit price"
+                      >
+                        <Edit className="h-3.5 w-3.5 text-gray-400 hover:text-primary" />
+                      </button>
+                    </div>
+                  )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-gray-50 mt-2">
+                  <div className="flex items-center gap-2 pt-1">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={togglingId === product._id}
                       onClick={() => handleSetAvailable(product)}
-                      className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                      className="flex-1 h-8 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
                     >
                       <Power className="h-3.5 w-3.5 mr-1" />
                       Set Serving
@@ -450,7 +442,7 @@ const LowStock = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(product)}
-                      className="flex-1 h-9 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                      className="flex-1 h-8 text-xs font-medium border-gray-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
                     >
                       Edit Details
                     </Button>

@@ -140,16 +140,16 @@ export default function AllProducts() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
             <div key={product._id} className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden flex flex-col">
-              <div className="aspect-square w-full bg-zinc-100 overflow-hidden">
+              <div className="aspect-[4/3] w-full bg-zinc-100 overflow-hidden">
                 <img
                   src={product.picture?.secure_url || product.image || "/placeholder.png"}
                   alt={product.title}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="p-4 flex flex-col gap-2 flex-1">
+              <div className="p-3 flex flex-col gap-1.5 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-zinc-900 text-sm leading-snug">{product.title}</h3>
+                  <h3 className="font-semibold text-zinc-900 text-sm leading-snug line-clamp-2">{product.title}</h3>
                   <Badge className={product.isAvailable
                     ? "bg-emerald-100 text-emerald-700 border-0 shrink-0"
                     : "bg-destructive/10 text-destructive border-0 shrink-0"}>
@@ -159,7 +159,7 @@ export default function AllProducts() {
                 <p className="text-xs text-zinc-400">{product.category?.name || "Uncategorized"}</p>
                 <p className="text-sm font-bold text-zinc-900">Rs. {product.price}</p>
 
-                <div className="mt-auto flex items-center gap-2 pt-2">
+                <div className="mt-auto flex items-center gap-2 pt-1.5">
                   <Button
                     variant="outline"
                     size="sm"
