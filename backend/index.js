@@ -70,13 +70,19 @@ const allowedOrigins = [
   // Add any other allowed origins here
 ].filter(Boolean); // Remove undefined values
 
+// Dev-only: matches any ngrok free-tier domain so a tunneled frontend (or a
+// tool hitting this API directly through its own tunnel) isn't blocked by
+// CORS during a local demo. Not relevant in production - a real deployment
+// wouldn't have an ngrok origin calling it anyway.
+const NGROK_ORIGIN_PATTERN = /^https:\/\/[a-z0-9-]+\.ngrok-free\.(app|dev)$/i;
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    // Check if origin is in allowed list, or is a tunneled ngrok demo origin
+    if (allowedOrigins.indexOf(origin) !== -1 || NGROK_ORIGIN_PATTERN.test(origin)) {
       callback(null, true);
     } else {
       // Log the blocked origin for debugging

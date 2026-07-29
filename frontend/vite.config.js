@@ -104,6 +104,24 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // Dev-only: lets `npm run dev` be reachable through an ngrok tunnel for
+    // demos. A leading "." matches any subdomain, so this covers a fresh
+    // random ngrok URL every time without needing to update this file.
+    // Doesn't affect the production build - this only applies to the dev server.
+    allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev'],
+    // Proxies API calls to the local backend so a remote demo viewer's
+    // browser only ever talks to the one tunneled origin (the ngrok URL) -
+    // same-origin, so no CORS and no HTTPS-page-calling-plain-HTTP mixed
+    // content issue. The proxy forwards to the real backend server-side,
+    // where none of that browser-security machinery applies.
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
