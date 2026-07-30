@@ -13,7 +13,7 @@ export default defineConfig({
       filename: 'manifest.webmanifest',
       strategies: 'generateSW',
       injectRegister: 'auto',
-      includeAssets: ["robots.txt", "favicon.svg", "favicon-32.png", "apple-touch-icon.png"],
+      includeAssets: ["robots.txt", "favicon-32.png", "favicon-192.png", "apple-touch-icon.png"],
       workbox: {
         // Don't cache index.html - exclude it from precaching
         globPatterns: ['**/*.{js,css,ico,png,svg,webmanifest,woff,woff2}'],

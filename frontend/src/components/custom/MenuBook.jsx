@@ -40,9 +40,7 @@ Page.displayName = 'Page';
 const CoverPage = forwardRef((_, ref) => (
   <Page ref={ref} className="menu-book-cover">
     <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-stone-900 via-stone-950 to-black px-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 ring-2 ring-primary/40 sm:h-20 sm:w-20">
-        <span className="text-3xl sm:text-4xl">🍔</span>
-      </div>
+      <img src="/brgrhut-logo.png" alt="" className="h-28 w-28 object-contain drop-shadow-lg sm:h-32 sm:w-32" />
       <h1 className="font-['Fredoka',sans-serif] text-4xl font-extrabold tracking-tight text-white sm:text-5xl">brgrhut</h1>
       <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.3em] text-primary sm:text-sm">Flame Grilled Burgers</p>
       <div className="mt-6 h-px w-16 bg-primary/40" />
