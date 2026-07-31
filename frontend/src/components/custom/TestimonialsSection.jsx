@@ -10,21 +10,21 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 const PLACEHOLDER_TESTIMONIALS = [
   {
     name: 'Ahmed R.',
-    location: 'Hayatabad, Peshawar',
+    location: 'Darlaston, West Midlands',
     quote:
       '[Placeholder review] The flame-grilled patty tastes nothing like the usual fast food burgers — smoky, juicy, and always fresh. brgrhut is our go-to order night.',
     rating: 5,
   },
   {
     name: 'Sana K.',
-    location: 'Phase 6, Peshawar',
+    location: 'Walsall, West Midlands',
     quote:
       '[Placeholder review] Fast delivery, hot fries every time, and the pizza is surprisingly good for a burger place. Highly recommend the double zinger combo.',
     rating: 5,
   },
   {
     name: 'Bilal M.',
-    location: 'University Town, Peshawar',
+    location: 'Wolverhampton, West Midlands',
     quote:
       '[Placeholder review] Consistent quality and friendly service. The spicy burger has real heat, not the watered-down kind. Will keep ordering.',
     rating: 4,

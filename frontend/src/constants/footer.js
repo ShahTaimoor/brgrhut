@@ -5,18 +5,23 @@ export const COMPANY_INFO = {
 }
 
 export const CONTACT_INFO = {
-  phone: '+92 311 4000096',
+  // Placeholder UK number (01922 is Walsall's area code, covering Darlaston) -
+  // swap for the real business line whenever that's set up.
+  phone: '+44 1922 400096',
 }
 
+const ADDRESS_LINES = [
+  'Unit 51a, Darlaston Central Trading Estate,',
+  'Salisbury Street, Darlaston,',
+  'West Midlands, WS10 8XB',
+]
+
 export const LOCATION = {
-  address: [
-    'Main Food Street,',
-    'Phase 6, Hayatabad,',
-    'Peshawar, KPK, Pakistan',
-  ],
-  // Original map embed url restored to prevent empty display box
-  mapEmbedUrl:
-    'https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3309.003481832633!2d71.53472219999999!3d33.96675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzPCsDU4JzAwLjMiTiA3McKwMzInMDUuMCJF!5e0!3m2!1sen!2s!4v1750542938354!5m2!1sen!2s',
+  address: ADDRESS_LINES,
+  // Built from the same address lines shown above (rather than a hand-picked
+  // lat/long) so the map pin can't drift out of sync with the printed
+  // address - Google geocodes the query string itself when the embed loads.
+  mapEmbedUrl: `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS_LINES.join(' '))}&output=embed`,
 }
 
 export const SOCIAL_MEDIA = [

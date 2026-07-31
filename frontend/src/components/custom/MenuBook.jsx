@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback, forwardRef } from 'react';
 import HTMLFlipBook from 'react-pageflip';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, List } from 'lucide-react';
 import productService from '@/redux/slices/products/productService';
 import categoryService from '@/redux/slices/categories/categoriesService';
 import { getCategoryEmoji } from '@/utils/categoryEmoji';
@@ -40,9 +40,7 @@ Page.displayName = 'Page';
 const CoverPage = forwardRef((_, ref) => (
   <Page ref={ref} className="menu-book-cover">
     <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-stone-900 via-stone-950 to-black px-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 ring-2 ring-primary/40 sm:h-20 sm:w-20">
-        <span className="text-3xl sm:text-4xl">🍔</span>
-      </div>
+      <img src="/brgrhut-logo.png" alt="" className="h-28 w-28 object-contain drop-shadow-lg sm:h-32 sm:w-32" />
       <h1 className="font-['Fredoka',sans-serif] text-4xl font-extrabold tracking-tight text-white sm:text-5xl">brgrhut</h1>
       <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.3em] text-primary sm:text-sm">Flame Grilled Burgers</p>
       <div className="mt-6 h-px w-16 bg-primary/40" />
@@ -67,6 +65,43 @@ const BackCoverPage = forwardRef((_, ref) => (
 ));
 BackCoverPage.displayName = 'BackCoverPage';
 
+// react-pageflip's mouseup/touchend handlers are attached to *window*
+// unconditionally, with no check for what was clicked - a plain click on a
+// button inside a page still reaches them, and since react-pageflip has no
+// matching "start" gesture for it (see the pointer-events-none comment on
+// TocRow below, which keeps it from ever seeing one), it falls through to
+// "user tapped the page" and fires its own extra single-page flip on top of
+// whatever the click's own handler just did. Stopping propagation on
+// release keeps that event from ever reaching those window listeners.
+// Needed on every clickable element placed inside a page (TOC rows below).
+const stopBubble = (e) => e.stopPropagation();
+
+// Small, icon-only jump back to the TOC page. Deliberately rendered as a
+// single overlay OUTSIDE the book (see the wrapper around HTMLFlipBook)
+// rather than as page content: react-pageflip's own wrapper re-clones every
+// page element (via React.cloneElement with a brand-new ref callback) on
+// every re-render - which happens after every flip, since onFlip updates
+// state here - and that made a from-inside-a-page instance of this button
+// unreliable specifically in single-page/portrait layout: the native click
+// would fire and land on the right element, but React's onClick sometimes
+// never ran for it. Living outside the book's children entirely sidesteps
+// that whole mechanism. It also means it's no longer subject to
+// react-pageflip's checkTarget()/mousedown-mousedown gesture handling (that
+// only watches distElement, which this button now sits outside of), so it
+// doesn't need the pointer-events-none/stopBubble treatment TocRow still
+// does below.
+const ReturnToTocButton = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label="Return to contents"
+    title="Return to contents"
+    className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/85 text-primary shadow-sm ring-1 ring-primary/15 transition-colors hover:bg-white active:bg-orange-50"
+  >
+    <List className="h-3.5 w-3.5" />
+  </button>
+);
+
 const CategoryDividerPage = forwardRef(({ category, itemCount }, ref) => (
   <Page ref={ref} className="menu-book-divider">
     <div className="relative flex h-full w-full flex-col items-center justify-center gap-4 overflow-hidden bg-orange-50 px-8 text-center">
@@ -87,6 +122,82 @@ const CategoryDividerPage = forwardRef(({ category, itemCount }, ref) => (
   </Page>
 ));
 CategoryDividerPage.displayName = 'CategoryDividerPage';
+
+// --- Table of contents ---------------------------------------------------
+// One row per category with a small representative thumbnail; tapping a row
+// jumps the book straight to that category's divider page (see jumpToCategory
+// in MenuBook). Sized independently from MenuItemRow's density math below -
+// a TOC row has no price/description, so it can be more compact.
+const TOC_IMAGE_SIZE = 40; // px
+const TOC_ROW_HEIGHT = 52; // px - includes the row's own vertical padding
+const TOC_ROW_GAP = 6; // px - gap between rows
+const TOC_HEADER_HEIGHT = 40; // px - "Table of Contents" header row + spacing
+const MIN_TOC_ROWS_PER_PAGE = 3;
+const MAX_TOC_ROWS_PER_PAGE = 10;
+
+const TocRow = ({ category, image, onJump }) => (
+  <button
+    type="button"
+    onClick={onJump}
+    onMouseUp={stopBubble}
+    onTouchEnd={stopBubble}
+    className="flex w-full flex-shrink-0 items-center gap-3 rounded-lg px-1 text-left transition-colors hover:bg-orange-50 active:bg-orange-100"
+    style={{ height: TOC_ROW_HEIGHT }}
+    aria-label={`Go to ${category.name}`}
+  >
+    {/* pointer-events-none on every child below: see the comment on
+        ReturnToTocButton's icon - without it, a tap landing on the thumbnail,
+        the emoji fallback, the name, or the chevron sets e.target to that
+        child instead of this <button>, and react-pageflip's checkTarget()
+        (a literal tagName check, no ancestor walk) fails to exclude it - on
+        touch that means preventDefault() on touchstart, which kills the
+        click outright. pointer-events:none is inherited, so it covers the
+        <img> nested inside the thumbnail div too. */}
+    <div
+      className="pointer-events-none flex flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100 shadow-sm"
+      style={{ height: TOC_IMAGE_SIZE, width: TOC_IMAGE_SIZE }}
+    >
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover"
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
+      ) : (
+        <span className="text-lg leading-none">{getCategoryEmoji(category)}</span>
+      )}
+    </div>
+    <span className="pointer-events-none min-w-0 flex-1 truncate font-['Poppins',sans-serif] text-sm font-bold capitalize text-stone-900">
+      {category.name}
+    </span>
+    <ChevronRight className="pointer-events-none h-4 w-4 flex-shrink-0 text-stone-300" />
+  </button>
+);
+
+const TocPage = forwardRef(({ entries, pageLabel, onJump }, ref) => (
+  <Page ref={ref} className="menu-book-items">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#fffaf3] px-5 py-5">
+      <div className="relative mb-2.5 flex items-center border-b-2 border-primary/20 pb-1.5">
+        <h3 className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          Table of Contents
+        </h3>
+        {pageLabel && (
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-['Poppins',sans-serif] text-[10px] text-stone-400">
+            {pageLabel}
+          </span>
+        )}
+      </div>
+      <div className="relative flex flex-1 flex-col justify-center gap-1.5 overflow-hidden">
+        {entries.map(({ category, image }) => (
+          <TocRow key={category._id} category={category} image={image} onJump={() => onJump(category._id)} />
+        ))}
+      </div>
+    </div>
+  </Page>
+));
+TocPage.displayName = 'TocPage';
 
 // --- Card + density constants -----------------------------------------
 // One source of truth: the row's real height is fully determined by these
@@ -119,6 +230,12 @@ const computeItemsPerPage = (pageHeight, isNarrow) => {
   const contentHeight = pageHeight - PAGE_PADDING_Y - PAGE_HEADER_HEIGHT - buffer;
   const raw = Math.floor((contentHeight + ROW_GAP) / (ROW_IMAGE_SIZE + ROW_GAP));
   return Math.min(MAX_ITEMS_PER_PAGE, Math.max(MIN_ITEMS_PER_PAGE, raw));
+};
+
+const computeTocRowsPerPage = (pageHeight) => {
+  const contentHeight = pageHeight - PAGE_PADDING_Y - TOC_HEADER_HEIGHT;
+  const raw = Math.floor((contentHeight + TOC_ROW_GAP) / (TOC_ROW_HEIGHT + TOC_ROW_GAP));
+  return Math.min(MAX_TOC_ROWS_PER_PAGE, Math.max(MIN_TOC_ROWS_PER_PAGE, raw));
 };
 
 // Fitting text into a fixed 2-line box needs to know the actual column
@@ -319,9 +436,13 @@ const ItemsPage = forwardRef(({ category, items, pageLabel, pageWidth, fontsRead
             {getCategoryEmoji(category)}
           </span>
         </div>
-        <div className="relative mb-2.5 flex items-center justify-between border-b-2 border-primary/20 pb-1.5">
+        <div className="relative mb-2.5 flex items-center border-b-2 border-primary/20 pb-1.5">
           <h3 className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.2em] text-primary">{category.name}</h3>
-          <span className="font-['Poppins',sans-serif] text-[10px] text-stone-400">{pageLabel}</span>
+          {pageLabel && (
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-['Poppins',sans-serif] text-[10px] text-stone-400">
+              {pageLabel}
+            </span>
+          )}
         </div>
         <div className="relative flex flex-1 flex-col justify-center gap-2 overflow-hidden">
           {items.map((product) => (
@@ -342,14 +463,22 @@ const PAGE_ASPECT_RATIO = 0.7;
 // above it. Only the "chrome" budget (how much room nav controls / margins
 // take) differs by case; the size and density math itself doesn't branch.
 const useResponsiveBookSize = () => {
-  const [state, setState] = useState({ width: 420, height: 600, isSpread: false, itemsPerPage: 5 });
+  const [state, setState] = useState({ width: 420, height: 600, isSpread: false, itemsPerPage: 5, tocRowsPerPage: 6 });
 
   useEffect(() => {
     const compute = () => {
       const vh = window.innerHeight;
       const vw = window.innerWidth;
       const isPhone = vw < 640;
-      const isSpread = !isPhone && vw > vh;
+      // Spread (two-page, open-book) layout is reserved for desktop/laptop
+      // widths specifically - phones and tablets, portrait or landscape,
+      // always get a single page. Orientation alone can't be the signal
+      // here: a landscape tablet (e.g. 1194px) is wider than it is tall,
+      // same as a laptop, so "wide beats tall" used to put it in spread
+      // mode too. 1280px (Tailwind's `xl`) is comfortably above the widest
+      // common tablet landscape width (iPad Pro 11" is 1194px) and at or
+      // below the narrowest common laptop viewport.
+      const isSpread = vw >= 1280;
 
       const heightBudget = vh - (isPhone ? 320 : isSpread ? 220 : 260);
       const heightCandidate = Math.max(420, Math.min(heightBudget, 860));
@@ -367,6 +496,7 @@ const useResponsiveBookSize = () => {
         height: Math.round(height),
         isSpread,
         itemsPerPage: computeItemsPerPage(height, isPhone),
+        tocRowsPerPage: computeTocRowsPerPage(height),
       });
     };
 
@@ -385,7 +515,7 @@ const MenuBook = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const bookRef = useRef(null);
   const sectionRef = useRef(null);
-  const { width, height, isSpread, itemsPerPage } = useResponsiveBookSize();
+  const { width, height, isSpread, itemsPerPage, tocRowsPerPage } = useResponsiveBookSize();
   const fontsReady = useFontsReady();
   useScrollReveal(sectionRef);
 
@@ -436,14 +566,22 @@ const MenuBook = () => {
       .map((cat) => ({ category: cat, items: byCategory.get(cat._id) }));
   }, [categories, products]);
 
-  const pages = useMemo(() => {
-    const result = [{ type: 'cover' }];
+  const { pages, categoryPageIndex, tocPageIndex } = useMemo(() => {
+    // Build the category/item pages first, tracking each category's divider
+    // page position within this sub-list. Real absolute indices (accounting
+    // for however many TOC pages end up in front of it) get resolved once
+    // that count is known below - a TOC row jumping to the wrong page is
+    // exactly the kind of off-by-N bug that comes from computing this in
+    // two places instead of one.
+    const rest = [];
+    const dividerIndexByCategory = new Map();
 
     sections.forEach(({ category, items }) => {
-      result.push({ type: 'divider', category, itemCount: items.length });
+      dividerIndexByCategory.set(category._id, rest.length);
+      rest.push({ type: 'divider', category, itemCount: items.length });
       const chunkCount = Math.ceil(items.length / itemsPerPage);
       for (let i = 0; i < items.length; i += itemsPerPage) {
-        result.push({
+        rest.push({
           type: 'items',
           category,
           items: items.slice(i, i + itemsPerPage),
@@ -452,9 +590,55 @@ const MenuBook = () => {
       }
     });
 
-    result.push({ type: 'back-cover' });
-    return result;
-  }, [sections, itemsPerPage]);
+    // Table of contents: one row per category with a representative image,
+    // paginated the same way item pages are so a long category list can't
+    // silently overflow a page.
+    const tocPages = [];
+    const tocPageCount = Math.ceil(sections.length / tocRowsPerPage) || 0;
+    for (let i = 0; i < sections.length; i += tocRowsPerPage) {
+      const chunk = sections.slice(i, i + tocRowsPerPage);
+      tocPages.push({
+        type: 'toc',
+        pageLabel: tocPageCount > 1 ? `${tocPages.length + 1} / ${tocPageCount}` : null,
+        entries: chunk.map(({ category, items }) => ({
+          category,
+          image: category.picture?.secure_url || items[0]?.picture?.secure_url || items[0]?.image || null,
+        })),
+      });
+    }
+
+    const result = [{ type: 'cover' }, ...tocPages, ...rest, { type: 'back-cover' }];
+
+    const offset = 1 + tocPages.length;
+    const resolvedIndex = new Map();
+    dividerIndexByCategory.forEach((idx, catId) => resolvedIndex.set(catId, idx + offset));
+
+    // Cover is always index 0, so the (first) TOC page is always right after
+    // it - findIndex here instead of a bare `1` just keeps this
+    // self-documenting and safe if that ever changes.
+    const tocPageIndex = result.findIndex((p) => p.type === 'toc');
+
+    return { pages: result, categoryPageIndex: resolvedIndex, tocPageIndex };
+  }, [sections, itemsPerPage, tocRowsPerPage]);
+
+  // Jumps straight to a category's divider page with a single flip
+  // animation - confirmed via the page-flip engine's own source (Flip.ts
+  // flipToPage): it repositions instantly to just before the target, then
+  // plays one flip landing on it, rather than stepping through every page
+  // in between.
+  const jumpToCategory = useCallback((categoryId) => {
+    const targetIndex = categoryPageIndex.get(categoryId);
+    if (targetIndex == null) return;
+    bookRef.current?.pageFlip()?.flip(targetIndex);
+  }, [categoryPageIndex]);
+
+  // Same jump mechanism, aimed backward at the TOC instead of a category -
+  // shown on every category/item page so a reader never has to manually
+  // flip back through everything they've already passed.
+  const returnToToc = useCallback(() => {
+    if (tocPageIndex < 0) return;
+    bookRef.current?.pageFlip()?.flip(tocPageIndex);
+  }, [tocPageIndex]);
 
   const handleFlip = useCallback((e) => {
     setCurrentPage(e.data);
@@ -462,6 +646,13 @@ const MenuBook = () => {
 
   const goNext = useCallback(() => bookRef.current?.pageFlip()?.flipNext(), []);
   const goPrev = useCallback(() => bookRef.current?.pageFlip()?.flipPrev(), []);
+
+  // currentPage is always the lower-indexed page of whatever's on screen -
+  // the single page in portrait mode, or the left half of a spread in
+  // landscape mode (its right half, if any, is currentPage + 1).
+  const showReturnToToc =
+    ['divider', 'items'].includes(pages[currentPage]?.type) ||
+    (isSpread && ['divider', 'items'].includes(pages[currentPage + 1]?.type));
 
   return (
     <section ref={sectionRef} id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
@@ -498,61 +689,94 @@ const MenuBook = () => {
                   </button>
                 )}
 
-                <HTMLFlipBook
-                  // react-pageflip only constructs its underlying engine once
-                  // and never re-applies changed size/minWidth props - keying
-                  // on the layout mode forces a clean remount (with correct
-                  // settings) if the viewport crosses the single/spread
-                  // breakpoint, e.g. an iPad being rotated mid-session.
-                  key={isSpread ? 'spread' : 'single'}
-                  ref={bookRef}
-                  width={width}
-                  height={height}
-                  size="stretch"
-                  // Forces the engine's own single-page/two-page decision to
-                  // agree with `isSpread` instead of it re-deriving orientation
-                  // from the real container width on its own (which is what
-                  // caused portrait tablets to get squeezed into a two-up
-                  // layout `isSpread` never asked for).
-                  minWidth={isSpread ? 280 : width}
-                  // In "stretch" mode, width/height only set the page's
-                  // aspect ratio - the real pixel size comes from the actual
-                  // container width, uncapped unless maxWidth reins it in.
-                  maxWidth={width}
-                  minHeight={420}
-                  maxHeight={900}
-                  showCover
-                  maxShadowOpacity={0.5}
-                  flippingTime={700}
-                  mobileScrollSupport={false}
-                  swipeDistance={20}
-                  className="menu-flipbook shadow-2xl"
-                  onFlip={handleFlip}
-                >
-                  {pages.map((page, idx) => {
-                    if (page.type === 'cover') return <CoverPage key="cover" />;
-                    if (page.type === 'back-cover') return <BackCoverPage key="back-cover" />;
-                    if (page.type === 'divider') {
+                {/* HTMLFlipBook's "stretch" sizing measures its own parent's
+                    real width and stretches to fill it (capped by maxWidth
+                    below) - wrapping it in a plain div with no size of its
+                    own turns that into a circular reference (the wrapper
+                    has no width until its content does, and the book won't
+                    take a width until the wrapper does), which collapses
+                    the whole thing down to react-pageflip's bare minimum.
+                    Sizing the wrapper explicitly from the same width/height
+                    state driving the book itself breaks that cycle - in
+                    spread mode the rendered book is exactly two pages wide
+                    (confirmed empirically, no extra gap), so *2 here. */}
+                <div className="relative" style={{ width: isSpread ? width * 2 : width, height }}>
+                  <HTMLFlipBook
+                    // react-pageflip only constructs its underlying engine once
+                    // and never re-applies changed size/minWidth props - keying
+                    // on the layout mode forces a clean remount (with correct
+                    // settings) if the viewport crosses the single/spread
+                    // breakpoint, e.g. an iPad being rotated mid-session.
+                    key={isSpread ? 'spread' : 'single'}
+                    ref={bookRef}
+                    width={width}
+                    height={height}
+                    size="stretch"
+                    // Forces the engine's own single-page/two-page decision to
+                    // agree with `isSpread` instead of it re-deriving orientation
+                    // from the real container width on its own (which is what
+                    // caused portrait tablets to get squeezed into a two-up
+                    // layout `isSpread` never asked for).
+                    minWidth={isSpread ? 280 : width}
+                    // In "stretch" mode, width/height only set the page's
+                    // aspect ratio - the real pixel size comes from the actual
+                    // container width, uncapped unless maxWidth reins it in.
+                    maxWidth={width}
+                    minHeight={420}
+                    maxHeight={900}
+                    showCover
+                    maxShadowOpacity={0.5}
+                    flippingTime={700}
+                    mobileScrollSupport={false}
+                    swipeDistance={20}
+                    className="menu-flipbook shadow-2xl"
+                    onFlip={handleFlip}
+                  >
+                    {pages.map((page, idx) => {
+                      if (page.type === 'cover') return <CoverPage key="cover" />;
+                      if (page.type === 'back-cover') return <BackCoverPage key="back-cover" />;
+                      if (page.type === 'toc') {
+                        return (
+                          <TocPage
+                            key={`toc-${idx}`}
+                            entries={page.entries}
+                            pageLabel={page.pageLabel}
+                            onJump={jumpToCategory}
+                          />
+                        );
+                      }
+                      if (page.type === 'divider') {
+                        return (
+                          <CategoryDividerPage
+                            key={`divider-${page.category._id}`}
+                            category={page.category}
+                            itemCount={page.itemCount}
+                          />
+                        );
+                      }
                       return (
-                        <CategoryDividerPage
-                          key={`divider-${page.category._id}`}
+                        <ItemsPage
+                          key={`items-${page.category._id}-${idx}`}
                           category={page.category}
-                          itemCount={page.itemCount}
+                          items={page.items}
+                          pageLabel={page.pageLabel}
+                          pageWidth={width}
+                          fontsReady={fontsReady}
                         />
                       );
-                    }
-                    return (
-                      <ItemsPage
-                        key={`items-${page.category._id}-${idx}`}
-                        category={page.category}
-                        items={page.items}
-                        pageLabel={page.pageLabel}
-                        pageWidth={width}
-                        fontsReady={fontsReady}
-                      />
-                    );
-                  })}
-                </HTMLFlipBook>
+                    })}
+                  </HTMLFlipBook>
+
+                  {/* Rendered outside the book on purpose - see the note above
+                      returnToToc. Its visibility tracks whichever page(s) are
+                      currently on-screen (both halves of a spread, or just the
+                      one page in single mode). */}
+                  {showReturnToToc && (
+                    <div className="absolute right-3 top-3 z-20">
+                      <ReturnToTocButton onClick={returnToToc} />
+                    </div>
+                  )}
+                </div>
 
                 {isSpread && (
                   <button

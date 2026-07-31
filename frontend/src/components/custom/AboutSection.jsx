@@ -41,7 +41,7 @@ const AboutSection = () => {
               [Placeholder] brgrhut started with one simple idea: fast food doesn&apos;t have to mean
               average food. Every burger is flame-grilled to order, every side is made fresh, and
               every order is packed with the same care whether it&apos;s your first visit or your
-              hundredth. From Hayatabad, Peshawar, straight to your table.
+              hundredth. From Darlaston, West Midlands, straight to your table.
             </p>
           </div>
 
