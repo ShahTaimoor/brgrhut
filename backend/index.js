@@ -12,6 +12,7 @@ const { notFound, errorHandler } = require('./middleware/errorHandler')
 const cartRoutes = require('./routes/cartRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Security middleware
 const {
@@ -133,6 +134,7 @@ app.use('/api', mediaRoutes);
 app.use('/api', cartRoutes);
 app.use('/api', attendanceRoutes);
 app.use('/api', employeeRoutes);
+app.use('/api', reviewRoutes);
 
 
 // Test Route

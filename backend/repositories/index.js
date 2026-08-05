@@ -7,6 +7,7 @@ const MediaRepository = require('./implementations/MediaRepository');
 const BlacklistedTokenRepository = require('./implementations/BlacklistedTokenRepository');
 const PasswordResetRequestRepository = require('./implementations/PasswordResetRequestRepository');
 const AuditLogRepository = require('./implementations/AuditLogRepository');
+const ReviewRepository = require('./implementations/ReviewRepository');
 
 module.exports = {
   userRepository: new UserRepository(),
@@ -18,5 +19,6 @@ module.exports = {
   blacklistedTokenRepository: new BlacklistedTokenRepository(),
   passwordResetRequestRepository: new PasswordResetRequestRepository(),
   auditLogRepository: new AuditLogRepository(),
+  reviewRepository: new ReviewRepository(),
 };
 
