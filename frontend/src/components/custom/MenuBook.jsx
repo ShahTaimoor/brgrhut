@@ -500,9 +500,34 @@ const useResponsiveBookSize = () => {
       });
     };
 
+    // react-pageflip's underlying engine (page-flip) reparents every page's
+    // real DOM node into its own internally-created wrapper div, invisible to
+    // React's fiber tree, which still believes each page is a direct child
+    // of the container we render. That's normally harmless - the library's
+    // own reactive update path settles cleanly before anything else touches
+    // the tree - but a second resize-driven update arriving while the first
+    // one (especially the isSpread-crossing full remount below, via `key`)
+    // is still mid-flight lets React's reconciliation and the library's own
+    // DOM state disagree about who owns which node, throwing
+    // "NotFoundError: removeChild/insertBefore ... not a child of this node"
+    // and crashing the whole page (this component's nearest error boundary
+    // is the top-level one wrapping all of Home). Debouncing guarantees a
+    // minimum spacing between actual layout recomputations - and therefore
+    // between HTMLFlipBook remounts/updates - regardless of how bursty the
+    // raw resize events are, so the engine always gets a clean settle
+    // window. 500ms is comfortably above the ~350ms gap that was enough to
+    // reproduce the crash in testing.
     compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
+    let debounceId = null;
+    const debouncedCompute = () => {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(compute, 500);
+    };
+    window.addEventListener('resize', debouncedCompute);
+    return () => {
+      clearTimeout(debounceId);
+      window.removeEventListener('resize', debouncedCompute);
+    };
   }, []);
 
   return state;
