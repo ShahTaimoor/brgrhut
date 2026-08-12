@@ -2,9 +2,9 @@ const winston = require('winston');
 const path = require('path');
 const fs = require('fs');
 
-// Create logs directory if it doesn't exist
+// Create logs directory if it doesn't exist (only if not on Vercel)
 const logsDir = path.join(__dirname, '../logs');
-if (!fs.existsSync(logsDir)) {
+if (!process.env.VERCEL && !fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
@@ -29,51 +29,69 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-// Create the logger
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
-  defaultMeta: { service: 'brgrhut-api' },
-  transports: [
-    // Write all logs to `combined.log`
+// Base transports (Console is always safe)
+const transports = [];
+
+if (process.env.VERCEL) {
+  // On Vercel, only log to console (file system is read-only)
+  transports.push(
+    new winston.transports.Console({
+      format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat,
+    })
+  );
+} else {
+  // Local environment: use file transports
+  transports.push(
     new winston.transports.File({
       filename: path.join(logsDir, 'combined.log'),
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // Write all logs with level `error` and below to `error.log`
     new winston.transports.File({
       filename: path.join(logsDir, 'error.log'),
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5,
-    }),
-  ],
-  // Handle exceptions and rejections
-  exceptionHandlers: [
-    new winston.transports.File({
-      filename: path.join(logsDir, 'exceptions.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-  ],
-  rejectionHandlers: [
-    new winston.transports.File({
-      filename: path.join(logsDir, 'rejections.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-  ],
-});
-
-// If we're not in production, log to the console as well
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: consoleFormat,
     })
   );
+  
+  if (process.env.NODE_ENV !== 'production') {
+    transports.push(
+      new winston.transports.Console({
+        format: consoleFormat,
+      })
+    );
+  }
 }
+
+// Exception handlers
+const exceptionHandlers = process.env.VERCEL ? [] : [
+  new winston.transports.File({
+    filename: path.join(logsDir, 'exceptions.log'),
+    maxsize: 5242880,
+    maxFiles: 5,
+  })
+];
+
+const rejectionHandlers = process.env.VERCEL ? [] : [
+  new winston.transports.File({
+    filename: path.join(logsDir, 'rejections.log'),
+    maxsize: 5242880,
+    maxFiles: 5,
+  })
+];
+
+// Create the logger
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  defaultMeta: { service: 'brgrhut-api' },
+  transports,
+  exceptionHandlers: exceptionHandlers.length > 0 ? exceptionHandlers : undefined,
+  rejectionHandlers: rejectionHandlers.length > 0 ? rejectionHandlers : undefined,
+});
+
+// If we're not in production and not on Vercel, console logging is already added above
 
 module.exports = logger;
 
