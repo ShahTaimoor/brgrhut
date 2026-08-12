@@ -327,12 +327,17 @@ const getTitleFontSize = (title, columnWidth, fontsReady) =>
 // so title's effective column is the row's full width minus this estimate.
 const PRICE_BLOCK_WIDTH = 58;
 
-const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
+const MenuItemRow = ({ product, category, columnWidth, fontsReady }) => {
   const hasDiscount = product.discountPercent > 0;
   const discountedPrice = hasDiscount
     ? Math.round(product.price * (1 - product.discountPercent / 100))
     : product.price;
-  const image = product.picture?.secure_url || product.image || '/placeholder.png';
+  // '/placeholder.png' is a burger icon - fine as a generic fallback for a
+  // burger-menu product missing a photo, but wrong for every other category
+  // (wraps, pizzas, drinks...). Products with no real photo (all of the
+  // static-menu items - see staticMenu.js) show their category's emoji
+  // instead, matching the same fallback TocRow already uses.
+  const realImage = product.picture?.secure_url || product.image || null;
 
   const titleFontSize = getTitleFontSize(product.title, columnWidth - PRICE_BLOCK_WIDTH, fontsReady);
   const descriptionFontSize = getDescriptionFontSize(product.description, columnWidth, fontsReady);
@@ -340,16 +345,20 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
   return (
     <div className="flex items-center gap-2.5">
       <div
-        className="flex-shrink-0 overflow-hidden rounded-lg bg-stone-100 shadow-sm"
+        className="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100 shadow-sm"
         style={{ height: ROW_IMAGE_SIZE, width: ROW_IMAGE_SIZE }}
       >
-        <img
-          src={image}
-          alt={product.title}
-          loading="lazy"
-          className="h-full w-full object-cover"
-          onError={(e) => { if (e.target.src.indexOf('/placeholder.png') === -1) e.target.src = '/placeholder.png'; }}
-        />
+        {realImage ? (
+          <img
+            src={realImage}
+            alt={product.title}
+            loading="lazy"
+            className="h-full w-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        ) : (
+          <span className="text-2xl leading-none">{getCategoryEmoji(category)}</span>
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
@@ -448,7 +457,7 @@ const ItemsPage = forwardRef(({ category, items, pageLabel, pageWidth, fontsRead
         </div>
         <div className="relative flex flex-1 flex-col justify-center gap-2 overflow-hidden">
           {items.map((product) => (
-            <MenuItemRow key={product._id} product={product} columnWidth={columnWidth} fontsReady={fontsReady} />
+            <MenuItemRow key={product._id} product={product} category={category} columnWidth={columnWidth} fontsReady={fontsReady} />
           ))}
         </div>
       </div>
