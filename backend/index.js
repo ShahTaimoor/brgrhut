@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const serverless = require('serverless-http');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -120,9 +121,24 @@ if (process.env.NODE_ENV === 'production') {
   app.use(httpLogger); // Human-readable format for development
 }
 // Connect to Database
-connectDB().catch((err) => {
-  logger.error('Database connection error:', err);
-  process.exit(1);
+// In serverless mode each cold-start calls connectDB once.
+// Mongoose caches the connection, so subsequent warm invocations skip the round-trip.
+let dbConnected = false;
+const ensureDBConnection = async () => {
+  if (dbConnected) return;
+  await connectDB();
+  dbConnected = true;
+};
+
+// Middleware that lazily connects before the first request
+app.use(async (req, res, next) => {
+  try {
+    await ensureDBConnection();
+    next();
+  } catch (err) {
+    logger.error('Database connection error:', err);
+    res.status(503).json({ success: false, message: 'Service temporarily unavailable' });
+  }
 });
 
 // API Routes
@@ -146,25 +162,35 @@ app.get('/', (req, res) => {
 app.use(notFound)
 app.use(errorHandler)
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+// ─── Local development server ─────────────────────────────────────────────────
+// On Vercel the app is exported as a serverless handler (below).
+// Locally we spin up a normal HTTP server.
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+
+  // Eagerly connect to DB when running locally
+  connectDB().catch((err) => {
+    logger.error('Database connection error:', err);
+    process.exit(1);
+  });
+
+  const server = app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-});
+  });
 
-// Configure server timeouts for slow networks
-server.timeout = 120000; // 120 seconds (2 minutes) - increased for slow internet connections
-server.keepAliveTimeout = 65000; // 65 seconds - must be greater than client timeout
-server.headersTimeout = 66000; // 66 seconds - must be greater than keepAliveTimeout
+  server.timeout = 120000;
+  server.keepAliveTimeout = 65000;
+  server.headersTimeout = 66000;
 
-// Handle server errors
-server.on('error', (error) => {
+  server.on('error', (error) => {
     logger.error('Server error:', { error: error.message, stack: error.stack });
-});
+  });
 
-// Routine idle keep-alive socket cleanup, not a request failure - logged at
-// debug (not warn) so it doesn't read as an alarm during normal operation.
-server.on('timeout', (socket) => {
+  server.on('timeout', (socket) => {
     logger.debug('Idle keep-alive connection closed after timeout');
     socket.destroy();
-});
+  });
+}
+
+// ─── Vercel serverless export ──────────────────────────────────────────────────
+module.exports = serverless(app);

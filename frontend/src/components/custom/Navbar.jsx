@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { LayoutDashboard } from "lucide-react";
 
 const NAV_LINKS = [
@@ -11,6 +12,10 @@ const NAV_LINKS = [
 const Navbar = () => {
   const { pathname } = useLocation();
   const onHome = pathname === "/";
+  const { user } = useSelector((state) => state.auth);
+
+  // Show Dashboard link only for admin (role 1) and super admin (role 2)
+  const isAdmin = user && user.role >= 1;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
@@ -42,16 +47,18 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Demo mode: direct link into the admin dashboard, no login required */}
-          <div className="flex-shrink-0">
-            <Link
-              to="/admin/dashboard"
-              className="font-['Poppins',sans-serif] inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Link>
-          </div>
+          {/* Dashboard link — only visible to admin users (role >= 1) */}
+          {isAdmin && (
+            <div className="flex-shrink-0">
+              <Link
+                to="/admin/dashboard"
+                className="font-['Poppins',sans-serif] inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

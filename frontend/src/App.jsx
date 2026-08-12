@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
-import DemoAutoLogin from './components/custom/DemoAutoLogin';
+import AuthInit from './components/custom/AuthInit';
+import AdminProtectedRoute from './components/custom/AdminProtectedRoute';
 import ErrorBoundary from './components/custom/ErrorBoundary';
 import OneLoader from './components/ui/OneLoader';
 import { Suspense, lazy } from 'react';
@@ -20,6 +21,7 @@ const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const Users = lazy(() => import('./pages/Users'));
 const AdminProfile = lazy(() => import('./pages/AdminProfile'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 
 const CreateProducts = lazy(() => import('./components/custom/CreateProducts'));
 const AllProducts = lazy(() => import('./components/custom/AllProducts'));
@@ -90,108 +92,140 @@ const App = () => {
         </RootLayout>
       ),
     },
+    // Standalone admin login — no layout wrapper
+    {
+      path: '/admin/login',
+      element: <AdminLogin />,
+    },
+    // Protected admin routes
     {
       path: '/admin/dashboard',
       element: (
-        <AdminLayout>
-          <CreateProducts />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <CreateProducts />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/category',
       element: (
-        <AdminLayout>
-          <Category />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <Category />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/all-products',
       element: (
-        <AdminLayout>
-          <AllProducts />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <AllProducts />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/low-stock',
       element: (
-        <AdminLayout>
-          <LowStock />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <LowStock />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/update/:id',
       element: (
-        <AdminLayout>
-          <UpdateProduct />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <UpdateProduct />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/all-reviews',
       element: (
-        <AdminLayout>
-          <AllReviews />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <AllReviews />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/create-review',
       element: (
-        <AdminLayout>
-          <CreateReview />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <CreateReview />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/update-review/:id',
       element: (
-        <AdminLayout>
-          <UpdateReview />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <UpdateReview />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/users',
       element: (
-        <AdminLayout>
-          <Users />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <Users />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/media',
       element: (
-        <AdminLayout>
-          <Media />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <Media />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/attendance',
       element: (
-        <AdminLayout>
-          <Attendance />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <Attendance />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/dashboard/attendance-performance',
       element: (
-        <AdminLayout>
-          <AttendancePerformance />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <AttendancePerformance />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
       path: '/admin/profile',
       element: (
-        <AdminLayout>
-          <AdminProfile />
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <AdminProfile />
+          </AdminLayout>
+        </AdminProtectedRoute>
       ),
     },
     {
@@ -206,7 +240,8 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <DemoAutoLogin />
+      {/* AuthInit silently restores admin session from HTTP-only cookie on every page load */}
+      <AuthInit />
       <ErrorBoundary>
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><OneLoader size="large" text="Loading..." /></div>}>
           <RouterProvider router={router} />
