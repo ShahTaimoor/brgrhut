@@ -545,9 +545,12 @@ const useResponsiveBookSize = () => {
 };
 
 const MenuBook = () => {
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Static items need no network round-trip, so the book renders with them
+  // immediately instead of sitting behind a spinner - the DB-backed
+  // categories/products (fetched below) are merged in on top once they
+  // arrive, which is what used to gate the very first paint.
+  const [categories, setCategories] = useState(STATIC_CATEGORIES);
+  const [products, setProducts] = useState(STATIC_PRODUCTS);
   const [currentPage, setCurrentPage] = useState(0);
   const bookRef = useRef(null);
   const sectionRef = useRef(null);
@@ -557,7 +560,6 @@ const MenuBook = () => {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
 
     (async () => {
       try {
@@ -566,19 +568,18 @@ const MenuBook = () => {
           productService.allProduct('all', 1, 'all', 'active', 'az'),
         ]);
         if (cancelled) return;
-        
+
         const fetchedCategories = Array.isArray(catRes?.data) ? catRes.data : [];
         const fetchedProducts = Array.isArray(prodRes?.data) ? prodRes.data : [];
 
+        // Merged on top of the static set already showing - if this never
+        // resolves (slow/cold backend), the book the visitor is already
+        // reading simply never gains these extra pages, instead of never
+        // having shown anything at all.
         setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
         setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
       } catch {
-        if (!cancelled) {
-          setCategories([...STATIC_CATEGORIES]);
-          setProducts([...STATIC_PRODUCTS]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+        // Network/API failure: static set is already showing, nothing more to do.
       }
     })();
 
@@ -706,12 +707,7 @@ const MenuBook = () => {
         </div>
 
         <div className="mt-10 flex flex-col items-center">
-          {loading ? (
-            <div className="flex flex-col items-center gap-3 py-20">
-              <div className="h-10 w-10 animate-spin rounded-full border-2 border-stone-200 border-t-primary" />
-              <p className="font-['Poppins',sans-serif] text-sm text-gray-500">Preparing the menu...</p>
-            </div>
-          ) : pages.length <= 2 ? (
+          {pages.length <= 2 ? (
             <div className="flex flex-col items-center gap-2 py-20 text-center">
               <p className="font-['Poppins',sans-serif] text-lg font-semibold text-gray-900">Menu coming soon</p>
               <p className="font-['Poppins',sans-serif] text-sm text-gray-500">No menu items are published yet.</p>
