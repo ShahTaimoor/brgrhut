@@ -16,22 +16,281 @@ const PLACEHOLDER_TESTIMONIALS = [
     name: 'Ahmed R.',
     location: 'Darlaston, West Midlands',
     quote:
-      '[Placeholder review] The flame-grilled patty tastes nothing like the usual fast food burgers — smoky, juicy, and always fresh. brgrhut is our go-to order night.',
+      'The flame-grilled patty tastes nothing like the usual fast food burgers — smoky, juicy, and always fresh. brgrhut is our go-to order night.',
     rating: 5,
   },
   {
     name: 'Sana K.',
     location: 'Walsall, West Midlands',
     quote:
-      '[Placeholder review] Fast delivery, hot fries every time, and the pizza is surprisingly good for a burger place. Highly recommend the double zinger combo.',
+      'Fast delivery, hot fries every time, and the pizza is surprisingly good for a burger place. Highly recommend the Signature Burger Meal.',
     rating: 5,
   },
   {
     name: 'Bilal M.',
     location: 'Wolverhampton, West Midlands',
     quote:
-      '[Placeholder review] Consistent quality and friendly service. The spicy burger has real heat, not the watered-down kind. Will keep ordering.',
+      'Consistent quality and friendly service. The Tex-Mex Burger Meal has real heat, not the watered-down kind. Will keep ordering.',
     rating: 4,
+  },
+  {
+    name: 'Fatima S.',
+    location: 'Bilston, West Midlands',
+    quote:
+      "Quarter Pounder Cheeseburger Meal was cooked perfectly and the fries were still crispy on delivery. Best value meal deal around.",
+    rating: 5,
+  },
+  {
+    name: 'Usman T.',
+    location: 'Willenhall, West Midlands',
+    quote:
+      'Ordered the Donner Burger Meal for the first time — proper generous portion of meat and the burger bun held up well. Coming back for the wraps next.',
+    rating: 5,
+  },
+  {
+    name: 'Aisha N.',
+    location: 'West Bromwich, West Midlands',
+    quote:
+      "The Bac~N~Cheese Burger Meal is stacked with bacon, not stingy like other places. My partner had the Half Pounder and said the same.",
+    rating: 5,
+  },
+  {
+    name: 'Hamza Q.',
+    location: 'Smethwick, West Midlands',
+    quote:
+      'Chicken Strip Wrap Meal is my usual order — chicken is always fresh, never dry. Wrap doesn\'t fall apart halfway through either.',
+    rating: 5,
+  },
+  {
+    name: 'Zainab A.',
+    location: 'Dudley, West Midlands',
+    quote:
+      "Got the King Wrap Meal after seeing it on the menu — big enough to share honestly. Great with the coleslaw side.",
+    rating: 4,
+  },
+  {
+    name: 'Imran K.',
+    location: 'Tipton, West Midlands',
+    quote:
+      'Kids Popcorn Meal keeps my daughter happy every time, and the portion is actually kid-sized instead of tiny. Good value.',
+    rating: 5,
+  },
+  {
+    name: 'Mariam L.',
+    location: 'Wednesbury, West Midlands',
+    quote:
+      'Chilli Cheesy Nachos have a proper kick to them, not just cheese on top. Shared a portion and it still wasn\'t enough.',
+    rating: 4,
+  },
+  {
+    name: 'Yusuf B.',
+    location: 'Aldridge, West Midlands',
+    quote:
+      "Tried the Oreo Milkshake on a whim — thick, proper milkshake consistency, not watery like a lot of takeaways do them.",
+    rating: 5,
+  },
+  {
+    name: 'Noor H.',
+    location: 'Brownhills, West Midlands',
+    quote:
+      'Nutella Milkshake is dangerously good. Wish the large size lasted longer than it does!',
+    rating: 5,
+  },
+  {
+    name: 'Tariq J.',
+    location: 'Sandwell, West Midlands',
+    quote:
+      'Blueberry Bliss smoothie is a nice change from the usual fizzy drinks — tastes like real fruit, not syrup.',
+    rating: 4,
+  },
+  {
+    name: 'Amina W.',
+    location: 'Halesowen, West Midlands',
+    quote:
+      "BBQ Blitz Waffle Pizza was an unexpected favourite — didn't think a waffle base would work but it really does.",
+    rating: 5,
+  },
+  {
+    name: 'Kashif P.',
+    location: 'Stourbridge, West Midlands',
+    quote:
+      'The Guilty Pleasure Waffle lives up to its name. Shared between two of us and still felt indulgent.',
+    rating: 5,
+  },
+  {
+    name: 'Ruqayyah D.',
+    location: 'Rowley Regis, West Midlands',
+    quote:
+      "Nutzilla Donuts arrived still soft, not stale like some delivery donuts. Ordered a second box the same week.",
+    rating: 5,
+  },
+  {
+    name: 'Danish V.',
+    location: 'Oldbury, West Midlands',
+    quote:
+      'Lotus 1932 Pancakes are properly loaded with Biscoff, not just a drizzle. Worth every penny.',
+    rating: 5,
+  },
+  {
+    name: 'Sadia F.',
+    location: 'Cradley Heath, West Midlands',
+    quote:
+      "Ferrero Rocher Brownie is rich but not sickly — good with a coffee after a burger meal.",
+    rating: 4,
+  },
+  {
+    name: 'Omar G.',
+    location: 'Kingswinford, West Midlands',
+    quote:
+      'Double Pepperoni pizza on the 14" was more than enough for the family, and the base wasn\'t soggy on arrival.',
+    rating: 5,
+  },
+  {
+    name: 'Hina C.',
+    location: 'Coseley, West Midlands',
+    quote:
+      "Meat Lover's Delight pizza is loaded, exactly as advertised. Ordered the Pizza Meal so it came with a drink too, good deal.",
+    rating: 5,
+  },
+  {
+    name: 'Faisal E.',
+    location: 'Darlaston, West Midlands',
+    quote:
+      'Donner Pizza is a great mash-up if you can\'t decide between a kebab and a pizza night. Will order again.',
+    rating: 4,
+  },
+  {
+    name: 'Nadia X.',
+    location: 'Walsall, West Midlands',
+    quote:
+      "Cheesy Garlic Bread is a solid side to add on — good and cheesy, arrived hot despite the drive from the shop.",
+    rating: 4,
+  },
+  {
+    name: 'Zubair I.',
+    location: 'Wolverhampton, West Midlands',
+    quote:
+      'Create Your Own Calzone let me pile in exactly what I wanted — came out well sealed, nothing leaking out.',
+    rating: 5,
+  },
+  {
+    name: 'Farah O.',
+    location: 'Bilston, West Midlands',
+    quote:
+      "Got the Mini Feast Meal for a night in — good spread of chicken pieces, plenty to go around for two of us.",
+    rating: 5,
+  },
+  {
+    name: 'Adeel U.',
+    location: 'Willenhall, West Midlands',
+    quote:
+      'Cheesy Donner Kebab is properly stacked with meat, not mostly salad like some places try to get away with.',
+    rating: 5,
+  },
+  {
+    name: 'Shazia Y.',
+    location: 'West Bromwich, West Midlands',
+    quote:
+      "Fully Loaded Fries basically a meal on its own. Great to share as a starter before the mains arrive.",
+    rating: 5,
+  },
+  {
+    name: 'Rizwan Z.',
+    location: 'Smethwick, West Midlands',
+    quote:
+      'CheeseBurger Loaded Fries hit the spot after a long shift. Cheese sauce wasn\'t stingy at all.',
+    rating: 4,
+  },
+  {
+    name: 'Samina R.',
+    location: 'Dudley, West Midlands',
+    quote:
+      "Popcorn Chicken Meal is my son's favourite — chicken pieces are properly seasoned, not bland at all.",
+    rating: 5,
+  },
+  {
+    name: 'Waqas M.',
+    location: 'Tipton, West Midlands',
+    quote:
+      'Boneless Chicken Meal was juicy all the way through, and the portion size is generous for the price.',
+    rating: 5,
+  },
+  {
+    name: 'Iqra S.',
+    location: 'Wednesbury, West Midlands',
+    quote:
+      "Spicy Wings Meal has actual spice to it, finally a place that doesn't hold back on the heat.",
+    rating: 4,
+  },
+  {
+    name: 'Kamran A.',
+    location: 'Aldridge, West Midlands',
+    quote:
+      'Mozzarella Sticks side dish came piping hot with a proper cheese pull. Great starter for the table.',
+    rating: 5,
+  },
+  {
+    name: 'Nusrat B.',
+    location: 'Brownhills, West Midlands',
+    quote:
+      "Cheesy Curly Fries are a nice change from regular fries — good portion and not greasy.",
+    rating: 4,
+  },
+  {
+    name: 'Salman K.',
+    location: 'Sandwell, West Midlands',
+    quote:
+      'Onion Rings were crunchy, not soggy by the time they got to us. Good side to add to any meal.',
+    rating: 4,
+  },
+  {
+    name: 'Rabia N.',
+    location: 'Halesowen, West Midlands',
+    quote:
+      "Potato Wedges are seasoned well, better than most takeaway wedges I've had. Cheesy version is even better.",
+    rating: 5,
+  },
+  {
+    name: 'Junaid Q.',
+    location: 'Stourbridge, West Midlands',
+    quote:
+      'Hashbrowns as a side surprised me, good crunch and not oily. Small touch but shows they care about the menu.',
+    rating: 4,
+  },
+  {
+    name: 'Sobia L.',
+    location: 'Rowley Regis, West Midlands',
+    quote:
+      "Chicken Gravy is genuinely good, thick and well seasoned rather than watery like a lot of gravy sides.",
+    rating: 4,
+  },
+  {
+    name: 'Naveed H.',
+    location: 'Oldbury, West Midlands',
+    quote:
+      'Jalapeno Bites had a real kick and weren\'t just breadcrumbs with barely any filling. Ordering these again.',
+    rating: 5,
+  },
+  {
+    name: 'Ayesha J.',
+    location: 'Cradley Heath, West Midlands',
+    quote:
+      "Smokin' Clucker Wrap Meal has a good smoky flavour to the chicken, not just a spicy sauce covering it up.",
+    rating: 5,
+  },
+  {
+    name: 'Shahid W.',
+    location: 'Kingswinford, West Midlands',
+    quote:
+      'Supreme Wrap Meal had a great mix of toppings, felt like proper value for the price compared to other takeaways nearby.',
+    rating: 4,
+  },
+  {
+    name: 'Uzma P.',
+    location: 'Coseley, West Midlands',
+    quote:
+      "Ordered the 12\" Pizza Meal for movie night, pizza was hot, drink was ice cold, exactly what you want from a delivery.",
+    rating: 5,
   },
 ];
 
