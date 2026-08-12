@@ -555,12 +555,47 @@ const MenuBook = () => {
           productService.allProduct('all', 1, 'all', 'active', 'az'),
         ]);
         if (cancelled) return;
-        setCategories(Array.isArray(catRes?.data) ? catRes.data : []);
-        setProducts(Array.isArray(prodRes?.data) ? prodRes.data : []);
+        
+        let fetchedCategories = Array.isArray(catRes?.data) ? catRes.data : [];
+        let fetchedProducts = Array.isArray(prodRes?.data) ? prodRes.data : [];
+        
+        // Use dummy data as fallback if nothing is returned
+        if (fetchedCategories.length === 0 || fetchedProducts.length === 0) {
+          fetchedCategories = [
+            { _id: 'cat1', name: 'Menu 1', position: 1 },
+            { _id: 'cat2', name: 'Menu 2', position: 2 },
+            { _id: 'cat3', name: 'Menu 3', position: 3 },
+            { _id: 'cat4', name: 'Menu 4', position: 4 },
+            { _id: 'cat5', name: 'Menu 5', position: 5 },
+          ];
+          fetchedProducts = [
+            { _id: 'p1', title: 'Placeholder Item 1', price: 500, category: 'cat1', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p2', title: 'Placeholder Item 2', price: 600, category: 'cat2', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p3', title: 'Placeholder Item 3', price: 700, category: 'cat3', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p4', title: 'Placeholder Item 4', price: 800, category: 'cat4', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p5', title: 'Placeholder Item 5', price: 900, category: 'cat5', description: 'A delicious placeholder item', discountPercent: 0 },
+          ];
+        }
+
+        setCategories(fetchedCategories);
+        setProducts(fetchedProducts);
       } catch {
         if (!cancelled) {
-          setCategories([]);
-          setProducts([]);
+          // Use dummy data on error as well
+          setCategories([
+            { _id: 'cat1', name: 'Menu 1', position: 1 },
+            { _id: 'cat2', name: 'Menu 2', position: 2 },
+            { _id: 'cat3', name: 'Menu 3', position: 3 },
+            { _id: 'cat4', name: 'Menu 4', position: 4 },
+            { _id: 'cat5', name: 'Menu 5', position: 5 },
+          ]);
+          setProducts([
+            { _id: 'p1', title: 'Placeholder Item 1', price: 500, category: 'cat1', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p2', title: 'Placeholder Item 2', price: 600, category: 'cat2', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p3', title: 'Placeholder Item 3', price: 700, category: 'cat3', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p4', title: 'Placeholder Item 4', price: 800, category: 'cat4', description: 'A delicious placeholder item', discountPercent: 0 },
+            { _id: 'p5', title: 'Placeholder Item 5', price: 900, category: 'cat5', description: 'A delicious placeholder item', discountPercent: 0 },
+          ]);
         }
       } finally {
         if (!cancelled) setLoading(false);
