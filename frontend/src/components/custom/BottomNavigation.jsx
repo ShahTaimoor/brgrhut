@@ -1,9 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Home, BookOpen, Download, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const BottomNavigation = () => {
   const location = useLocation();
+  // "/admin/dashboard" is the admin back-office, guarded by
+  // AdminProtectedRoute (role >= 1) - showing this tab to every visitor
+  // meant regular customers could tap it and just get bounced to the admin
+  // login. Only show it once there's an actual logged-in admin.
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const isAdmin = isAuthenticated && user && user.role >= 1;
 
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -79,7 +86,7 @@ const BottomNavigation = () => {
       path: "/admin/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
-      show: true,
+      show: isAdmin,
       isCenter: false
     },
     {

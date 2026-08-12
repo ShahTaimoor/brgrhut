@@ -550,15 +550,7 @@ const MenuBook = () => {
   const [categories, setCategories] = useState(STATIC_CATEGORIES);
   const [products, setProducts] = useState(STATIC_PRODUCTS);
   const [currentPage, setCurrentPage] = useState(0);
-  // HTMLFlipBook remounts (via its own `key`, further below) whenever the
-  // merged page count changes - which happens once, right after the static
-  // set below is topped up with real DB categories/products. react-pageflip
-  // reparents page DOM nodes into its own wrapper outside React's tracking,
-  // so swapping `key` in the same render can leave the outgoing instance's
-  // real DOM briefly overlapping the incoming one (ghost nav buttons/pages
-  // rendered on top of the new content). Hiding the book for one frame
-  // between the two forces a real unmount to finish before the remount
-  // starts, instead of both existing at once.
+  // See the bookKey effect below for why this exists.
   const [bookVisible, setBookVisible] = useState(true);
   const bookRef = useRef(null);
   const sectionRef = useRef(null);
@@ -588,14 +580,11 @@ const MenuBook = () => {
         // Merged on top of the static set already showing - if this never
         // resolves (slow/cold backend), the book the visitor is already
         // reading simply never gains these extra pages, instead of never
-        // having shown anything at all.
-        setBookVisible(false);
-        requestAnimationFrame(() => {
-          if (cancelled) return;
-          setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
-          setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
-          setBookVisible(true);
-        });
+        // having shown anything at all. The resulting page-count change is
+        // picked up by the bookKey effect above, which handles hiding the
+        // book for the one frame the remount needs.
+        setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
+        setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
       } catch {
         // Network/API failure: static set is already showing, nothing more to do.
       }
@@ -680,6 +669,27 @@ const MenuBook = () => {
   useEffect(() => {
     setCurrentPage(0);
   }, [isSpread, pages.length]);
+
+  // Every remount (isSpread flipping between portrait/spread on resize, or
+  // pages.length changing - e.g. once real DB items merge in on top of the
+  // static set) swaps HTMLFlipBook's `key` below. react-pageflip reparents
+  // page DOM nodes into its own wrapper outside React's tracking, so
+  // swapping `key` in the same render can leave the outgoing instance's
+  // real DOM briefly overlapping the incoming one (ghost nav buttons/pages
+  // rendered on top of the new content - this is what caused the
+  // Table-of-Contents-over-the-carousel overlap on mobile resize). Hiding
+  // the book for one frame around every key change forces the outgoing
+  // instance to fully unmount before the new one starts, so the two can
+  // never coexist on screen.
+  const bookKey = `${isSpread ? 'spread' : 'single'}-${pages.length}`;
+  const prevBookKeyRef = useRef(bookKey);
+  useEffect(() => {
+    if (prevBookKeyRef.current === bookKey) return;
+    prevBookKeyRef.current = bookKey;
+    setBookVisible(false);
+    const raf = requestAnimationFrame(() => setBookVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, [bookKey]);
 
   // Jumps straight to a category's divider page with a single flip
   // animation - confirmed via the page-flip engine's own source (Flip.ts
@@ -791,7 +801,7 @@ const MenuBook = () => {
                     //    pages.length here forces a full remount (through the
                     //    safe, fresh loadFromHTML path) instead, every time
                     //    the page count would otherwise change.
-                    key={`${isSpread ? 'spread' : 'single'}-${pages.length}`}
+                    key={bookKey}
                     ref={bookRef}
                     width={width}
                     height={height}
