@@ -75,7 +75,7 @@ const StaticMealsSection = () => {
                     <h3 className="font-['Fredoka',sans-serif] text-xl font-extrabold text-stone-900">{category.name}</h3>
                   </div>
 
-                  <ul className="mt-5 flex-1 divide-y divide-orange-100 overflow-y-auto pr-1">
+                  <ul className="thin-scrollbar mt-5 flex-1 divide-y divide-orange-100 overflow-y-auto pr-1">
                     {items.map((item) => (
                       <li key={item._id} className="flex items-center justify-between gap-4 py-2.5">
                         <span className="font-['Poppins',sans-serif] text-sm font-semibold text-stone-800">{item.title}</span>
