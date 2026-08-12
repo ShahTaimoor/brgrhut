@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/auth/authSlice'
 import categoriesReducer from './slices/categories/categoriesSlice'
 import productsReducer from './slices/products/productSlice'
+import reviewsReducer from './slices/reviews/reviewSlice'
 import { setStoreReference } from './slices/auth/axiosInstance'
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
         auth: authReducer,
         products: productsReducer,
         categories: categoriesReducer,
+        reviews: reviewsReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -25,6 +27,9 @@ export const store = configureStore({
                     'products/updateSingleProduct/pending',
                     'products/updateSingleProduct/rejected',
                     'products/importProductsFromExcel/fulfilled',
+                    'reviews/AddReview/fulfilled',
+                    'reviews/AddReview/pending',
+                    'reviews/AddReview/rejected',
                 ],
                 // Ignore these field paths in all actions
                 ignoredActionPaths: [

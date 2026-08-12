@@ -25,6 +25,9 @@ const CreateProducts = lazy(() => import('./components/custom/CreateProducts'));
 const AllProducts = lazy(() => import('./components/custom/AllProducts'));
 const LowStock = lazy(() => import('./components/custom/LowStock'));
 const UpdateProduct = lazy(() => import('./components/custom/UpdateProduct'));
+const AllReviews = lazy(() => import('./components/custom/AllReviews'));
+const CreateReview = lazy(() => import('./components/custom/CreateReview'));
+const UpdateReview = lazy(() => import('./components/custom/UpdateReview'));
 const Media = lazy(() => import('./pages/Media'));
 const Attendance = lazy(() => import('./pages/Attendance'));
 const AttendancePerformance = lazy(() => import('./pages/AttendancePerformance'));
@@ -124,6 +127,30 @@ const App = () => {
       element: (
         <AdminLayout>
           <UpdateProduct />
+        </AdminLayout>
+      ),
+    },
+    {
+      path: '/admin/dashboard/all-reviews',
+      element: (
+        <AdminLayout>
+          <AllReviews />
+        </AdminLayout>
+      ),
+    },
+    {
+      path: '/admin/dashboard/create-review',
+      element: (
+        <AdminLayout>
+          <CreateReview />
+        </AdminLayout>
+      ),
+    },
+    {
+      path: '/admin/dashboard/update-review/:id',
+      element: (
+        <AdminLayout>
+          <UpdateReview />
         </AdminLayout>
       ),
     },

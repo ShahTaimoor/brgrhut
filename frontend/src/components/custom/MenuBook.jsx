@@ -500,9 +500,34 @@ const useResponsiveBookSize = () => {
       });
     };
 
+    // react-pageflip's underlying engine (page-flip) reparents every page's
+    // real DOM node into its own internally-created wrapper div, invisible to
+    // React's fiber tree, which still believes each page is a direct child
+    // of the container we render. That's normally harmless - the library's
+    // own reactive update path settles cleanly before anything else touches
+    // the tree - but a second resize-driven update arriving while the first
+    // one (especially the isSpread-crossing full remount below, via `key`)
+    // is still mid-flight lets React's reconciliation and the library's own
+    // DOM state disagree about who owns which node, throwing
+    // "NotFoundError: removeChild/insertBefore ... not a child of this node"
+    // and crashing the whole page (this component's nearest error boundary
+    // is the top-level one wrapping all of Home). Debouncing guarantees a
+    // minimum spacing between actual layout recomputations - and therefore
+    // between HTMLFlipBook remounts/updates - regardless of how bursty the
+    // raw resize events are, so the engine always gets a clean settle
+    // window. 500ms is comfortably above the ~350ms gap that was enough to
+    // reproduce the crash in testing.
     compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
+    let debounceId = null;
+    const debouncedCompute = () => {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(compute, 500);
+    };
+    window.addEventListener('resize', debouncedCompute);
+    return () => {
+      clearTimeout(debounceId);
+      window.removeEventListener('resize', debouncedCompute);
+    };
   }, []);
 
   return state;
@@ -518,12 +543,6 @@ const MenuBook = () => {
   const { width, height, isSpread, itemsPerPage, tocRowsPerPage } = useResponsiveBookSize();
   const fontsReady = useFontsReady();
   useScrollReveal(sectionRef);
-
-  // The book remounts (via `key`) when isSpread flips, which resets the
-  // underlying engine to its first page - keep our own counter in sync.
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [isSpread]);
 
   useEffect(() => {
     let cancelled = false;
@@ -621,6 +640,13 @@ const MenuBook = () => {
     return { pages: result, categoryPageIndex: resolvedIndex, tocPageIndex };
   }, [sections, itemsPerPage, tocRowsPerPage]);
 
+  // The book remounts (via `key`, see below) whenever isSpread flips or the
+  // total page count changes, which resets the underlying engine to its
+  // first page - keep our own counter in sync.
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [isSpread, pages.length]);
+
   // Jumps straight to a category's divider page with a single flip
   // animation - confirmed via the page-flip engine's own source (Flip.ts
   // flipToPage): it repositions instantly to just before the target, then
@@ -702,12 +728,36 @@ const MenuBook = () => {
                     (confirmed empirically, no extra gap), so *2 here. */}
                 <div className="relative" style={{ width: isSpread ? width * 2 : width, height }}>
                   <HTMLFlipBook
-                    // react-pageflip only constructs its underlying engine once
-                    // and never re-applies changed size/minWidth props - keying
-                    // on the layout mode forces a clean remount (with correct
-                    // settings) if the viewport crosses the single/spread
-                    // breakpoint, e.g. an iPad being rotated mid-session.
-                    key={isSpread ? 'spread' : 'single'}
+                    // Two distinct reasons this key needs both isSpread AND
+                    // pages.length, not just isSpread:
+                    //
+                    // 1. react-pageflip only constructs its underlying engine
+                    //    once and never re-applies changed size/minWidth
+                    //    props - keying on the layout mode forces a clean
+                    //    remount (with correct settings) if the viewport
+                    //    crosses the single/spread breakpoint, e.g. an iPad
+                    //    being rotated mid-session.
+                    //
+                    // 2. More importantly: react-pageflip's own children-diff
+                    //    effect updates an already-mounted book via
+                    //    updateFromHtml(), which reparents page DOM nodes into
+                    //    its own internal wrapper - a mutation invisible to
+                    //    React's fiber tree. The FIRST such update per mount
+                    //    is harmless, but confirmed by direct reproduction:
+                    //    the moment the page *count* needs to change again on
+                    //    an already-mounted book (any resize that shifts
+                    //    itemsPerPage/tocRowsPerPage enough to add or remove
+                    //    pages - no rapid succession or racing needed, a
+                    //    single isolated resize reliably triggers it), React
+                    //    tries to insert/remove a page's DOM node relative to
+                    //    a sibling reference that's no longer actually there,
+                    //    throwing "NotFoundError: removeChild/insertBefore
+                    //    ... not a child of this node" and crashing the whole
+                    //    page via the top-level error boundary. Including
+                    //    pages.length here forces a full remount (through the
+                    //    safe, fresh loadFromHTML path) instead, every time
+                    //    the page count would otherwise change.
+                    key={`${isSpread ? 'spread' : 'single'}-${pages.length}`}
                     ref={bookRef}
                     width={width}
                     height={height}
@@ -724,6 +774,15 @@ const MenuBook = () => {
                     maxWidth={width}
                     minHeight={420}
                     maxHeight={900}
+                    // Without this, react-pageflip's own children-tracking effect
+                    // calls setPages() - which destructively rebuilds its internal
+                    // DOM (innerHTML="" + re-append) via updateFromHtml - on EVERY
+                    // single re-render of this component, including every page
+                    // flip, not just when the actual page set changes (confirmed by
+                    // instrumenting the library directly). That's the library's own
+                    // documented flag for gating that rebuild to real page-count
+                    // changes only.
+                    renderOnlyPageLengthChange
                     showCover
                     maxShadowOpacity={0.5}
                     flippingTime={700}

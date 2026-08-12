@@ -5,6 +5,7 @@ import {
   GalleryVerticalEnd,
   UserCog,
   Home,
+  Star,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,6 +33,12 @@ const items = [
     url: "/admin/dashboard",
     icon: FilePlus2Icon,
     description: "Add New Menu Item",
+  },
+  {
+    title: "Manage Reviews",
+    url: "/admin/dashboard/all-reviews",
+    icon: Star,
+    description: "Curate storefront testimonials",
   },
 ];
 
