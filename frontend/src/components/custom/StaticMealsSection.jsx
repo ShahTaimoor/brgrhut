@@ -69,17 +69,17 @@ const StaticMealsSection = () => {
           >
             {sections.map(({ category, items }) => (
               <SwiperSlide key={category._id} className="!h-auto pb-10">
-                <div className="flex h-[420px] flex-col rounded-2xl border border-orange-100 bg-orange-50/50 p-6 sm:p-8">
+                <div className="flex h-[420px] flex-col rounded-2xl border border-orange-100 bg-orange-50/50 py-6 pl-6 pr-3 sm:py-8 sm:pl-8 sm:pr-4">
                   <div className="flex flex-shrink-0 items-center gap-3">
                     <span className="text-2xl">{category.emoji}</span>
                     <h3 className="font-['Fredoka',sans-serif] text-xl font-extrabold text-stone-900">{category.name}</h3>
                   </div>
 
-                  <ul className="thin-scrollbar mt-5 flex-1 divide-y divide-orange-100 overflow-y-auto pr-1">
+                  <ul className="thin-scrollbar mt-5 flex-1 divide-y divide-orange-100 overflow-y-auto pr-2">
                     {items.map((item) => (
-                      <li key={item._id} className="flex items-center justify-between gap-4 py-2.5">
-                        <span className="font-['Poppins',sans-serif] text-sm font-semibold text-stone-800">{item.title}</span>
-                        <span className="font-['Poppins',sans-serif] text-sm font-extrabold text-primary">{item.priceLabel}</span>
+                      <li key={item._id} className="flex items-center justify-between gap-3 py-2.5">
+                        <span className="min-w-0 flex-1 font-['Poppins',sans-serif] text-sm font-semibold text-stone-800">{item.title}</span>
+                        <span className="flex-shrink-0 font-['Poppins',sans-serif] text-sm font-extrabold text-primary">{item.priceLabel}</span>
                       </li>
                     ))}
                   </ul>
