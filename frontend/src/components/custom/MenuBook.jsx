@@ -552,6 +552,16 @@ const MenuBook = () => {
   const [categories, setCategories] = useState(STATIC_CATEGORIES);
   const [products, setProducts] = useState(STATIC_PRODUCTS);
   const [currentPage, setCurrentPage] = useState(0);
+  // HTMLFlipBook remounts (via its own `key`, further below) whenever the
+  // merged page count changes - which happens once, right after the static
+  // set below is topped up with real DB categories/products. react-pageflip
+  // reparents page DOM nodes into its own wrapper outside React's tracking,
+  // so swapping `key` in the same render can leave the outgoing instance's
+  // real DOM briefly overlapping the incoming one (ghost nav buttons/pages
+  // rendered on top of the new content). Hiding the book for one frame
+  // between the two forces a real unmount to finish before the remount
+  // starts, instead of both existing at once.
+  const [bookVisible, setBookVisible] = useState(true);
   const bookRef = useRef(null);
   const sectionRef = useRef(null);
   const { width, height, isSpread, itemsPerPage, tocRowsPerPage } = useResponsiveBookSize();
@@ -572,12 +582,22 @@ const MenuBook = () => {
         const fetchedCategories = Array.isArray(catRes?.data) ? catRes.data : [];
         const fetchedProducts = Array.isArray(prodRes?.data) ? prodRes.data : [];
 
+        // Nothing to merge (common case while the DB has no real menu items
+        // yet) - skip the remount entirely rather than swapping in
+        // value-identical arrays under new references.
+        if (fetchedCategories.length === 0 && fetchedProducts.length === 0) return;
+
         // Merged on top of the static set already showing - if this never
         // resolves (slow/cold backend), the book the visitor is already
         // reading simply never gains these extra pages, instead of never
         // having shown anything at all.
-        setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
-        setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
+        setBookVisible(false);
+        requestAnimationFrame(() => {
+          if (cancelled) return;
+          setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
+          setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
+          setBookVisible(true);
+        });
       } catch {
         // Network/API failure: static set is already showing, nothing more to do.
       }
@@ -707,7 +727,12 @@ const MenuBook = () => {
         </div>
 
         <div className="mt-10 flex flex-col items-center">
-          {pages.length <= 2 ? (
+          {!bookVisible ? (
+            // Deliberately empty for one frame - see the bookVisible comment
+            // above: this gap is what keeps the outgoing and incoming
+            // HTMLFlipBook instances from ever being on-screen at once.
+            <div style={{ height }} />
+          ) : pages.length <= 2 ? (
             <div className="flex flex-col items-center gap-2 py-20 text-center">
               <p className="font-['Poppins',sans-serif] text-lg font-semibold text-gray-900">Menu coming soon</p>
               <p className="font-['Poppins',sans-serif] text-sm text-gray-500">No menu items are published yet.</p>
