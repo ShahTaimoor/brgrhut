@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import MenuBook from '@/components/custom/MenuBook'
+import StaticMealsSection from '@/components/custom/StaticMealsSection'
 import HeroSection from '@/components/custom/HeroSection'
 import AboutSection from '@/components/custom/AboutSection'
 import TestimonialsSection from '@/components/custom/TestimonialsSection'
@@ -25,6 +26,7 @@ const Home = () => {
     <div>
       <HeroSection />
       <MenuBook />
+      <StaticMealsSection />
       <AboutSection />
       <TestimonialsSection />
       <ContactSection />

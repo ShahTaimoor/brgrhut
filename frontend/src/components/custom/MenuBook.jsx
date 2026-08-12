@@ -5,6 +5,8 @@ import productService from '@/redux/slices/products/productService';
 import categoryService from '@/redux/slices/categories/categoriesService';
 import { getCategoryEmoji } from '@/utils/categoryEmoji';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { STATIC_CATEGORIES, STATIC_PRODUCTS } from '@/data/staticMenu';
+
 
 // Canvas text measurement (used below to fit title/description font sizes)
 // reads whatever font is *actually* loaded at the moment it runs - if
@@ -372,7 +374,7 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
               whether or not there's a discount. */}
           <div className="flex flex-shrink-0 flex-col items-end" style={{ width: PRICE_BLOCK_WIDTH }}>
             <span className={`w-full text-right font-['Poppins',sans-serif] text-[13px] font-extrabold leading-none ${hasDiscount ? 'text-primary' : 'text-stone-900'}`}>
-              Rs. {hasDiscount ? discountedPrice : product.price}
+              {product.priceLabel || `Rs. ${hasDiscount ? discountedPrice : product.price}`}
             </span>
             {hasDiscount && (
               <span className="mt-0.5 w-full text-right font-['Poppins',sans-serif] text-[9px] leading-none text-stone-400 line-through">
@@ -556,46 +558,15 @@ const MenuBook = () => {
         ]);
         if (cancelled) return;
         
-        let fetchedCategories = Array.isArray(catRes?.data) ? catRes.data : [];
-        let fetchedProducts = Array.isArray(prodRes?.data) ? prodRes.data : [];
-        
-        // Use dummy data as fallback if nothing is returned
-        if (fetchedCategories.length === 0 || fetchedProducts.length === 0) {
-          fetchedCategories = [
-            { _id: 'cat1', name: 'Menu 1', position: 1 },
-            { _id: 'cat2', name: 'Menu 2', position: 2 },
-            { _id: 'cat3', name: 'Menu 3', position: 3 },
-            { _id: 'cat4', name: 'Menu 4', position: 4 },
-            { _id: 'cat5', name: 'Menu 5', position: 5 },
-          ];
-          fetchedProducts = [
-            { _id: 'p1', title: 'Placeholder Item 1', price: 500, category: 'cat1', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p2', title: 'Placeholder Item 2', price: 600, category: 'cat2', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p3', title: 'Placeholder Item 3', price: 700, category: 'cat3', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p4', title: 'Placeholder Item 4', price: 800, category: 'cat4', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p5', title: 'Placeholder Item 5', price: 900, category: 'cat5', description: 'A delicious placeholder item', discountPercent: 0 },
-          ];
-        }
+        const fetchedCategories = Array.isArray(catRes?.data) ? catRes.data : [];
+        const fetchedProducts = Array.isArray(prodRes?.data) ? prodRes.data : [];
 
-        setCategories(fetchedCategories);
-        setProducts(fetchedProducts);
+        setCategories([...fetchedCategories, ...STATIC_CATEGORIES]);
+        setProducts([...fetchedProducts, ...STATIC_PRODUCTS]);
       } catch {
         if (!cancelled) {
-          // Use dummy data on error as well
-          setCategories([
-            { _id: 'cat1', name: 'Menu 1', position: 1 },
-            { _id: 'cat2', name: 'Menu 2', position: 2 },
-            { _id: 'cat3', name: 'Menu 3', position: 3 },
-            { _id: 'cat4', name: 'Menu 4', position: 4 },
-            { _id: 'cat5', name: 'Menu 5', position: 5 },
-          ]);
-          setProducts([
-            { _id: 'p1', title: 'Placeholder Item 1', price: 500, category: 'cat1', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p2', title: 'Placeholder Item 2', price: 600, category: 'cat2', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p3', title: 'Placeholder Item 3', price: 700, category: 'cat3', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p4', title: 'Placeholder Item 4', price: 800, category: 'cat4', description: 'A delicious placeholder item', discountPercent: 0 },
-            { _id: 'p5', title: 'Placeholder Item 5', price: 900, category: 'cat5', description: 'A delicious placeholder item', discountPercent: 0 },
-          ]);
+          setCategories([...STATIC_CATEGORIES]);
+          setProducts([...STATIC_PRODUCTS]);
         }
       } finally {
         if (!cancelled) setLoading(false);
