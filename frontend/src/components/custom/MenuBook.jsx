@@ -327,16 +327,16 @@ const getTitleFontSize = (title, columnWidth, fontsReady) =>
 // so title's effective column is the row's full width minus this estimate.
 const PRICE_BLOCK_WIDTH = 58;
 
-const MenuItemRow = ({ product, category, columnWidth, fontsReady }) => {
+const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
   const hasDiscount = product.discountPercent > 0;
   const discountedPrice = hasDiscount
     ? Math.round(product.price * (1 - product.discountPercent / 100))
     : product.price;
-  // '/placeholder.png' is a burger icon - fine as a generic fallback for a
-  // burger-menu product missing a photo, but wrong for every other category
-  // (wraps, pizzas, drinks...). Products with no real photo (all of the
-  // static-menu items - see staticMenu.js) show their category's emoji
-  // instead, matching the same fallback TocRow already uses.
+  // Only real product photos get a thumbnail. Items with none (all of the
+  // static-menu items - see staticMenu.js) skip it entirely rather than
+  // repeating a category emoji on every single row - the category's divider
+  // page already shows that emoji once, big, so repeating it per item added
+  // nothing.
   const realImage = product.picture?.secure_url || product.image || null;
 
   const titleFontSize = getTitleFontSize(product.title, columnWidth - PRICE_BLOCK_WIDTH, fontsReady);
@@ -344,11 +344,11 @@ const MenuItemRow = ({ product, category, columnWidth, fontsReady }) => {
 
   return (
     <div className="flex items-center gap-2.5">
-      <div
-        className="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100 shadow-sm"
-        style={{ height: ROW_IMAGE_SIZE, width: ROW_IMAGE_SIZE }}
-      >
-        {realImage ? (
+      {realImage && (
+        <div
+          className="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100 shadow-sm"
+          style={{ height: ROW_IMAGE_SIZE, width: ROW_IMAGE_SIZE }}
+        >
           <img
             src={realImage}
             alt={product.title}
@@ -356,10 +356,8 @@ const MenuItemRow = ({ product, category, columnWidth, fontsReady }) => {
             className="h-full w-full object-cover"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
-        ) : (
-          <span className="text-2xl leading-none">{getCategoryEmoji(category)}</span>
-        )}
-      </div>
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           {/* The dish name is what a customer orders by - wrapping to a
@@ -457,7 +455,7 @@ const ItemsPage = forwardRef(({ category, items, pageLabel, pageWidth, fontsRead
         </div>
         <div className="relative flex flex-1 flex-col justify-center gap-2 overflow-hidden">
           {items.map((product) => (
-            <MenuItemRow key={product._id} product={product} category={category} columnWidth={columnWidth} fontsReady={fontsReady} />
+            <MenuItemRow key={product._id} product={product} columnWidth={columnWidth} fontsReady={fontsReady} />
           ))}
         </div>
       </div>
