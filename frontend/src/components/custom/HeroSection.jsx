@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { gsap, useGSAP } from '@/lib/gsap';
 import { useCanHover } from '@/hooks/useCanHover';
+import { introRemainingSeconds } from '@/lib/intro';
 
 const MotionImg = motion.img;
 
@@ -24,7 +25,7 @@ const HeroSection = () => {
     () => {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
 
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.6 } });
+      const tl = gsap.timeline({ delay: introRemainingSeconds(), defaults: { ease: 'power3.out', duration: 0.6 } });
       tl.from(brandRef.current, { opacity: 0, y: 24 })
         .from(taglineRef.current, { opacity: 0, y: 20 }, '-=0.35')
         .from(descRef.current, { opacity: 0, y: 20 }, '-=0.35')
