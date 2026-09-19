@@ -10,7 +10,7 @@ const RootLayout = ({ children }) => {
     return (
         <>
             <Navbar />
-            <main className={`pt-14 sm:pt-16 ${isMobile ? 'pb-20' : ''}`}>
+            <main className={`lg:pt-16 ${isMobile ? 'pb-20' : ''}`}>
                 {children}
             </main>
             <Footer />

@@ -754,7 +754,7 @@ const MenuBook = () => {
     (isSpread && ['divider', 'items'].includes(pages[currentPage + 1]?.type));
 
   return (
-    <section ref={sectionRef} id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20 lg:py-12">
+    <section ref={sectionRef} id="menu" className="w-full scroll-mt-0 bg-white py-16 lg:scroll-mt-16 sm:py-20 lg:py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">The Full Menu</p>

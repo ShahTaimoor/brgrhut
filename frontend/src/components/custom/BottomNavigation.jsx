@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Home, BookOpen, Info, Download, LayoutDashboard } from "lucide-react";
+import { Home, BookOpen, Info, Phone, Download, LayoutDashboard } from "lucide-react";
 import { useActiveSection, lockActiveSection } from "@/hooks/useActiveSection";
 import { useState, useEffect } from "react";
 
@@ -86,10 +86,25 @@ const BottomNavigation = () => {
       isCenter: false
     },
     {
+      path: "/#home",
+      section: "home",
+      isLogo: true,
+      label: "brgrhut",
+      show: true
+    },
+    {
       path: "/#about",
       section: "about",
       icon: Info,
       label: "About",
+      show: true,
+      isCenter: false
+    },
+    {
+      path: "/#contact",
+      section: "contact",
+      icon: Phone,
+      label: "Contact",
       show: true,
       isCenter: false
     },
@@ -124,6 +139,22 @@ const BottomNavigation = () => {
       <div className="flex items-end justify-around px-2 pb-3 pt-3 relative">
         {navItems.map((item, index) => {
           if (!item.show) return null;
+
+          if (item.isLogo) {
+            return (
+              <Link
+                key="logo"
+                to={item.path}
+                onClick={() => lockActiveSection(item.section)}
+                aria-label="brgrhut home"
+                className="relative -mt-7 flex flex-1 items-center justify-center"
+              >
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200">
+                  <img src="/brgrhut-logo.png" alt="" className="h-11 w-11 object-contain" />
+                </span>
+              </Link>
+            );
+          }
 
           const Icon = item.icon;
           const active = isActive(item);

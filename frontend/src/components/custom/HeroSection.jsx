@@ -48,7 +48,7 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className="relative flex h-[85svh] min-h-[520px] w-full scroll-mt-14 items-center justify-center overflow-hidden sm:scroll-mt-16"
+      className="relative flex h-[85svh] min-h-[520px] w-full scroll-mt-0 items-center justify-center overflow-hidden lg:scroll-mt-16"
     >
       <div className="absolute inset-0">
         {HERO_VIDEO_SRC ? (

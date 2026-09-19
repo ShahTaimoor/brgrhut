@@ -75,7 +75,14 @@ const Home = () => {
       const id = location.hash.replace('#', '')
       const el = document.getElementById(id)
       if (el) {
-        requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+        requestAnimationFrame(() => {
+          // Layout position (offsetTop) ignores the fade-in slide transform that
+          // scrollIntoView would otherwise measure, which made sections overshoot.
+          let top = 0
+          for (let node = el; node; node = node.offsetParent) top += node.offsetTop
+          const headerHeight = window.innerWidth >= 1024 ? 64 : 0
+          window.scrollTo({ top: Math.max(0, top - headerHeight), behavior: 'smooth' })
+        })
       }
     }
   }, [location.hash, location.key])
