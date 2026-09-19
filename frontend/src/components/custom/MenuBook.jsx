@@ -479,7 +479,11 @@ const computeBookState = () => {
   // widths specifically - phones and tablets, portrait or landscape,
   // always get a single page. 1280px (Tailwind's `xl`) is above the widest
   // common tablet landscape width (iPad Pro 11" is 1194px).
-  const isSpread = vw >= 1280;
+  // Desktops (mouse/trackpad) keep the open-book spread down to 1000px so
+  // browser zoom levels above 100% don't collapse it to one page; touch
+  // devices need the full 1280px.
+  const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const isSpread = vw >= 1280 || (isDesktopPointer && vw >= 1000);
 
   // Leaves room for the section title, nav controls and hint so the whole
   // book fits on one screen.
@@ -702,7 +706,11 @@ const MenuBook = () => {
   // the book for one frame around every key change forces the outgoing
   // instance to fully unmount before the new one starts, so the two can
   // never coexist on screen.
-  const bookKey = `${isSpread ? 'spread' : 'single'}-${pages.length}`;
+  // width/height are part of the key too: react-pageflip only applies its size
+  // props when it constructs its engine, so after a zoom/window resize that
+  // keeps the same mode the engine kept its old page size, saw a container it
+  // thought too narrow for two pages, and collapsed into a single page.
+  const bookKey = `${isSpread ? 'spread' : 'single'}-${pages.length}-${width}x${height}`;
   const prevBookKeyRef = useRef(bookKey);
   useEffect(() => {
     if (prevBookKeyRef.current === bookKey) return;
@@ -823,6 +831,7 @@ const MenuBook = () => {
                     //    safe, fresh loadFromHTML path) instead, every time
                     //    the page count would otherwise change.
                     key={bookKey}
+                    startPage={Math.min(currentPage, pages.length - 1)}
                     ref={bookRef}
                     width={width}
                     height={height}
