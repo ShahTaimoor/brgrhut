@@ -78,7 +78,7 @@ const Home = () => {
         requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
       }
     }
-  }, [location.hash])
+  }, [location.hash, location.key])
 
   return (
     <div>

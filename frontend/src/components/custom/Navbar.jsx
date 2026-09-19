@@ -1,17 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { LayoutDashboard } from "lucide-react";
+import { useActiveSection, lockActiveSection } from "@/hooks/useActiveSection";
 
 const NAV_LINKS = [
-  { label: "Home", hash: "#home" },
-  { label: "Menu", hash: "#menu" },
-  { label: "About", hash: "#about" },
-  { label: "Contact Us", hash: "#contact" },
+  { key: "home", label: "Home", hash: "#home" },
+  { key: "menu", label: "Menu", hash: "#menu" },
+  { key: "about", label: "About", hash: "#about" },
+  { key: "contact", label: "Contact Us", hash: "#contact" },
 ];
 
 const Navbar = () => {
   const { pathname } = useLocation();
   const onHome = pathname === "/";
+  const activeSection = useActiveSection();
   const { user } = useSelector((state) => state.auth);
 
   // Show Dashboard link only for admin (role 1) and super admin (role 2)
@@ -36,15 +38,24 @@ const Navbar = () => {
 
           {/* Nav links */}
           <div className="flex items-center gap-4 sm:gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.hash}
-                to={`/${link.hash}`}
-                className="font-['Poppins',sans-serif] text-xs sm:text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = activeSection === link.key;
+              return (
+                <Link
+                  key={link.hash}
+                  to={`/${link.hash}`}
+                  onClick={() => lockActiveSection(link.key)}
+                  aria-current={active ? "location" : undefined}
+                  className={`font-['Poppins',sans-serif] text-xs sm:text-sm font-semibold transition-colors underline-offset-[6px] decoration-2 lg:no-underline lg:hover:text-primary ${
+                    active
+                      ? "text-red-600 underline lg:text-gray-700"
+                      : "text-gray-700 no-underline hover:text-primary"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Dashboard link — only visible to admin users (role >= 1) */}
