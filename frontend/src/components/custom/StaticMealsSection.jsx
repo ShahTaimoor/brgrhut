@@ -33,7 +33,7 @@ const StaticMealsSection = () => {
   }, [])
 
   return (
-    <section id="meal-deals" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
+    <section id="meal-deals" className="w-full scroll-mt-0 bg-white py-16 lg:scroll-mt-16 sm:py-20 lg:py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">More To Try</p>
@@ -45,7 +45,7 @@ const StaticMealsSection = () => {
           </p>
         </div>
 
-        <div className="mt-10 flex items-center gap-3 sm:gap-6">
+        <div className="mx-auto mt-10 flex max-w-2xl lg:mt-6 items-center justify-center gap-3 sm:gap-6">
           <button
             type="button"
             onClick={() => swiperRef.current?.slidePrev()}
@@ -61,14 +61,10 @@ const StaticMealsSection = () => {
             spaceBetween={24}
             slidesPerView={1}
             pagination={{ clickable: true, el: '.meal-deals-pagination' }}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1280: { slidesPerView: 3 },
-            }}
-            className="w-full"
+            className="w-full max-w-md"
           >
             {sections.map(({ category, items }) => (
-              <SwiperSlide key={category._id} className="!h-auto pb-10">
+              <SwiperSlide key={category._id} className="!h-auto pb-10 lg:pb-6">
                 <div className="flex h-[420px] flex-col rounded-2xl border border-orange-100 bg-orange-50/50 py-6 pl-6 pr-3 sm:py-8 sm:pl-8 sm:pr-4">
                   <div className="flex flex-shrink-0 items-center gap-3">
                     <span className="text-2xl">{category.emoji}</span>

@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 const logger = require('../utils/logger');
+
+// Windows machines that get an IPv6 link-local resolver (fe80::1) from their
+// router cause Node's DNS client to fail SRV lookups with ECONNREFUSED.
+// Force a public resolver so mongodb+srv:// lookups work regardless of the
+// OS-assigned DNS server.
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const connectDB = async () => {
     try {

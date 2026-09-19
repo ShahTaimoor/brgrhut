@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Home, BookOpen, Download, LayoutDashboard } from "lucide-react";
+import { Home, BookOpen, Info, Phone, Download, LayoutDashboard } from "lucide-react";
+import { useActiveSection, lockActiveSection } from "@/hooks/useActiveSection";
 import { useState, useEffect } from "react";
 
 const BottomNavigation = () => {
@@ -68,7 +69,8 @@ const BottomNavigation = () => {
   // Navigation items: Home (center/active), Menu, Dashboard, Install
   const navItems = [
     {
-      path: "/",
+      path: "/#home",
+      section: "home",
       icon: Home,
       label: "Home",
       show: true,
@@ -77,8 +79,32 @@ const BottomNavigation = () => {
     },
     {
       path: "/#menu",
+      section: "menu",
       icon: BookOpen,
       label: "Menu",
+      show: true,
+      isCenter: false
+    },
+    {
+      path: "/#home",
+      section: "home",
+      isLogo: true,
+      label: "brgrhut",
+      show: true
+    },
+    {
+      path: "/#about",
+      section: "about",
+      icon: Info,
+      label: "About",
+      show: true,
+      isCenter: false
+    },
+    {
+      path: "/#contact",
+      section: "contact",
+      icon: Phone,
+      label: "Contact",
       show: true,
       isCenter: false
     },
@@ -100,10 +126,11 @@ const BottomNavigation = () => {
     },
   ];
 
-  const isActive = (path) => {
-    if (path === "/" && location.pathname === "/") return true;
-    if (path === "/admin/dashboard" && location.pathname.startsWith("/admin")) return true;
-    if (path !== "/" && path !== "/#menu" && location.pathname.startsWith(path)) return true;
+  const activeSection = useActiveSection();
+
+  const isActive = (item) => {
+    if (item.section) return activeSection === item.section;
+    if (item.path === "/admin/dashboard" && location.pathname.startsWith("/admin")) return true;
     return false;
   };
 
@@ -113,8 +140,24 @@ const BottomNavigation = () => {
         {navItems.map((item, index) => {
           if (!item.show) return null;
 
+          if (item.isLogo) {
+            return (
+              <Link
+                key="logo"
+                to={item.path}
+                onClick={() => lockActiveSection(item.section)}
+                aria-label="brgrhut home"
+                className="relative -mt-7 flex flex-1 items-center justify-center"
+              >
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200">
+                  <img src="/brgrhut-logo.png" alt="" className="h-11 w-11 object-contain" />
+                </span>
+              </Link>
+            );
+          }
+
           const Icon = item.icon;
-          const active = isActive(item.path) || (item.isHome && location.pathname === "/");
+          const active = isActive(item);
 
           // Handle action items (like Install) with onClick
           if (item.isAction && item.onClick) {
@@ -144,7 +187,10 @@ const BottomNavigation = () => {
             <Link
               key={`${item.path}-${item.label}-${index}`}
               to={item.path}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              onClick={() => {
+                if (item.section) lockActiveSection(item.section);
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="flex flex-col items-center justify-center relative transition-all duration-300 flex-1"
             >
               <div className="flex flex-col items-center justify-center gap-0.5">

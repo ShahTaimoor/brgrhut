@@ -7,6 +7,7 @@ import ErrorBoundary from './components/custom/ErrorBoundary';
 import OneLoader from './components/ui/OneLoader';
 import { Suspense, lazy } from 'react';
 import { Toaster } from './components/ui/sonner';
+import IntroLoader from './components/custom/IntroLoader';
 
 // Lazy-load pages
 const RootLayout = lazy(() => import('./components/layouts/RootLayout'));
@@ -240,6 +241,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
+      <IntroLoader />
       {/* AuthInit silently restores admin session from HTTP-only cookie on every page load */}
       <AuthInit />
       <ErrorBoundary>

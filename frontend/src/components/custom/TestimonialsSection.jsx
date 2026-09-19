@@ -347,14 +347,17 @@ const TestimonialsSection = () => {
   const [shouldLoop, setShouldLoop] = useState(false);
   const [repeatCount, setRepeatCount] = useState(2);
   const dispatch = useDispatch();
-  const { activeReviews, activeStatus } = useSelector((state) => state.reviews);
+  const { activeReviews } = useSelector((state) => state.reviews);
 
   useEffect(() => {
     dispatch(fetchActiveReviews());
   }, [dispatch]);
 
   // Real reviews once they exist; the placeholder set only until then.
-  const usingPlaceholders = activeStatus !== 'loading' && activeReviews.length === 0;
+  // Not tied to activeStatus: the note used to disappear while the fetch was
+  // in flight and reappear when it finished, which changed this section's
+  // height after load and shifted everything below it.
+  const usingPlaceholders = activeReviews.length === 0;
   const baseTestimonials = useMemo(() => {
     const source = activeReviews.length > 0
       ? activeReviews.map((r) => ({
@@ -490,7 +493,7 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section ref={sectionRef} id="testimonials" className="w-full bg-orange-50/40 py-16 sm:py-20">
+    <section ref={sectionRef} id="testimonials" className="w-full bg-orange-50/40 py-16 sm:py-20 lg:py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Reviews</p>
@@ -510,7 +513,7 @@ const TestimonialsSection = () => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleTap}
-        className="relative mt-10 w-full overflow-hidden py-2"
+        className="relative mt-10 w-full overflow-hidden py-2 lg:mt-6"
       >
         {/* Hidden, never-duplicated measuring row - purely to decide whether
             one set of cards already fills the viewport at least once. */}
