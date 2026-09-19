@@ -8,7 +8,7 @@ const ContactSection = () => {
   useScrollReveal(sectionRef);
 
   return (
-    <section ref={sectionRef} id="contact" className="w-full scroll-mt-14 bg-orange-50/40 py-16 sm:scroll-mt-16 sm:py-20">
+    <section ref={sectionRef} id="contact" className="w-full scroll-mt-14 bg-orange-50/40 py-16 sm:scroll-mt-16 sm:py-20 lg:py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">Get in touch</p>
@@ -17,7 +17,7 @@ const ContactSection = () => {
           </h2>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-8 lg:mt-6 lg:grid-cols-2">
           <div className="flex flex-col justify-center gap-5 rounded-2xl border border-orange-100 bg-white p-6 sm:p-8">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

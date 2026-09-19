@@ -471,42 +471,63 @@ const PAGE_ASPECT_RATIO = 0.7;
 // portrait, a two-page spread in any landscape-oriented viewport at or
 // above it. Only the "chrome" budget (how much room nav controls / margins
 // take) differs by case; the size and density math itself doesn't branch.
+const computeBookState = () => {
+  const vh = window.innerHeight;
+  const vw = window.innerWidth;
+  const isPhone = vw < 640;
+  // Spread (two-page, open-book) layout is reserved for desktop/laptop
+  // widths specifically - phones and tablets, portrait or landscape,
+  // always get a single page. 1280px (Tailwind's `xl`) is above the widest
+  // common tablet landscape width (iPad Pro 11" is 1194px).
+  const isSpread = vw >= 1280;
+
+  // Leaves room for the section title, nav controls and hint so the whole
+  // book fits on one screen.
+  const heightBudget = vh - 320;
+  const heightCandidate = Math.max(420, Math.min(heightBudget, 860));
+
+  const horizontalChrome = isPhone ? 48 : isSpread ? 200 : 64;
+  const widthBudget = (vw - horizontalChrome) / (isSpread ? 2 : 1);
+
+  // Solve at the exact page aspect ratio so whichever budget is
+  // tighter (width or height) shrinks the page without distorting it.
+  const width = Math.max(300, Math.min(heightCandidate * PAGE_ASPECT_RATIO, widthBudget));
+  const height = width / PAGE_ASPECT_RATIO;
+
+  return {
+    width: Math.round(width),
+    height: Math.round(height),
+    isSpread,
+    itemsPerPage: computeItemsPerPage(height, isPhone),
+    tocRowsPerPage: computeTocRowsPerPage(height),
+  };
+};
+
+const sameBookState = (a, b) =>
+  a.width === b.width && a.height === b.height && a.isSpread === b.isSpread &&
+  a.itemsPerPage === b.itemsPerPage && a.tocRowsPerPage === b.tocRowsPerPage;
+
 const useResponsiveBookSize = () => {
-  const [state, setState] = useState({ width: 420, height: 600, isSpread: false, itemsPerPage: 5, tocRowsPerPage: 6 });
+  // Computed synchronously for the very first render. Starting from a
+  // placeholder size and correcting it in an effect made the book render
+  // twice on every page load (wrong size, then a remount at the right one),
+  // which shifted everything below it and, with the browser's restored scroll
+  // position, left the layout visibly broken after a refresh.
+  const [state, setState] = useState(computeBookState);
 
   useEffect(() => {
+    // On phones/tablets the browser toolbar sliding in and out while scrolling
+    // changes innerHeight on every scroll. Re-sizing the book from that made
+    // it grow/shrink and pushed every section below it up and down, so touch
+    // devices only re-layout when the width changes (rotation, split view).
+    let lastWidth = window.innerWidth;
+    const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+
     const compute = () => {
-      const vh = window.innerHeight;
-      const vw = window.innerWidth;
-      const isPhone = vw < 640;
-      // Spread (two-page, open-book) layout is reserved for desktop/laptop
-      // widths specifically - phones and tablets, portrait or landscape,
-      // always get a single page. Orientation alone can't be the signal
-      // here: a landscape tablet (e.g. 1194px) is wider than it is tall,
-      // same as a laptop, so "wide beats tall" used to put it in spread
-      // mode too. 1280px (Tailwind's `xl`) is comfortably above the widest
-      // common tablet landscape width (iPad Pro 11" is 1194px) and at or
-      // below the narrowest common laptop viewport.
-      const isSpread = vw >= 1280;
-
-      const heightBudget = vh - (isPhone ? 320 : isSpread ? 220 : 260);
-      const heightCandidate = Math.max(420, Math.min(heightBudget, 860));
-
-      const horizontalChrome = isPhone ? 48 : isSpread ? 200 : 64;
-      const widthBudget = (vw - horizontalChrome) / (isSpread ? 2 : 1);
-
-      // Solve at the exact page aspect ratio so whichever budget is
-      // tighter (width or height) shrinks the page without distorting it.
-      const width = Math.max(300, Math.min(heightCandidate * PAGE_ASPECT_RATIO, widthBudget));
-      const height = width / PAGE_ASPECT_RATIO;
-
-      setState({
-        width: Math.round(width),
-        height: Math.round(height),
-        isSpread,
-        itemsPerPage: computeItemsPerPage(height, isPhone),
-        tocRowsPerPage: computeTocRowsPerPage(height),
-      });
+      if (isTouch() && window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      const next = computeBookState();
+      setState((prev) => (sameBookState(prev, next) ? prev : next));
     };
 
     // react-pageflip's underlying engine (page-flip) reparents every page's
@@ -725,7 +746,7 @@ const MenuBook = () => {
     (isSpread && ['divider', 'items'].includes(pages[currentPage + 1]?.type));
 
   return (
-    <section ref={sectionRef} id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20">
+    <section ref={sectionRef} id="menu" className="w-full scroll-mt-14 bg-white py-16 sm:scroll-mt-16 sm:py-20 lg:py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-xl text-center">
           <p className="font-['Fredoka',sans-serif] text-xs font-bold uppercase tracking-[0.25em] text-primary">The Full Menu</p>
@@ -734,7 +755,7 @@ const MenuBook = () => {
           </h2>
         </div>
 
-        <div className="mt-10 flex flex-col items-center">
+        <div className="mt-10 flex flex-col items-center lg:mt-6">
           {!bookVisible ? (
             // Deliberately empty for one frame - see the bookVisible comment
             // above: this gap is what keeps the outgoing and incoming
