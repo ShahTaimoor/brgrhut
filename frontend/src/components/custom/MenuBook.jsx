@@ -186,7 +186,7 @@ const TocPage = forwardRef(({ entries, pageLabel, onJump }, ref) => (
           Table of Contents
         </h3>
         {pageLabel && (
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-['Poppins',sans-serif] text-[10px] text-stone-400">
+          <span className="ml-2 flex-shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-['Poppins',sans-serif] text-[10px] font-semibold leading-none text-primary">
             {pageLabel}
           </span>
         )}
@@ -325,7 +325,7 @@ const getTitleFontSize = (title, columnWidth, fontsReady) =>
 // computeItemsPerPage() guarantee a page never overflows.
 // Price block is a fixed, narrow width regardless of discount (see below),
 // so title's effective column is the row's full width minus this estimate.
-const PRICE_BLOCK_WIDTH = 58;
+const PRICE_BLOCK_WIDTH = 68;
 
 const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
   const hasDiscount = product.discountPercent > 0;
@@ -338,6 +338,9 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
   // page already shows that emoji once, big, so repeating it per item added
   // nothing.
   const realImage = product.picture?.secure_url || product.image || null;
+
+  // Multi-size labels like '9" £5.95 · 12" £7.95 · 14" £9.95' stack one size per line.
+  const priceLines = product.priceLabel ? product.priceLabel.split(' · ') : [];
 
   const titleFontSize = getTitleFontSize(product.title, columnWidth - PRICE_BLOCK_WIDTH, fontsReady);
   const descriptionFontSize = getDescriptionFontSize(product.description, columnWidth, fontsReady);
@@ -368,7 +371,7 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
               real dish name should. min-w-0 + flex-1 guarantee title always
               gets the same available width regardless of the price block. */}
           <h3
-            className="line-clamp-2 min-w-0 flex-1 font-['Poppins',sans-serif] font-bold capitalize leading-snug text-stone-900"
+            className="min-w-0 flex-1 font-['Poppins',sans-serif] font-bold capitalize leading-snug text-stone-900"
             style={{ fontSize: titleFontSize }}
           >
             {product.title}
@@ -380,9 +383,17 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
               items. Stacked, the price block is the same narrow width
               whether or not there's a discount. */}
           <div className="flex flex-shrink-0 flex-col items-end" style={{ width: PRICE_BLOCK_WIDTH }}>
-            <span className={`w-full text-right font-['Poppins',sans-serif] text-[13px] font-extrabold leading-none ${hasDiscount ? 'text-primary' : 'text-stone-900'}`}>
-              {product.priceLabel || `Rs. ${hasDiscount ? discountedPrice : product.price}`}
-            </span>
+            {priceLines.length > 1 ? (
+              priceLines.map((line) => (
+                <span key={line} className="w-full whitespace-nowrap text-right font-['Poppins',sans-serif] text-[11px] font-extrabold leading-tight text-stone-900">
+                  {line}
+                </span>
+              ))
+            ) : (
+              <span className={`w-full whitespace-nowrap text-right font-['Poppins',sans-serif] text-[13px] font-extrabold leading-none ${hasDiscount ? 'text-primary' : 'text-stone-900'}`}>
+                {product.priceLabel || `Rs. ${hasDiscount ? discountedPrice : product.price}`}
+              </span>
+            )}
             {hasDiscount && (
               <span className="mt-0.5 w-full text-right font-['Poppins',sans-serif] text-[9px] leading-none text-stone-400 line-through">
                 Rs. {product.price}
@@ -392,7 +403,7 @@ const MenuItemRow = ({ product, columnWidth, fontsReady }) => {
         </div>
         {product.description && (
           <p
-            className="mt-0.5 line-clamp-2 font-['Poppins',sans-serif] leading-tight text-stone-500"
+            className="mt-0.5 font-['Poppins',sans-serif] leading-tight text-stone-500"
             style={{ fontSize: descriptionFontSize }}
           >
             {product.description}
@@ -412,7 +423,20 @@ const ItemsPage = forwardRef(({ category, items, pageLabel, pageWidth, fontsRead
   // it's what determines the true available text-column width regardless
   // of how the engine got there.
   const contentRef = useRef(null);
+  const listRef = useRef(null);
   const [measuredWidth, setMeasuredWidth] = useState(null);
+
+  // The flip engine treats every press/drag on a page as a page turn and blocks
+  // touch scrolling. Keeping those events from reaching it lets this list scroll
+  // normally with wheel, touch and scrollbar.
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return undefined;
+    const stop = (e) => e.stopPropagation();
+    const events = ['mousedown', 'mouseup', 'touchstart', 'touchend'];
+    events.forEach((name) => el.addEventListener(name, stop, { passive: true }));
+    return () => events.forEach((name) => el.removeEventListener(name, stop));
+  }, []);
 
   useEffect(() => {
     const el = contentRef.current;
@@ -453,10 +477,12 @@ const ItemsPage = forwardRef(({ category, items, pageLabel, pageWidth, fontsRead
             </span>
           )}
         </div>
-        <div className="relative flex flex-1 flex-col justify-center gap-2 overflow-hidden">
-          {items.map((product) => (
-            <MenuItemRow key={product._id} product={product} columnWidth={columnWidth} fontsReady={fontsReady} />
-          ))}
+        <div ref={listRef} className="thin-scrollbar relative flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
+          <div className="my-auto flex flex-col gap-2 py-1">
+            {items.map((product) => (
+              <MenuItemRow key={product._id} product={product} columnWidth={columnWidth} fontsReady={fontsReady} />
+            ))}
+          </div>
         </div>
       </div>
     </Page>
