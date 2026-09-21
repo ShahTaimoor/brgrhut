@@ -717,9 +717,19 @@ const MenuBook = () => {
   // The book remounts (via `key`, see below) whenever isSpread flips or the
   // total page count changes, which resets the underlying engine to its
   // first page - keep our own counter in sync.
+  // Page numbers mean different content in different layouts, so a book rebuilt
+  // for a new layout must start at the cover - never at the old layout's page.
+  const layoutSig = `${isSpread ? 'spread' : 'single'}-${pages.length}`;
+  const validLayoutRef = useRef(layoutSig);
+  const startPage = validLayoutRef.current === layoutSig ? Math.min(currentPage, pages.length - 1) : 0;
   useEffect(() => {
+    validLayoutRef.current = layoutSig;
     setCurrentPage(0);
-  }, [isSpread, pages.length]);
+  }, [layoutSig]);
+
+  // Self-heal: if the flip engine did not start (nothing to flip, pages left
+  // stacked in normal flow), rebuild the book instead of leaving it broken.
+  const [initAttempt, setInitAttempt] = useState(0);
 
   // Every remount (isSpread flipping between portrait/spread on resize, or
   // pages.length changing - e.g. once real DB items merge in on top of the
@@ -736,7 +746,7 @@ const MenuBook = () => {
   // props when it constructs its engine, so after a zoom/window resize that
   // keeps the same mode the engine kept its old page size, saw a container it
   // thought too narrow for two pages, and collapsed into a single page.
-  const bookKey = `${isSpread ? 'spread' : 'single'}-${pages.length}-${width}x${height}`;
+  const bookKey = `${isSpread ? 'spread' : 'single'}-${pages.length}-${width}x${height}-${initAttempt}`;
   const prevBookKeyRef = useRef(bookKey);
   useEffect(() => {
     if (prevBookKeyRef.current === bookKey) return;
@@ -745,6 +755,15 @@ const MenuBook = () => {
     const raf = requestAnimationFrame(() => setBookVisible(true));
     return () => cancelAnimationFrame(raf);
   }, [bookKey]);
+
+  useEffect(() => {
+    if (!bookVisible || pages.length <= 2 || initAttempt >= 3) return undefined;
+    const timer = setTimeout(() => {
+      const engine = bookRef.current?.pageFlip?.();
+      if (!engine || !engine.getFlipController?.()) setInitAttempt((n) => n + 1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [bookKey, bookVisible, pages.length, initAttempt]);
 
   // Jumps straight to a category's divider page with a single flip
   // animation - confirmed via the page-flip engine's own source (Flip.ts
@@ -764,6 +783,47 @@ const MenuBook = () => {
     if (tocPageIndex < 0) return;
     bookRef.current?.pageFlip()?.flip(tocPageIndex);
   }, [tocPageIndex]);
+
+  // Stable across re-renders that don't change the page set (page flips, font load).
+  // react-pageflip re-clones its children and wipes its page refs whenever the
+  // children identity changes; if that lands in the same batch as its first mount
+  // the engine never starts and the raw pages stack in normal flow.
+  const pageElements = useMemo(
+    () => pages.map((page, idx) => {
+          if (page.type === 'cover') return <CoverPage key="cover" />;
+          if (page.type === 'back-cover') return <BackCoverPage key="back-cover" />;
+          if (page.type === 'toc') {
+            return (
+              <TocPage
+                key={`toc-${idx}`}
+                entries={page.entries}
+                pageLabel={page.pageLabel}
+                onJump={jumpToCategory}
+              />
+            );
+          }
+          if (page.type === 'divider') {
+            return (
+              <CategoryDividerPage
+                key={`divider-${page.category._id}`}
+                category={page.category}
+                itemCount={page.itemCount}
+              />
+            );
+          }
+          return (
+            <ItemsPage
+              key={`items-${page.category._id}-${idx}`}
+              category={page.category}
+              items={page.items}
+              pageLabel={page.pageLabel}
+              pageWidth={width}
+              fontsReady={fontsReady}
+            />
+          );
+    }),
+    [pages, width, fontsReady, jumpToCategory]
+  );
 
   const handleFlip = useCallback((e) => {
     setCurrentPage(e.data);
@@ -857,7 +917,7 @@ const MenuBook = () => {
                     //    safe, fresh loadFromHTML path) instead, every time
                     //    the page count would otherwise change.
                     key={bookKey}
-                    startPage={Math.min(currentPage, pages.length - 1)}
+                    startPage={startPage}
                     ref={bookRef}
                     width={width}
                     height={height}
@@ -891,39 +951,7 @@ const MenuBook = () => {
                     className="menu-flipbook shadow-2xl"
                     onFlip={handleFlip}
                   >
-                    {pages.map((page, idx) => {
-                      if (page.type === 'cover') return <CoverPage key="cover" />;
-                      if (page.type === 'back-cover') return <BackCoverPage key="back-cover" />;
-                      if (page.type === 'toc') {
-                        return (
-                          <TocPage
-                            key={`toc-${idx}`}
-                            entries={page.entries}
-                            pageLabel={page.pageLabel}
-                            onJump={jumpToCategory}
-                          />
-                        );
-                      }
-                      if (page.type === 'divider') {
-                        return (
-                          <CategoryDividerPage
-                            key={`divider-${page.category._id}`}
-                            category={page.category}
-                            itemCount={page.itemCount}
-                          />
-                        );
-                      }
-                      return (
-                        <ItemsPage
-                          key={`items-${page.category._id}-${idx}`}
-                          category={page.category}
-                          items={page.items}
-                          pageLabel={page.pageLabel}
-                          pageWidth={width}
-                          fontsReady={fontsReady}
-                        />
-                      );
-                    })}
+                    {pageElements}
                   </HTMLFlipBook>
 
                   {/* Rendered outside the book on purpose - see the note above
