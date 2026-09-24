@@ -37,6 +37,12 @@ export const SOCIAL_MEDIA = [
     color: 'hover:text-pink-400',
     href: '#',
   },
+  {
+    name: 'TikTok',
+    icon: 'tiktok',
+    color: 'hover:text-cyan-300',
+    href: '#',
+  },
 ]
 
 export const COPYRIGHT_TEXT = 'All rights reserved.'

@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { ScrollTrigger } from '@/lib/gsap'
+import React, { useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MenuBook from '@/components/custom/MenuBook'
 import StaticMealsSection from '@/components/custom/StaticMealsSection'
 import HeroSection from '@/components/custom/HeroSection'
@@ -8,69 +7,50 @@ import AboutSection from '@/components/custom/AboutSection'
 import TestimonialsSection from '@/components/custom/TestimonialsSection'
 import ContactSection from '@/components/custom/ContactSection'
 
-const SCROLL_KEY = 'home-scroll-y'
-let restoreAttempted = false
-
-// The browser's own scroll restoration runs while this lazy-loaded page is still
-// short (fonts, hero video, map and flipbook haven't sized yet), so on a refresh
-// it clamps the position near the top - or lands somewhere the scroll-reveal
-// sections were measured wrongly and stay hidden. Restore it ourselves once the
-// layout has settled.
-const useRestoreScrollOnReload = (hasHash) => {
-  useEffect(() => {
-    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
-
-    let frame = null
-    const save = () => {
-      if (frame) return
-      frame = requestAnimationFrame(() => {
-        frame = null
-        try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))) } catch { /* storage unavailable */ }
-      })
-    }
-
-    let saved = 0
-    const navEntry = performance.getEntriesByType?.('navigation')?.[0]
-    if (!restoreAttempted && !hasHash && navEntry?.type === 'reload') {
-      try { saved = Number(sessionStorage.getItem(SCROLL_KEY)) || 0 } catch { saved = 0 }
-    }
-
-    let cancelled = false
-    let timer = null
-    if (saved > 0) {
-      const ready = Promise.all([
-        document.readyState === 'complete' ? null : new Promise((r) => window.addEventListener('load', r, { once: true })),
-        document.fonts?.ready,
-      ])
-      ready.then(() => {
-        if (cancelled) return
-        timer = setTimeout(() => {
-          restoreAttempted = true
-          window.scrollTo({ top: saved, behavior: 'instant' })
-          ScrollTrigger.refresh()
-          window.addEventListener('scroll', save, { passive: true })
-        }, 400)
-      })
-    } else {
-      window.addEventListener('scroll', save, { passive: true })
-    }
-
-    return () => {
-      cancelled = true
-      clearTimeout(timer)
-      if (frame) cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', save)
-    }
-  }, [hasHash])
-}
+// True only for the page load that a browser refresh (F5 / reload button)
+// produced - not for a normal link click or first-ever visit.
+const isReload = () => performance.getEntriesByType?.('navigation')?.[0]?.type === 'reload'
 
 const Home = () => {
   const location = useLocation()
-  useRestoreScrollOnReload(Boolean(location.hash))
+  const navigate = useNavigate()
+  // Whether the mount-time reload check (below) has run at all - true after
+  // its first invocation, whatever it decided - so it's only ever applied to
+  // the hash the page happened to load with, never to a later hash change
+  // from clicking a nav link (isReload() itself stays true for the rest of
+  // this page's lifetime, so that alone can't be the guard).
+  const mountHandledRef = useRef(false)
+  // The exact #hash a reload is in the middle of discarding, so a stale
+  // duplicate of it can be recognized and ignored - React 18 StrictMode runs
+  // this effect twice per commit in dev, and the second run still sees the
+  // pre-navigate() hash in its closure and would otherwise scroll straight
+  // back to it.
+  const suppressedHashRef = useRef(null)
+
+  // The browser has its own scroll-restoration-on-reload feature; disabling it
+  // is what makes "reload = always land on Home" possible in the first place.
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+  }, [])
 
   // Scroll to the section named by the URL hash (e.g. /#menu) whenever it changes —
   // this is how the Navbar's Home/Menu/About/Contact links work on this single page.
+  // The one exception is a hard refresh: whatever section/hash was open before
+  // reloading is discarded so the site always comes back up on the Home top,
+  // instead of restoring the previous scroll position or section.
   useEffect(() => {
+    if (!mountHandledRef.current) {
+      mountHandledRef.current = true
+      if (location.hash && isReload()) {
+        suppressedHashRef.current = location.hash
+        window.scrollTo(0, 0)
+        navigate('/', { replace: true })
+        return
+      }
+    } else if (location.hash && location.hash === suppressedHashRef.current) {
+      return
+    }
+
     if (location.hash) {
       const id = location.hash.replace('#', '')
       const el = document.getElementById(id)
@@ -85,7 +65,7 @@ const Home = () => {
         })
       }
     }
-  }, [location.hash, location.key])
+  }, [location.hash, location.key, navigate])
 
   return (
     <div>
